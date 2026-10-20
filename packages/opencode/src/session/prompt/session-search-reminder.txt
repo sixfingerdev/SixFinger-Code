@@ -1,0 +1,6 @@
+You are working on a long-running or multi-step task. Before continuing:
+
+- If you need a detail that may have been established earlier in this session (a decision, constraint, name, path, error message, or prior output) and it is not in your current context, it was likely compacted away. Use `session_search` to query the full persistent history instead of guessing or asking the user to repeat themselves.
+- `session_search` supports plain text and regex (`is_regex: true`), and `scope: "all"` reaches every past session in the database. Compacted tool results are searched in their ORIGINAL form, not the "[compacted]" placeholder.
+- Prefer two or three targeted searches over one broad one. If a regex errors, fix the pattern instead of giving up.
+- Never fabricate details you cannot find: an honest "I searched and found nothing" beats an invented memory.

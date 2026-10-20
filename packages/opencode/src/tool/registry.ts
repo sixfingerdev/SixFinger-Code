@@ -27,6 +27,20 @@ import { Provider } from "@/provider/provider"
 
 import { WebSearchTool } from "./websearch"
 import { LspTool } from "./lsp"
+import { SleepTool } from "./sleep"
+import { MonitorTool } from "./monitor"
+import { BackgroundTool } from "./background"
+import { WakeupTool } from "./wakeup"
+import { MoaTool } from "./moa"
+import { SessionSearchTool } from "./session-search"
+import { MemoryTool } from "./memory"
+import { CronCreateTool, CronListTool, CronDeleteTool } from "./cron"
+import { WorktreeListTool, WorktreeEnterTool, WorktreeExitTool } from "./worktree"
+import { NotebookEditTool } from "./notebook-edit"
+import * as ToolSearch from "./tool-search"
+
+import { TeamCreateTool, TeamDeleteTool, SendMessageTool, TeamTaskCreateTool, TeamTaskUpdateTool, TeamTaskListTool } from "./team"
+import { Worktree } from "@/worktree"
 import * as Truncate from "./truncate"
 import { ApplyPatchTool } from "./apply_patch"
 import { Glob } from "@opencode-ai/core/util/glob"
@@ -48,6 +62,8 @@ import { Agent } from "../agent/agent"
 import { Skill } from "../skill"
 import { Permission } from "@/permission"
 import { BackgroundJob } from "@/background/job"
+import { Team } from "@/team/team"
+import { SessionStatus } from "@/session/status"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { ProviderV2 } from "@opencode-ai/core/provider"
 import { ModelV2 } from "@opencode-ai/core/model"
@@ -72,12 +88,23 @@ type State = {
   builtin: Tool.Def[]
   task: TaskDef
   read: ReadDef
+  /** Deferred tools are hidden until tool_search enables them for the session. */
+  deferred: Tool.Def[]
+  enabledDeferred: Set<string>
 }
+
+/** Tools registered but hidden from the model until tool_search finds them. */
+export const DEFERRED_IDS = ["lsp", "plan"] as const
 
 export interface Interface {
   readonly ids: () => Effect.Effect<string[]>
   readonly all: () => Effect.Effect<Tool.Def[]>
   readonly named: () => Effect.Effect<{ task: TaskDef; read: ReadDef }>
+  /** Search deferred tool definitions by id/description; enabled matches are
+   * promoted into the visible set for the rest of the session. */
+  readonly search: (input: { query: string }) => Effect.Effect<
+    { matched: string[]; enabled: string[] }
+  >
   readonly tools: (model: {
     providerID: ProviderV2.ID
     modelID: ModelV2.ID
@@ -108,6 +135,26 @@ const layer = Layer.effect(
     const webfetch = yield* WebFetchTool
     const websearch = yield* WebSearchTool
     const shell = yield* ShellTool
+    const sleep = yield* SleepTool
+    const monitor = yield* MonitorTool
+    const backgroundTool = yield* BackgroundTool
+    const wakeup = yield* WakeupTool
+    const moa = yield* MoaTool
+    const sessionSearch = yield* SessionSearchTool
+    const memory = yield* MemoryTool
+    const cronCreate = yield* CronCreateTool
+    const cronList = yield* CronListTool
+    const cronDelete = yield* CronDeleteTool
+    const worktreeList = yield* WorktreeListTool
+    const worktreeEnter = yield* WorktreeEnterTool
+    const worktreeExit = yield* WorktreeExitTool
+    const notebookEdit = yield* NotebookEditTool
+    const teamCreate = yield* TeamCreateTool
+    const teamDelete = yield* TeamDeleteTool
+    const sendMessage = yield* SendMessageTool
+    const teamTaskCreate = yield* TeamTaskCreateTool
+    const teamTaskUpdate = yield* TeamTaskUpdateTool
+    const teamTaskList = yield* TeamTaskListTool
     const globtool = yield* GlobTool
     const writetool = yield* WriteTool
     const edit = yield* EditTool
@@ -218,6 +265,26 @@ const layer = Layer.effect(
           fetch: Tool.init(webfetch),
           todo: Tool.init(todo),
           search: Tool.init(websearch),
+          sleep: Tool.init(sleep),
+          monitor: Tool.init(monitor),
+          backgroundTool: Tool.init(backgroundTool),
+          wakeup: Tool.init(wakeup),
+          moa: Tool.init(moa),
+          sessionSearch: Tool.init(sessionSearch),
+          memory: Tool.init(memory),
+          cronCreate: Tool.init(cronCreate),
+          cronList: Tool.init(cronList),
+          cronDelete: Tool.init(cronDelete),
+          worktreeList: Tool.init(worktreeList),
+          worktreeEnter: Tool.init(worktreeEnter),
+          worktreeExit: Tool.init(worktreeExit),
+          notebookEdit: Tool.init(notebookEdit),
+          teamCreate: Tool.init(teamCreate),
+          teamDelete: Tool.init(teamDelete),
+          sendMessage: Tool.init(sendMessage),
+          teamTaskCreate: Tool.init(teamTaskCreate),
+          teamTaskUpdate: Tool.init(teamTaskUpdate),
+          teamTaskList: Tool.init(teamTaskList),
           skill: Tool.init(skilltool),
           patch: Tool.init(patchtool),
           question: Tool.init(question),
@@ -241,12 +308,37 @@ const layer = Layer.effect(
             tool.fetch,
             tool.todo,
             tool.search,
+            tool.sleep,
+            tool.monitor,
+            tool.backgroundTool,
+            tool.wakeup,
+            tool.moa,
+            tool.sessionSearch,
+            tool.memory,
+            tool.cronCreate,
+            tool.cronList,
+            tool.cronDelete,
+            tool.worktreeList,
+            tool.worktreeEnter,
+            tool.worktreeExit,
+            tool.notebookEdit,
+            ...[
+              tool.teamCreate,
+              tool.teamDelete,
+              tool.sendMessage,
+              tool.teamTaskCreate,
+              tool.teamTaskUpdate,
+              tool.teamTaskList,
+            ],
             tool.skill,
             tool.patch,
             ...(tool.execute ? [tool.execute] : []),
+          ],
+          deferred: [
             ...(flags.experimentalLspTool ? [tool.lsp] : []),
             ...(flags.experimentalPlanMode && flags.client === "cli" ? [tool.plan] : []),
           ],
+          enabledDeferred: new Set<string>(),
           task: tool.task,
           read: tool.read,
         }
@@ -255,8 +347,25 @@ const layer = Layer.effect(
 
     const all: Interface["all"] = Effect.fn("ToolRegistry.all")(function* () {
       const s = yield* InstanceState.get(state)
-      return [...s.builtin, ...s.custom] as Tool.Def[]
+      return [...s.builtin, yield* toolSearch, ...s.enabledDeferred.size ? s.deferred.filter((def) => s.enabledDeferred.has(def.id)) : [], ...s.custom] as Tool.Def[]
     })
+
+    const search: Interface["search"] = Effect.fn("ToolRegistry.search")(function* (input) {
+      const s = yield* InstanceState.get(state)
+      const needle = input.query.toLowerCase().trim()
+      if (!needle) return { matched: [], enabled: [] }
+      const matched = s.deferred.filter(
+        (def) => def.id.includes(needle) || def.description.toLowerCase().includes(needle),
+      )
+      for (const def of matched) s.enabledDeferred.add(def.id)
+      return { matched: matched.map((def) => def.id), enabled: matched.map((def) => def.id) }
+    })
+
+    // tool_search must be created after `state` (it needs the search fn); it
+    // cannot live inside the registry layer or it would self-depend. Resolve
+    // its Info to a Def lazily so `all()` serves a real Def with parameters.
+    const toolSearchDef = yield* ToolSearch.create(search)
+    const toolSearch = yield* Effect.cached(Tool.init(toolSearchDef))
 
     const ids: Interface["ids"] = Effect.fn("ToolRegistry.ids")(function* () {
       return (yield* all()).map((tool) => tool.id)
@@ -344,7 +453,7 @@ const layer = Layer.effect(
       return { task: s.task, read: s.read }
     })
 
-    return Service.of({ ids, all, named, tools })
+    return Service.of({ ids, all, named, search, tools })
   }),
 )
 
@@ -436,6 +545,8 @@ export const node = LayerNode.make({
     Skill.node,
     Session.node,
     BackgroundJob.node,
+    Team.node,
+    SessionStatus.node,
     Provider.node,
     LSP.node,
     Instruction.node,
@@ -449,6 +560,7 @@ export const node = LayerNode.make({
     MCP.node,
     Database.node,
     Ripgrep.node,
+    Worktree.node,
   ],
 })
 

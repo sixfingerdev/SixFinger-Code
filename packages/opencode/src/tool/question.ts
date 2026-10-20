@@ -1,6 +1,7 @@
 import { Effect, Schema } from "effect"
 import * as Tool from "./tool"
 import { Question } from "../question"
+import { Team } from "../team/team"
 import DESCRIPTION from "./question.txt"
 
 export const Parameters = Schema.Struct({
@@ -11,18 +12,23 @@ type Metadata = {
   answers: ReadonlyArray<Question.Answer>
 }
 
-export const QuestionTool = Tool.define<typeof Parameters, Metadata, Question.Service>(
+export const QuestionTool = Tool.define<typeof Parameters, Metadata, Question.Service | Team.Service>(
   "question",
   Effect.gen(function* () {
     const question = yield* Question.Service
+    const team = yield* Team.Service
 
     return {
       description: DESCRIPTION,
       parameters: Parameters,
       execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context<Metadata>) =>
         Effect.gen(function* () {
+          // Teammates have no user-facing surface: surface their questions on
+          // the lead session so the lead answers and the teammate unblocks.
+          const membership = yield* team.teamOf(ctx.sessionID)
+          const sessionID = membership && !membership.isLead ? membership.team.leadSessionID : ctx.sessionID
           const answers = yield* question.ask({
-            sessionID: ctx.sessionID,
+            sessionID,
             questions: params.questions,
             tool: ctx.callID ? { messageID: ctx.messageID, callID: ctx.callID } : undefined,
           })

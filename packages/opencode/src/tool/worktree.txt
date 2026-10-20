@@ -1,0 +1,11 @@
+Inspect and manage git worktrees for isolated parallel work.
+
+- worktree_list: list existing worktrees with their branches and directories.
+- worktree_enter: create a new worktree (with a fresh branch) and return its
+  directory. Run commands there using the shell tool's `workdir` parameter —
+  do not `cd` into it in later commands.
+- worktree_exit: remove a worktree created with worktree_enter and delete its
+  branch. Warn the user first: uncommitted changes in that worktree are lost.
+
+Prefer one worktree per logical task; enter only when the user asks for
+isolated/parallel work or a risky experiment that would disturb the main tree.

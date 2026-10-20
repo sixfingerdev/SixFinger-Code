@@ -29,6 +29,7 @@ import { pathToFileURL, fileURLToPath } from "url"
 import { Config } from "@/config/config"
 import { ConfigMarkdown } from "@/config/markdown"
 import { SessionSummary } from "./summary"
+import * as memoryExtract from "./memory-extract"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { SessionProcessor } from "./processor"
 import { Tool } from "@/tool/tool"
@@ -80,6 +81,14 @@ IMPORTANT:
 - This tool provides your final answer - no further actions are taken after calling it`
 
 const STRUCTURED_OUTPUT_SYSTEM_PROMPT = `IMPORTANT: The user has requested structured output. You MUST use the StructuredOutput tool to provide your final response. Do NOT respond with plain text - you MUST call the StructuredOutput tool with your answer formatted according to the schema.`
+
+// Past this idle gap the prompt cache is considered cold, so an aggressive
+// prune loses nothing.
+const IDLE_PRUNE_MS = 10 * 60 * 1000
+
+// Auto memory extraction cadence and bounds.
+const MEMORY_EXTRACT_EVERY = 5
+const MEMORY_EXTRACT_MAX = 3
 
 function mcpResourceBase64Size(value: string) {
   const trimmed = value.replace(/\s/g, "")
@@ -1083,6 +1092,7 @@ const layer = Layer.effect(
         const ctx = yield* InstanceState.context
         let structured: unknown
         let step = 0
+        let turns = 0
         const session = yield* sessions.get(sessionID).pipe(Effect.orDie)
 
         while (true) {
@@ -1141,6 +1151,21 @@ const layer = Layer.effect(
           const model = yield* getModel(lastUser.model.providerID, lastUser.model.modelID, sessionID)
           const task = tasks.pop()
 
+          // Auto memory extraction: every MEMORY_EXTRACT_EVERY user turns, run
+          // a one-shot extraction pass with the same model in a background fiber.
+          turns++
+          if (turns % MEMORY_EXTRACT_EVERY === 0) {
+            yield* memoryExtract
+              .extract({
+                sessionID,
+                model,
+                llm,
+                fsys,
+                messages: msgs,
+              })
+              .pipe(Effect.ignore, Effect.forkIn(scope))
+          }
+
           if (task?.type === "subtask") {
             yield* handleSubtask({ task, model, lastUser, sessionID, session, msgs })
             continue
@@ -1153,6 +1178,7 @@ const layer = Layer.effect(
               sessionID,
               auto: task.auto,
               overflow: task.overflow,
+              from: task.from,
             })
             if (result === "stop") break
             continue
@@ -1335,7 +1361,11 @@ const layer = Layer.effect(
           continue
         }
 
-        yield* compaction.prune({ sessionID }).pipe(Effect.ignore, Effect.forkIn(scope))
+        // Time-based microcompact: when the session sat idle long enough for
+        // the prompt cache to go cold, run an aggressive prune instead of the
+        // regular one — keeping old tool output buys no cache hits anymore.
+        const idleMs = Date.now() - (session.time.updated ?? session.time.created)
+        yield* compaction.prune({ sessionID, idle: idleMs > IDLE_PRUNE_MS }).pipe(Effect.ignore, Effect.forkIn(scope))
         return yield* lastAssistant(sessionID)
       },
     )

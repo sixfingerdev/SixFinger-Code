@@ -3,6 +3,7 @@ import DESCRIPTION from "./task.txt"
 import { ToolJsonSchema } from "./json-schema"
 import { SessionV1 } from "@opencode-ai/core/v1/session"
 import { BackgroundJob } from "@/background/job"
+import { Team } from "@/team/team"
 import { Session } from "@/session/session"
 import { SessionID, MessageID } from "../session/schema"
 import { MessageV2 } from "../session/message-v2"
@@ -53,23 +54,58 @@ const BaseParameterFields = {
 
 const BaseParameters = Schema.Struct(BaseParameterFields)
 
+const TeamParameterFields = {
+  team_name: Schema.optional(Schema.String).annotate({
+    description: "Spawn as a teammate on this team instead of a plain subagent. Requires the team to exist.",
+  }),
+  name: Schema.optional(Schema.String).annotate({
+    description:
+      "Teammate name (lowercase letters, numbers, hyphens). Only with team_name. Defaults to the subagent type.",
+  }),
+}
+
+const TeamParameters = Schema.Struct({
+  ...BaseParameterFields,
+  ...TeamParameterFields,
+})
+
 export const Parameters = Schema.Struct({
   ...BaseParameterFields,
+  ...TeamParameterFields,
   background: Schema.optional(Schema.Boolean).annotate({
     description:
       "Run the agent in the background. You will be notified when it completes. DO NOT sleep, poll, or proactively check on its progress",
   }),
 })
 
+const TEAM_DESCRIPTION = [
+  "Teammate mode: team_name spawns the subagent as a teammate on that team (name defaults to the subagent type).",
+  "Teammates run asynchronously, talk via send_message, coordinate work via task_create/task_update/task_list, and report completion to the team lead automatically.",
+  "subagent_type must be an existing agent (for example general, explore, or build); name is the free-form teammate name and defaults to the subagent type.",
+  "Only members of the team can spawn teammates.",
+].join(" ")
+
+function teammatePreamble(input: { name: string; agentId: string; team: string; inbox: string; tasks: string }) {
+  return [
+    `You are ${input.name} (${input.agentId}) on team "${input.team}". The team lead coordinates the work; you do not talk to the user directly.`,
+    `Inbox: ${input.inbox} — at the start of every turn, read new .md files there addressed to you or "all" (track the newest created_at you have seen).`,
+    `Talk with send_message { recipient, content, type }: teammate names, "lead", or "all". Type "message" is read on the recipient's next turn; "query" wakes them and blocks you until they reply or the timeout passes; "shutdown_request" tells the lead your work is done — wrap up first.`,
+    `If you receive shutdown_request: finish the smallest safe unit of work, report status with send_message to the lead, then end your turn with no further tool calls.`,
+    `Work items live in ${input.tasks}: use task_list and task_update for items owned by you, and record progress with task_update notes.`,
+    `If you are blocked, query the lead. Stay in scope.`,
+  ].join("\n")
+}
+
 function renderOutput(input: {
   sessionID: SessionID
   state: "running" | "completed" | "error"
   summary?: string
   text: string
+  teammate?: string
 }) {
   const tag = input.state === "error" ? "task_error" : "task_result"
   return [
-    `<task id="${input.sessionID}" state="${input.state}">`,
+    `<task id="${input.sessionID}" state="${input.state}"${input.teammate ? ` teammate="${input.teammate}"` : ""}>`,
     ...(input.summary ? [`<summary>${input.summary}</summary>`] : []),
     `<${tag}>`,
     input.text,
@@ -83,6 +119,7 @@ export const TaskTool = Tool.define(
   Effect.gen(function* () {
     const agent = yield* Agent.Service
     const background = yield* BackgroundJob.Service
+    const team = yield* Team.Service
     const config = yield* Config.Service
     const sessions = yield* Session.Service
     const scope = yield* Scope.Scope
@@ -130,7 +167,34 @@ export const TaskTool = Tool.define(
 
       const next = yield* agent.get(params.subagent_type)
       if (!next) {
-        return yield* Effect.fail(new Error(`Unknown agent type: ${params.subagent_type} is not a valid agent type`))
+        const available = (yield* agent.list()).map((item) => item.name).toSorted().join(", ")
+        return yield* Effect.fail(
+          new Error(`Unknown agent type: "${params.subagent_type}". Available types: ${available || "(none)"}.`),
+        )
+      }
+
+      let teammate: { info: Team.Info; member: string } | undefined
+      if (params.team_name) {
+        const info = yield* team.get(params.team_name)
+        if (!info) {
+          return yield* Effect.fail(
+            new Error(`Unknown team: "${params.team_name}". Create it with team_create first.`),
+          )
+        }
+        const membership = yield* team.teamOf(ctx.sessionID)
+        if (membership?.team.name !== info.name) {
+          return yield* Effect.fail(new Error(`Only members of team "${info.name}" can spawn teammates.`))
+        }
+        const member = Team.sanitize(params.name ?? params.subagent_type)
+        if (!member || !Team.validName(member) || member === Team.LEAD_NAME) {
+          return yield* Effect.fail(
+            new Error(`Invalid teammate name: "${params.name ?? params.subagent_type}". Use lowercase letters, numbers, hyphens.`),
+          )
+        }
+        if (info.members.some((item) => item.name === member)) {
+          return yield* Effect.fail(new Error(`Teammate "${member}" is already on team "${info.name}".`))
+        }
+        teammate = { info, member }
       }
 
       const session = params.task_id
@@ -153,13 +217,23 @@ export const TaskTool = Tool.define(
           action: "deny" as const,
         })) ?? []),
       ]
+      // Teammates coordinate through team messaging and file tasks without
+      // prompting: allow those tools first so member-to-member asks never block.
+      const teammateAllows = teammate
+        ? (["send_message", "task_create", "task_update", "task_list"] as const).map((permission) => ({
+            permission,
+            pattern: "*" as const,
+            action: "allow" as const,
+          }))
+        : []
       const nextSession =
         session ??
         (yield* sessions.create({
           parentID: ctx.sessionID,
-          title: params.description + ` (@${next.name} subagent)`,
+          title: params.description + (teammate ? ` (@${teammate.member})` : ` (@${next.name} subagent)`),
           agent: next.name,
           permission: [
+            ...teammateAllows,
             ...childPermission,
             ...childToolDenies.filter(
               (deny) =>
@@ -170,6 +244,17 @@ export const TaskTool = Tool.define(
             ),
           ],
         }))
+
+      if (teammate) {
+        yield* team
+          .addMember({
+            team: teammate.info.name,
+            name: teammate.member,
+            sessionID: nextSession.id,
+            agentType: next.name,
+          })
+          .pipe(Effect.mapError((cause) => new Error(cause.message)))
+      }
 
       const msg = yield* MessageV2.get({ sessionID: ctx.sessionID, messageID: ctx.messageID }).pipe(
         Effect.provideService(Database.Service, database),
@@ -198,7 +283,19 @@ export const TaskTool = Tool.define(
       if (!ops) return yield* Effect.fail(new Error("TaskTool requires promptOps in ctx.extra"))
 
       const runTask = Effect.fn("TaskTool.runTask")(function* () {
-        const parts = yield* ops.resolvePromptParts(params.prompt)
+        const prompt = teammate
+          ? [
+              teammatePreamble({
+                name: teammate.member,
+                agentId: Team.agentId(teammate.member, teammate.info.name),
+                team: teammate.info.name,
+                inbox: Team.inboxDir(teammate.info.name),
+                tasks: Team.tasksDir(teammate.info.name),
+              }),
+              params.prompt,
+            ].join("\n\n")
+          : params.prompt
+        const parts = yield* ops.resolvePromptParts(prompt)
         const result = yield* ops.prompt({
           messageID: MessageID.ascending(),
           sessionID: nextSession.id,
@@ -228,11 +325,23 @@ export const TaskTool = Tool.define(
         state: "completed" | "error",
         text: string,
       ) {
-        const currentParent = yield* sessions.get(ctx.sessionID)
+        const targetID = teammate ? teammate.info.leadSessionID : ctx.sessionID
+        if (teammate) {
+          yield* team
+            .send({
+              team: teammate.info.name,
+              from: teammate.member,
+              to: Team.LEAD_NAME,
+              kind: "message",
+              content: `${teammate.member} ${state === "completed" ? "finished" : "failed"}: ${params.description}`,
+            })
+            .pipe(Effect.ignore)
+        }
+        const target = yield* sessions.get(targetID).pipe(Effect.catchCause(() => Effect.succeed(undefined)))
         yield* ops
           .prompt({
-            sessionID: ctx.sessionID,
-            agent: currentParent.agent ?? ctx.agent,
+            sessionID: targetID,
+            agent: target?.agent ?? ctx.agent,
             variant,
             parts: [
               {
@@ -241,10 +350,15 @@ export const TaskTool = Tool.define(
                 text: renderOutput({
                   sessionID: nextSession.id,
                   state,
+                  ...(teammate ? { teammate: teammate.member } : {}),
                   summary:
                     state === "completed"
-                      ? `Background task completed: ${params.description}`
-                      : `Background task failed: ${params.description}`,
+                      ? teammate
+                        ? `Teammate ${teammate.member} completed: ${params.description}`
+                        : `Background task completed: ${params.description}`
+                      : teammate
+                        ? `Teammate ${teammate.member} failed: ${params.description}`
+                        : `Background task failed: ${params.description}`,
                   text,
                 }),
               },
@@ -313,7 +427,7 @@ export const TaskTool = Tool.define(
         }
       }
 
-      if (runInBackground) {
+      if (teammate || runInBackground) {
         yield* notify(info.id)
         return backgroundResult()
       }
@@ -359,11 +473,15 @@ export const TaskTool = Tool.define(
     })
 
     return {
-      description: flags.experimentalBackgroundSubagents
-        ? [DESCRIPTION, BACKGROUND_DESCRIPTION].join("\n\n")
-        : DESCRIPTION,
+      description: [
+        DESCRIPTION,
+        ...(flags.experimentalBackgroundSubagents ? [BACKGROUND_DESCRIPTION] : []),
+        TEAM_DESCRIPTION,
+      ].join("\n\n"),
       parameters: Parameters,
-      jsonSchema: flags.experimentalBackgroundSubagents ? undefined : ToolJsonSchema.fromSchema(BaseParameters),
+      jsonSchema: flags.experimentalBackgroundSubagents
+        ? undefined
+        : ToolJsonSchema.fromSchema(TeamParameters),
       execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
         run(params, ctx).pipe(Effect.orDie),
     }

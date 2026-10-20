@@ -31,6 +31,7 @@ import { Question } from "@/question"
 import { SessionCompaction } from "@/session/compaction"
 import { Instruction } from "@/session/instruction"
 import { LLM } from "@/session/llm"
+import { SideQuestion } from "@/session/side-question"
 import { SessionProcessor } from "@/session/processor"
 import { SessionPrompt } from "@/session/prompt"
 import { SessionRevert } from "@/session/revert"
@@ -232,6 +233,7 @@ const app = LayerNode.group([
   Permission.node,
   PermissionSaved.node,
   Todo.node,
+  FSUtil.node,
   Session.node,
   SessionProjector.node,
   SessionStatus.node,
@@ -245,6 +247,7 @@ const app = LayerNode.group([
   SessionSummary.node,
   SessionPrompt.node,
   Instruction.node,
+  SideQuestion.node,
   LLM.node,
   LSP.node,
   MCP.node,

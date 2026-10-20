@@ -43,6 +43,15 @@ const layer = Layer.effect(
         (s) => s.init().pipe(Effect.catchCause((cause) => Effect.logWarning("init failed", { cause }))),
         { concurrency: "unbounded", discard: true },
       ).pipe(Effect.withSpan("InstanceBootstrap.init"))
+      // Re-arm cron entries owned by this directory; overdue ones missed while
+      // away fire on catch-up. Best-effort: never fail boot. Dynamic import:
+      // cron-scheduler pulls in SessionPrompt, which is downstream of
+      // InstanceStore in the layer graph — a static edge would cycle and
+      // deadlock boot.
+      const { CronScheduler } = yield* Effect.promise(() => import("@/session/cron-scheduler"))
+      yield* CronScheduler.armAll().pipe(
+        Effect.catchCause((cause) => Effect.logWarning("cron re-arm failed", { cause })),
+      )
     }).pipe(Effect.withSpan("InstanceBootstrap"))
 
     return Service.of({ run })

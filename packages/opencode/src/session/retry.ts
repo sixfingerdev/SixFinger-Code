@@ -30,6 +30,23 @@ export const RETRY_MAX_DELAY_NO_HEADERS = 30_000 // 30 seconds
 export const RETRY_MAX_DELAY = 2_147_483_647 // max 32-bit signed integer for setTimeout
 export const RETRY_MAX_RETRIES = 5
 
+/**
+ * Lazy so tests can cap attempts via OPENCODE_RETRY_MAX_RETRIES without
+ * reloading the module. 0 disables retries entirely.
+ */
+export const maxRetries = () => {
+  const raw = process.env.OPENCODE_RETRY_MAX_RETRIES
+  if (raw === undefined) return RETRY_MAX_RETRIES
+  const parsed = Number.parseInt(raw)
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : RETRY_MAX_RETRIES
+}
+/**
+ * Stream ended without any content (no text, no tool calls) - the model's
+ * thinking was cut off mid-response. Surfaced as an error so the retry
+ * policy re-runs the turn.
+ */
+export const EMPTY_RESPONSE_MESSAGE = "The model stopped without producing a response (thinking was cut off), retrying..."
+
 const RETRYABLE_MESSAGE_PATTERNS = [
   /429|500|502|503|504|524/i,
   /rate increased too quickly|rate limit|rate-limit|rate_limit|too many requests/i,
@@ -85,6 +102,8 @@ function exponential(attempt: number, random: number) {
 export function retryable(error: Err, provider: string) {
   // context overflow errors should not be retried
   if (SessionV1.ContextOverflowError.isInstance(error)) return undefined
+  // user aborts must never be retried
+  if (SessionV1.AbortedError.isInstance(error)) return undefined
   if (SessionV1.APIError.isInstance(error)) {
     const status = error.data.statusCode
     // 5xx errors are transient server failures and should always be retried,
@@ -95,7 +114,12 @@ export function retryable(error: Err, provider: string) {
       !matchesRetryableMessage(error.data.message) &&
       !matchesRetryableMessage(error.data.responseBody)
     )
-      return undefined
+      // Fall back to retrying anyway: providers surface transient failures
+      // (e.g. "The model stopped before completing the response") as 4xx
+      // errors that match none of the known patterns. A handful of
+      // increasing-delay attempts is cheap, and the error still surfaces
+      // if every attempt fails.
+      return { message: error.data.message }
     if (error.data.responseBody?.includes("FreeUsageLimitError")) {
       return {
         message: GO_UPSELL_MESSAGE,
@@ -150,8 +174,10 @@ export function retryable(error: Err, provider: string) {
   const lower = message.toLowerCase()
   if (lower.includes("too_many_requests")) return { message: "Too Many Requests" }
   if (lower.includes("exhausted") || lower.includes("unavailable")) return { message: "Provider is overloaded" }
-  if (matchesRetryableMessage(message)) return { message }
-  return undefined
+  // Fall back to retrying unknown errors with increasing delays instead of
+  // stopping dead - genuinely fatal errors still surface after the final
+  // attempt with the original message.
+  return { message }
 }
 
 function matchesRetryableMessage(value: unknown) {
@@ -190,7 +216,7 @@ export function policy(opts: {
       const error = opts.parse(meta.input)
       const retry = retryable(error, opts.provider)
       if (!retry) return Cause.done(meta.attempt)
-      if (meta.attempt > RETRY_MAX_RETRIES) return Cause.done(meta.attempt)
+      if (meta.attempt > maxRetries()) return Cause.done(meta.attempt)
       return Effect.gen(function* () {
         const wait = delay(meta.attempt, SessionV1.APIError.isInstance(error) ? error : undefined)
         const now = yield* Clock.currentTimeMillis

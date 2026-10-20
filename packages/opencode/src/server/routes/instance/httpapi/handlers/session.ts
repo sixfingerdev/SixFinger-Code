@@ -13,7 +13,10 @@ import { SessionRevert } from "@/session/revert"
 import { SessionRunState } from "@/session/run-state"
 import { SessionStatus } from "@/session/status"
 import { SessionSummary } from "@/session/summary"
+import { SideQuestion } from "@/session/side-question"
 import { Todo } from "@/session/todo"
+import { MemoryStore } from "@/session/memory-store"
+import { FSUtil } from "@opencode-ai/core/fs-util"
 import { MessageID, PartID, SessionID } from "@/session/schema"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { Cause, Effect, Option, Schema, Scope } from "effect"
@@ -33,10 +36,11 @@ import {
   PromptPayload,
   RevertPayload,
   ShellPayload,
+  SideQuestionPayload,
   SummarizePayload,
   UpdatePayload,
 } from "../groups/session"
-import { PermissionNotFoundError } from "../errors"
+import { InvalidRequestError, PermissionNotFoundError } from "../errors"
 import * as SessionError from "./session-errors"
 
 const tryParseJson = (text: string) =>
@@ -57,8 +61,10 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
     const permissionSvc = yield* Permission.Service
     const statusSvc = yield* SessionStatus.Service
     const todoSvc = yield* Todo.Service
+    const fsys = yield* FSUtil.Service
     const summary = yield* SessionSummary.Service
     const events = yield* EventV2Bridge.Service
+    const sideQuestion = yield* SideQuestion.Service
     const scope = yield* Scope.Scope
 
     const list = Effect.fn("SessionHttpApi.list")(function* (ctx: { query: typeof ListQuery.Type }) {
@@ -94,6 +100,18 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
     const todo = Effect.fn("SessionHttpApi.todo")(function* (ctx: { params: { sessionID: SessionID } }) {
       yield* requireSession(ctx.params.sessionID)
       return yield* todoSvc.get(ctx.params.sessionID)
+    })
+
+    const memories = Effect.fn("SessionHttpApi.memories")(function* (ctx: { params: { sessionID: SessionID } }) {
+      yield* requireSession(ctx.params.sessionID)
+      return yield* MemoryStore.list({ fsys, sessionID: ctx.params.sessionID })
+    })
+
+    const memoryRemove = Effect.fn("SessionHttpApi.memoryRemove")(function* (ctx: {
+      params: { sessionID: SessionID; memoryID: string }
+    }) {
+      yield* requireSession(ctx.params.sessionID)
+      return yield* MemoryStore.remove({ fsys, sessionID: ctx.params.sessionID, id: ctx.params.memoryID })
     })
 
     const diff = Effect.fn("SessionHttpApi.diff")(function* (ctx: {
@@ -287,9 +305,29 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
           modelID: ctx.payload.modelID,
         },
         auto: ctx.payload.auto ?? false,
+        from: ctx.payload.from,
       })
       yield* promptSvc.loop({ sessionID: ctx.params.sessionID })
       return true
+    })
+
+    const sideQuestionHandler = Effect.fn("SessionHttpApi.sideQuestion")(function* (ctx: {
+      params: { sessionID: SessionID }
+      payload: typeof SideQuestionPayload.Type
+    }) {
+      yield* requireSession(ctx.params.sessionID)
+      return yield* sideQuestion
+        .ask({
+          sessionID: ctx.params.sessionID,
+          question: ctx.payload.question,
+          ...(ctx.payload.providerID && ctx.payload.modelID
+            ? { model: { providerID: ctx.payload.providerID, modelID: ctx.payload.modelID } }
+            : {}),
+        })
+        .pipe(
+          Effect.tapError((error) => Effect.logError("side_question failed", { error: error.message })),
+          Effect.mapError((error) => new InvalidRequestError({ message: error.message })),
+        )
     })
 
     const prompt = Effect.fn("SessionHttpApi.prompt")(function* (ctx: {
@@ -416,6 +454,8 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
       .handle("get", get)
       .handle("children", children)
       .handle("todo", todo)
+      .handle("memories", memories)
+      .handle("memoryRemove", memoryRemove)
       .handle("diff", diff)
       .handle("messages", messages)
       .handle("message", message)
@@ -428,6 +468,7 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
       .handle("share", share)
       .handle("unshare", unshare)
       .handle("summarize", summarize)
+      .handle("sideQuestion", sideQuestionHandler)
       .handle("prompt", prompt)
       .handle("promptAsync", promptAsync)
       .handle("command", command)

@@ -28,6 +28,7 @@ const layer = Layer.effect(
       waitForPromotion: (id) => InstanceState.useEffect(state, (jobs) => jobs.waitForPromotion(id)),
       promote: (id) => InstanceState.useEffect(state, (jobs) => jobs.promote(id)),
       cancel: (id) => InstanceState.useEffect(state, (jobs) => jobs.cancel(id)),
+      report: (id, text) => InstanceState.useEffect(state, (jobs) => jobs.report(id, text)),
     })
   }),
 )

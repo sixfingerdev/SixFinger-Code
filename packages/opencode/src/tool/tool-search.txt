@@ -1,0 +1,5 @@
+Use this tool when the capability you need is not among your available tools — some specialized tools start hidden and are only activated on demand.
+
+Before concluding "I cannot do X", search here: `tool_search { query: "lsp" }`, `tool_search { query: "plan" }`, or by capability keywords like "diagnostics", "references", "planning".
+
+Matches are activated immediately and stay available for the rest of the session; their full definitions are returned so you can use them right away. One search is enough — enabled tools do not disappear between turns.

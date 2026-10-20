@@ -8,9 +8,12 @@ import { MCP } from "@/mcp"
 import { Project } from "@/project/project"
 import { Session } from "@/session/session"
 import type { SessionID } from "@/session/schema"
+import { Cron } from "@/session/cron"
+import { unregisterOS } from "@/session/cron-os"
 import { ToolJsonSchema } from "@/tool/json-schema"
 import { ToolRegistry } from "@/tool/registry"
 import { Worktree } from "@/worktree"
+import { FSUtil } from "@opencode-ai/core/fs-util"
 import { Effect, Option } from "effect"
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
 import { HttpApiBuilder, HttpApiError } from "effect/unstable/httpapi"
@@ -35,6 +38,7 @@ export const experimentalHandlers = HttpApiBuilder.group(InstanceHttpApi, "exper
     const sessions = yield* Session.Service
     const background = yield* BackgroundJob.Service
     const flags = yield* RuntimeFlags.Service
+    const fsys = yield* FSUtil.Service
 
     const capabilities = Effect.fn("ExperimentalHttpApi.capabilities")(function* () {
       return { backgroundSubagents: flags.experimentalBackgroundSubagents }
@@ -175,6 +179,60 @@ export const experimentalHandlers = HttpApiBuilder.group(InstanceHttpApi, "exper
       return yield* mcp.resources()
     })
 
+    const OUTPUT_TAIL = 8000
+
+    const backgroundJob = Effect.fn("ExperimentalHttpApi.backgroundJob")(function* (ctx: {
+      params: { jobID: string }
+    }) {
+      const info = yield* background.get(ctx.params.jobID)
+      if (!info) {
+        return yield* Effect.fail(new HttpApiError.NotFound({}))
+      }
+      const output = info.progress ?? info.output ?? ""
+      const outputPath = typeof info.metadata?.outputPath === "string" ? info.metadata.outputPath : undefined
+      return {
+        id: info.id,
+        type: info.type,
+        status: info.status,
+        ...(info.title ? { title: info.title } : {}),
+        output: output.length > OUTPUT_TAIL ? output.slice(-OUTPUT_TAIL) : output,
+        truncated: output.length > OUTPUT_TAIL,
+        ...(outputPath ? { outputPath } : {}),
+      }
+    })
+
+    const cronList = Effect.fn("ExperimentalHttpApi.cronList")(function* () {
+      const entries = yield* Cron.list({ fsys })
+      return entries.map((entry) => ({
+        id: entry.id,
+        name: entry.name,
+        schedule: entry.schedule,
+        prompt: entry.prompt,
+        directory: entry.directory ?? "",
+        session: entry.session,
+        ...(entry.sessionID ? { sessionID: entry.sessionID } : {}),
+        nextRun: entry.nextRun,
+        ...(entry.lastRun !== undefined ? { lastRun: entry.lastRun } : {}),
+        enabled: entry.enabled,
+        ...(entry.osScheduled !== undefined ? { osScheduled: entry.osScheduled } : {}),
+      }))
+    })
+
+    const cronDelete = Effect.fn("ExperimentalHttpApi.cronDelete")(function* (ctx: {
+      params: { cronID: string }
+    }) {
+      const entry = yield* Cron.get({ fsys, id: ctx.params.cronID })
+      if (!entry) {
+        return yield* Effect.fail(new HttpApiError.NotFound({}))
+      }
+      if (entry.osScheduled === true) {
+        yield* unregisterOS({ fsys, id: entry.id }).pipe(Effect.ignore)
+      }
+      yield* background.cancel(entry.id).pipe(Effect.ignore)
+      yield* Cron.remove({ fsys, id: entry.id })
+      return true
+    })
+
     return handlers
       .handle("capabilities", capabilities)
       .handle("console", getConsole)
@@ -188,6 +246,9 @@ export const experimentalHandlers = HttpApiBuilder.group(InstanceHttpApi, "exper
       .handle("worktreeReset", worktreeReset)
       .handle("session", session)
       .handle("sessionBackground", sessionBackground)
+      .handle("backgroundJob", backgroundJob)
+      .handle("cronList", cronList)
+      .handle("cronDelete", cronDelete)
       .handle("resource", resource)
   }),
 )

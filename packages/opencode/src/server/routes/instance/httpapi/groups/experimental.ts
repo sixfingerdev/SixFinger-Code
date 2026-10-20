@@ -87,6 +87,31 @@ export const SessionListQuery = Schema.Struct({
   archived: Schema.optional(QueryBoolean),
 })
 
+const BackgroundJobState = Schema.Struct({
+  id: Schema.String,
+  type: Schema.String,
+  status: Schema.String,
+  title: Schema.optionalKey(Schema.String),
+  output: Schema.String,
+  truncated: Schema.Boolean,
+  outputPath: Schema.optionalKey(Schema.String),
+}).annotate({ identifier: "ExperimentalBackgroundJob" })
+
+const CronEntry = Schema.Struct({
+  id: Schema.String,
+  name: Schema.String,
+  schedule: Schema.String,
+  prompt: Schema.String,
+  directory: Schema.String,
+  session: Schema.String,
+  sessionID: Schema.optionalKey(Schema.String),
+  nextRun: Schema.Number,
+  lastRun: Schema.optionalKey(Schema.Number),
+  enabled: Schema.Boolean,
+  osScheduled: Schema.optionalKey(Schema.Boolean),
+}).annotate({ identifier: "ExperimentalCronEntry" })
+const CronList = Schema.Array(CronEntry).annotate({ identifier: "ExperimentalCronList" })
+
 export const ExperimentalPaths = {
   capabilities: "/experimental/capabilities",
   console: "/experimental/console",
@@ -98,6 +123,9 @@ export const ExperimentalPaths = {
   worktreeReset: "/experimental/worktree/reset",
   session: "/experimental/session",
   sessionBackground: "/experimental/session/:sessionID/background",
+  backgroundJob: "/experimental/background/:jobID",
+  cron: "/experimental/cron",
+  cronEntry: "/experimental/cron/:cronID",
   resource: "/experimental/resource",
 } as const
 
@@ -243,6 +271,42 @@ export const ExperimentalApi = HttpApi.make("experimental")
             summary: "Background subagents",
             description:
               "Detach any synchronous subagents currently blocking the session and continue them in the background.",
+          }),
+        ),
+        HttpApiEndpoint.get("backgroundJob", ExperimentalPaths.backgroundJob, {
+          params: Schema.Struct({ jobID: Schema.String }),
+          query: WorkspaceRoutingQuery,
+          success: described(BackgroundJobState, "Background job state"),
+          error: HttpApiError.NotFound,
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "experimental.background.get",
+            summary: "Get background job output",
+            description:
+              "Get a background job's live status and output tail for display. Output is capped to the last 8000 characters.",
+          }),
+        ),
+        HttpApiEndpoint.get("cronList", ExperimentalPaths.cron, {
+          query: WorkspaceRoutingQuery,
+          success: described(CronList, "Scheduled tasks"),
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "experimental.cron.list",
+            summary: "List scheduled tasks",
+            description: "List cron entries with their next run times, oldest-due first.",
+          }),
+        ),
+        HttpApiEndpoint.delete("cronDelete", ExperimentalPaths.cronEntry, {
+          params: Schema.Struct({ cronID: Schema.String }),
+          query: WorkspaceRoutingQuery,
+          success: described(Schema.Boolean, "Scheduled task deleted"),
+          error: HttpApiError.NotFound,
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "experimental.cron.delete",
+            summary: "Delete a scheduled task",
+            description:
+              "Delete a cron entry, including its OS scheduler registration and in-app firing loop.",
           }),
         ),
         HttpApiEndpoint.get("resource", ExperimentalPaths.resource, {

@@ -14,6 +14,22 @@ import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
+import PROMPT_REVIEWER from "./prompt/reviewer.txt"
+import PROMPT_RESEARCHER from "./prompt/researcher.txt"
+import PROMPT_PLANNER from "./prompt/planner.txt"
+import PROMPT_ARCHITECT from "./prompt/architect.txt"
+import PROMPT_WRITER from "./prompt/writer.txt"
+import PROMPT_TESTER from "./prompt/tester.txt"
+import PROMPT_TEST_WRITER from "./prompt/test-writer.txt"
+import PROMPT_DEBUGGER from "./prompt/debugger.txt"
+import PROMPT_REFACTORER from "./prompt/refactorer.txt"
+import PROMPT_CLEANER from "./prompt/cleaner.txt"
+import PROMPT_SECURITY_AUDITOR from "./prompt/security-auditor.txt"
+import PROMPT_PERF_OPTIMIZER from "./prompt/perf-optimizer.txt"
+import PROMPT_MIGRATOR from "./prompt/migrator.txt"
+import PROMPT_DEVOPS from "./prompt/devops.txt"
+import PROMPT_TEAM_LEAD from "./prompt/team-lead.txt"
+import PROMPT_CODER from "./prompt/coder.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -213,6 +229,317 @@ const layer = Layer.effect(
             description: `Fast agent specialized for exploring codebases. Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?"). When calling this agent, specify the desired thoroughness level: "quick" for basic searches, "medium" for moderate exploration, or "very thorough" for comprehensive analysis across multiple locations and naming conventions.`,
             prompt: PROMPT_EXPLORE,
             options: {},
+            mode: "subagent",
+            native: true,
+          },
+          coder: {
+            name: "coder",
+            description: `Senior implementer. Turns well-defined tasks and plans into working, tested code with full tool access. Use this to execute implementation work, especially as a teammate.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_CODER,
+            mode: "subagent",
+            native: true,
+          },
+          reviewer: {
+            name: "reviewer",
+            description: `Code reviewer. Finds correctness bugs and security issues, verifies suspicions by running tests, and reports severity-ranked findings with a merge verdict. Never modifies code.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                bash: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                external_directory: readonlyExternalDirectory,
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_REVIEWER,
+            mode: "subagent",
+            native: true,
+          },
+          researcher: {
+            name: "researcher",
+            description: `Deep researcher. Investigates questions across the codebase and the web and reports with cited evidence, separated facts, inferences, and open questions. Never modifies anything.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                external_directory: readonlyExternalDirectory,
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_RESEARCHER,
+            mode: "subagent",
+            native: true,
+          },
+          planner: {
+            name: "planner",
+            description: `Implementation planner. Explores the codebase and writes a precise step-by-step plan another agent can execute. Writes plan files only, never source code.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                external_directory: readonlyExternalDirectory,
+                edit: {
+                  "*": "deny",
+                  [path.join(".opencode", "plans", "*.md")]: "allow",
+                  [path.relative(ctx.worktree, path.join(Global.Path.data, path.join("plans", "*.md")))]: "allow",
+                },
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_PLANNER,
+            mode: "subagent",
+            native: true,
+          },
+          architect: {
+            name: "architect",
+            description: `Software architect. Designs systems and records decisions in design documents. Studies the existing architecture first and never implements.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                external_directory: readonlyExternalDirectory,
+                edit: {
+                  "*": "deny",
+                  [path.join(".opencode", "plans", "*.md")]: "allow",
+                  [path.relative(ctx.worktree, path.join(Global.Path.data, path.join("plans", "*.md")))]: "allow",
+                },
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_ARCHITECT,
+            mode: "subagent",
+            native: true,
+          },
+          writer: {
+            name: "writer",
+            description: `Technical writer. Writes and maintains documentation: guides, how-tos, and references. Edits markdown docs only, never source code.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                external_directory: readonlyExternalDirectory,
+                edit: {
+                  "*": "deny",
+                  "*.md": "allow",
+                  "*.mdx": "allow",
+                },
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_WRITER,
+            mode: "subagent",
+            native: true,
+          },
+          tester: {
+            name: "tester",
+            description: `Testing engineer. Runs test suites, diagnoses failures, and fixes root causes with minimal covered changes. Reports results with counts.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_TESTER,
+            mode: "subagent",
+            native: true,
+          },
+          "test-writer": {
+            name: "test-writer",
+            description: `Test author. Expands test coverage for code that lacks it, testing real behavior through public interfaces. Never changes production code.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_TEST_WRITER,
+            mode: "subagent",
+            native: true,
+          },
+          debugger: {
+            name: "debugger",
+            description: `Debugging specialist. Reproduces failures, isolates root causes with evidence, and applies minimal proven fixes with regression tests.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_DEBUGGER,
+            mode: "subagent",
+            native: true,
+          },
+          refactorer: {
+            name: "refactorer",
+            description: `Refactoring specialist. Restructures code without changing behavior, in small test-verified steps. Reports before/after test results.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_REFACTORER,
+            mode: "subagent",
+            native: true,
+          },
+          cleaner: {
+            name: "cleaner",
+            description: `Code cleaner. Removes dead code, unused dependencies, and stale comments in small verified batches, proving disuse before deleting.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_CLEANER,
+            mode: "subagent",
+            native: true,
+          },
+          "security-auditor": {
+            name: "security-auditor",
+            description: `Security auditor. Finds vulnerabilities with attack scenarios, severity ratings, and concrete remediation. Report only, never modifies code.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                external_directory: readonlyExternalDirectory,
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_SECURITY_AUDITOR,
+            mode: "subagent",
+            native: true,
+          },
+          "perf-optimizer": {
+            name: "perf-optimizer",
+            description: `Performance engineer. Profiles first, optimizes the measured hot path, and proves every change with before/after benchmarks.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_PERF_OPTIMIZER,
+            mode: "subagent",
+            native: true,
+          },
+          migrator: {
+            name: "migrator",
+            description: `Migration specialist. Upgrades dependencies and frameworks incrementally with codemods, per-step verification, and rollback notes.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_MIGRATOR,
+            mode: "subagent",
+            native: true,
+          },
+          devops: {
+            name: "devops",
+            description: `DevOps engineer. Builds and fixes CI workflows, containers, and delivery scripts. Never writes application feature code.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_DEVOPS,
+            mode: "subagent",
+            native: true,
+          },
+          "team-lead": {
+            name: "team-lead",
+            description: `Team coordinator. Decomposes missions, spawns and guides teammates via the task tool, tracks work in task files, and integrates results. Delegates all implementation.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                read: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                question: "allow",
+                task: "allow",
+                send_message: "allow",
+                task_create: "allow",
+                task_update: "allow",
+                task_list: "allow",
+                external_directory: readonlyExternalDirectory,
+              }),
+              user,
+            ),
+            options: {},
+            prompt: PROMPT_TEAM_LEAD,
             mode: "subagent",
             native: true,
           },

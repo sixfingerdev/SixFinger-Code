@@ -1,22 +1,28 @@
 import type { Config } from "@/config/config"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { SessionV1 } from "@opencode-ai/core/v1/session"
+import { CompactionWindow } from "@opencode-ai/core/session/window"
+import { CompactionSetting } from "@/session/compaction-setting"
 import type { Provider } from "@/provider/provider"
 import { ProviderTransform } from "@/provider/transform"
 import type { MessageV2 } from "./message-v2"
 
-const COMPACTION_BUFFER = 20_000
-
 export function usable(input: { cfg: ConfigV1.Info; model: Provider.Model; outputTokenMax?: number }) {
   const context = input.model.limit.context
   if (context === 0) return 0
+  const cap = input.model.limit.input ?? context
+  const output = ProviderTransform.maxOutputTokens(input.model, input.outputTokenMax)
 
-  const reserved =
-    input.cfg.compaction?.reserved ??
-    Math.min(COMPACTION_BUFFER, ProviderTransform.maxOutputTokens(input.model, input.outputTokenMax))
-  return input.model.limit.input
-    ? Math.max(0, input.model.limit.input - reserved)
-    : Math.max(0, context - ProviderTransform.maxOutputTokens(input.model, input.outputTokenMax))
+  // An explicitly configured reserved buffer wins over the window setting.
+  if (input.cfg.compaction?.reserved !== undefined) {
+    return Math.max(0, cap - input.cfg.compaction.reserved)
+  }
+
+  return CompactionWindow.resolve(CompactionSetting.get(), {
+    context,
+    input: input.model.limit.input,
+    output,
+  })
 }
 
 export function isOverflow(input: {

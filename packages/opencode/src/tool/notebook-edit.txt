@@ -1,0 +1,9 @@
+Edit a Jupyter notebook (.ipynb) cell.
+
+- Identify the target cell by `cell_id` when available, otherwise by
+  `old_string` matching the complete current source of exactly one cell.
+- `new_string` becomes the cell's new source.
+- Editing a code cell clears its outputs and execution count (the cell must be
+  re-run to produce fresh outputs).
+- Never edit the raw JSON of a notebook with the edit tool: this tool preserves
+  the rest of the document while rewriting only the target cell.

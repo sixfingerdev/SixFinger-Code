@@ -9,6 +9,7 @@ import { SessionRevert } from "@/session/revert"
 import { SessionStatus } from "@/session/status"
 import { SessionSummary } from "@/session/summary"
 import { Todo } from "@/session/todo"
+import { MemoryStore } from "@/session/memory-store"
 import { MessageID, PartID, SessionID } from "@/session/schema"
 import { Snapshot } from "@/snapshot"
 import { Schema, Struct } from "effect"
@@ -20,7 +21,7 @@ import {
   WorkspaceRoutingQuery,
   WorkspaceRoutingQueryFields,
 } from "../middleware/workspace-routing"
-import { ApiNotFoundError, PermissionNotFoundError, SessionBusyError } from "../errors"
+import { ApiNotFoundError, InvalidRequestError, PermissionNotFoundError, SessionBusyError } from "../errors"
 import { described } from "./metadata"
 import { QueryBoolean } from "./query"
 import { ProviderV2 } from "@opencode-ai/core/provider"
@@ -66,6 +67,13 @@ export const SummarizePayload = Schema.Struct({
   providerID: ProviderV2.ID,
   modelID: ModelV2.ID,
   auto: Schema.optional(Schema.Boolean),
+  /** Partial compact: summarize everything before this message. */
+  from: Schema.optional(MessageID),
+})
+export const SideQuestionPayload = Schema.Struct({
+  question: Schema.String,
+  providerID: Schema.optional(ProviderV2.ID),
+  modelID: Schema.optional(ModelV2.ID),
 })
 export const PromptPayload = Schema.Struct(Struct.omit(SessionPrompt.PromptInput.fields, ["sessionID"]))
 export const CommandPayload = Schema.Struct(Struct.omit(SessionPrompt.CommandInput.fields, ["sessionID"]))
@@ -75,12 +83,24 @@ export const PermissionResponsePayload = Schema.Struct({
   response: PermissionV1.Reply,
 })
 
+const MemoryInfo = Schema.Struct({
+  id: Schema.String,
+  scope: Schema.String,
+  source: Schema.String,
+  tags: Schema.mutable(Schema.Array(Schema.String)),
+  created: Schema.Finite,
+  updated: Schema.Finite,
+  content: Schema.String,
+})
+
 export const SessionPaths = {
   list: root,
   status: `${root}/status`,
   get: `${root}/:sessionID`,
   children: `${root}/:sessionID/children`,
   todo: `${root}/:sessionID/todo`,
+  memories: `${root}/:sessionID/memory`,
+  memory: `${root}/:sessionID/memory/:memoryID`,
   diff: `${root}/:sessionID/diff`,
   messages: `${root}/:sessionID/message`,
   message: `${root}/:sessionID/message/:messageID`,
@@ -92,6 +112,7 @@ export const SessionPaths = {
   share: `${root}/:sessionID/share`,
   init: `${root}/:sessionID/init`,
   summarize: `${root}/:sessionID/summarize`,
+  sideQuestion: `${root}/:sessionID/side-question`,
   prompt: `${root}/:sessionID/message`,
   promptAsync: `${root}/:sessionID/prompt_async`,
   command: `${root}/:sessionID/command`,
@@ -163,6 +184,30 @@ export const SessionApi = HttpApi.make("session")
             identifier: "session.todo",
             summary: "Get session todos",
             description: "Retrieve the todo list associated with a specific session, showing tasks and action items.",
+          }),
+        ),
+        HttpApiEndpoint.get("memories", SessionPaths.memories, {
+          params: { sessionID: SessionID },
+          query: WorkspaceRoutingQuery,
+          success: described(Schema.Array(MemoryInfo), "Memories"),
+          error: ApiNotFoundError,
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "session.memories",
+            summary: "List memories",
+            description: "List the persistent memories (global scope and this session's) remembered for the session.",
+          }),
+        ),
+        HttpApiEndpoint.delete("memoryRemove", SessionPaths.memory, {
+          params: { sessionID: SessionID, memoryID: Schema.String },
+          query: WorkspaceRoutingQuery,
+          success: described(Schema.Boolean, "Memory removed"),
+          error: ApiNotFoundError,
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "session.memory.remove",
+            summary: "Delete a memory",
+            description: "Remove one remembered memory by ID.",
           }),
         ),
         HttpApiEndpoint.get("diff", SessionPaths.diff, {
@@ -311,6 +356,23 @@ export const SessionApi = HttpApi.make("session")
             identifier: "session.summarize",
             summary: "Summarize session",
             description: "Generate a concise summary of the session using AI compaction to preserve key information.",
+          }),
+        ),
+        HttpApiEndpoint.post("sideQuestion", SessionPaths.sideQuestion, {
+          params: { sessionID: SessionID },
+          query: WorkspaceRoutingQuery,
+          payload: SideQuestionPayload,
+          success: described(
+            Schema.Struct({ response: Schema.String }),
+            "Side question answer",
+          ),
+          error: [HttpApiError.BadRequest, ApiNotFoundError, InvalidRequestError],
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "session.sideQuestion",
+            summary: "Ask a side question",
+            description:
+              "Answer a one-off question using the session's history and system prompt. Runs a single LLM turn with no tools and does not modify the session.",
           }),
         ),
         HttpApiEndpoint.post("prompt", SessionPaths.prompt, {

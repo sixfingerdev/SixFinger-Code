@@ -72,6 +72,10 @@ interface ProcessorContext extends Input {
   needsCompaction: boolean
   currentText: SessionV1.TextPart | undefined
   reasoningMap: Record<string, SessionV1.ReasoningPart>
+  // True once the current stream attempt produced any visible content (text
+  // delta or tool call). A turn that finishes without either means the
+  // model's thinking was cut off mid-response - retried via SessionRetry.
+  sawContent: boolean
 }
 
 type StreamEvent = LLMEvent
@@ -111,6 +115,7 @@ const layer = Layer.effect(
         needsCompaction: false,
         currentText: undefined,
         reasoningMap: {},
+        sawContent: false,
       }
       let aborted = false
 
@@ -316,6 +321,7 @@ const layer = Layer.effect(
             if (ctx.assistantMessage.summary) {
               throw new Error(`Tool call not allowed while generating summary: ${value.name}`)
             }
+            ctx.sawContent = true
             yield* ensureToolCall(value)
             return
 
@@ -512,6 +518,7 @@ const layer = Layer.effect(
 
           case "text-delta":
             if (!ctx.currentText) return
+            ctx.sawContent = true
             ctx.currentText.text += value.text
             if (value.providerMetadata) ctx.currentText.metadata = value.providerMetadata
             yield* session.updatePartDelta({
@@ -650,6 +657,7 @@ const layer = Layer.effect(
           yield* Effect.gen(function* () {
             ctx.currentText = undefined
             ctx.reasoningMap = {}
+            ctx.sawContent = false
             yield* status.set(ctx.sessionID, { type: "busy" })
             const stream = llm.stream(streamInput)
 
@@ -658,6 +666,25 @@ const layer = Layer.effect(
               Stream.takeUntil(() => ctx.needsCompaction),
               Stream.runDrain,
             )
+
+            // A finished turn with no text and no tool calls means the model's
+            // thinking was cut off mid-response. Fail with a retryable error so
+            // the policy below re-runs the stream with increasing delays; after
+            // the final attempt the message still surfaces via halt.
+            const finish = ctx.assistantMessage.finish
+            if (
+              finish &&
+              !["tool-calls", "unknown"].includes(finish) &&
+              !ctx.sawContent &&
+              !ctx.assistantMessage.error
+            ) {
+              yield* Effect.logWarning("empty assistant turn", {
+                "session.id": ctx.sessionID,
+                messageID: ctx.assistantMessage.id,
+                finish,
+              })
+              return yield* Effect.fail(new Error(SessionRetry.EMPTY_RESPONSE_MESSAGE))
+            }
           }).pipe(
             Effect.onInterrupt(() =>
               Effect.gen(function* () {

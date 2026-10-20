@@ -23,6 +23,7 @@ import { LocationServiceMap, locationServiceMapLayer } from "@opencode-ai/core/l
 import { Reference } from "@opencode-ai/core/reference"
 import { MCP } from "@/mcp"
 import { PermissionV1 } from "@opencode-ai/core/v1/permission"
+import { FSUtil } from "@opencode-ai/core/fs-util"
 
 export function provider(model: Provider.Model) {
   if (model.api.id.includes("muse")) {
@@ -56,6 +57,15 @@ export interface Interface {
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/SystemPrompt") {}
 
+function now() {
+  const date = new Date()
+  const offset = -date.getTimezoneOffset()
+  const sign = offset >= 0 ? "+" : "-"
+  const abs = Math.abs(offset)
+  const zone = `GMT${sign}${String(Math.floor(abs / 60)).padStart(2, "0")}:${String(abs % 60).padStart(2, "0")}`
+  return `${date.toLocaleString("en-GB", { hour12: false })} ${zone} (${date.toISOString()})`
+}
+
 const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
@@ -79,6 +89,7 @@ const layer = Layer.effect(
             `  Is directory a git repo: ${ctx.project.vcs === "git" ? "yes" : "no"}`,
             `  Platform: ${process.platform}`,
             `  Today's date: ${new Date().toDateString()}`,
+            `  Current time: ${now()}`,
             `</env>`,
           ].join("\n"),
           references.length === 0
@@ -146,7 +157,7 @@ const locationServiceMapNode = LayerNode.make({
 export const node = LayerNode.make({
   service: Service,
   layer: layer,
-  deps: [Skill.node, MCP.node, locationServiceMapNode],
+  deps: [Skill.node, MCP.node, locationServiceMapNode, FSUtil.node],
 })
 
 export * as SystemPrompt from "./system"

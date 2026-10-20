@@ -1,0 +1,5 @@
+Run a mixture-of-agents pass: several agents propose independently in parallel, then an aggregator synthesizes their proposals into one answer.
+
+Give proposers as a list of agent types (for example coder, reviewer, researcher). Diversity is the point: different roles see different angles of the same task. Failed proposers are dropped and noted; at least one must succeed.
+
+The aggregator merges strengths instead of picking a winner. With rounds above 1, each later round sees the previous synthesis and improves on it. Higher rounds cost proportionally more; default 1 is right for most tasks.

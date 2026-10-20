@@ -8,9 +8,11 @@ import { RuntimeFlags } from "@/effect/runtime-flags"
 import { PartID } from "./schema"
 import { MessageV2 } from "./message-v2"
 import { Session } from "./session"
+import { MemoryStore } from "./memory-store"
 import PROMPT_PLAN from "./prompt/plan.txt"
 import BUILD_SWITCH from "./prompt/build-switch.txt"
 import PLAN_MODE from "./prompt/plan-mode.txt"
+import SESSION_SEARCH from "./prompt/session-search-reminder.txt"
 
 export const apply = Effect.fn("SessionReminders.apply")(function* (input: {
   messages: SessionV1.WithParts[]
@@ -22,6 +24,46 @@ export const apply = Effect.fn("SessionReminders.apply")(function* (input: {
   const sessions = yield* Session.Service
   const userMessage = input.messages.findLast((msg) => msg.info.role === "user")
   if (!userMessage) return input.messages
+
+  // Long-context guidance: keep session_search visible to the model whenever
+  // history may have been compacted away. Reminders only apply to subagents
+  // and the primary loop in the default (build) agent.
+  const hasSearch = input.messages.some((msg) => msg.parts.some((part) => part.type === "tool" && part.tool === "session_search"))
+  if (!hasSearch) {
+    userMessage.parts.push({
+      id: PartID.ascending(),
+      messageID: userMessage.info.id,
+      sessionID: userMessage.info.sessionID,
+      type: "text",
+      text: SESSION_SEARCH,
+      synthetic: true,
+    })
+  }
+
+  // Persistent memories: global scope plus this session's memories, capped so
+  // a large store cannot crowd out the conversation.
+  {
+    const memories = yield* MemoryStore.list({ fsys, sessionID: input.session.id })
+    if (memories.length > 0) {
+      const lines = memories.map(
+        (memory) =>
+          `- [${memory.scope}/${memory.source}${memory.tags.length ? `/${memory.tags.join("|")}` : ""}] ${memory.content}`,
+      )
+      userMessage.parts.push({
+        id: PartID.ascending(),
+        messageID: userMessage.info.id,
+        sessionID: userMessage.info.sessionID,
+        type: "text",
+        text: [
+          "<memories>",
+          "Things you have been asked to remember. Global entries apply in every session; session entries belong to this conversation.",
+          ...lines,
+          "</memories>",
+        ].join("\n"),
+        synthetic: true,
+      })
+    }
+  }
 
   if (!flags.experimentalPlanMode) {
     if (input.agent.name === "plan") {
