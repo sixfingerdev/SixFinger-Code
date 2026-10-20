@@ -4,6 +4,7 @@ import { RunCommand } from "./cli/cmd/run"
 import { GenerateCommand } from "./cli/cmd/generate"
 import { ConsoleCommand } from "./cli/cmd/account"
 import { LoginCommand, LogoutCommand } from "./cli/cmd/account-login"
+import { LinkCommand } from "./cli/cmd/link"
 import * as SixfingerLogin from "./sixfinger/login"
 import { AgentCommand } from "./cli/cmd/agent"
 import { UpgradeCommand } from "./cli/cmd/upgrade"
@@ -99,6 +100,7 @@ const cli = yargs(args)
   .command(ConsoleCommand)
   .command(LoginCommand)
   .command(LogoutCommand)
+  .command(LinkCommand)
   .command(AgentCommand)
   .command(UpgradeCommand)
   .command(UninstallCommand)
