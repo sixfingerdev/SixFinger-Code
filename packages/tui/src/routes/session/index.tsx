@@ -50,8 +50,16 @@ import { DialogMessage } from "./dialog-message"
 import type { PromptInfo } from "../../component/prompt/history"
 import { DialogConfirm } from "../../ui/dialog-confirm"
 import { DialogTimeline } from "./dialog-timeline"
+import { DialogCron } from "./dialog-cron"
 import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
+import { DialogEditAssistant } from "./dialog-edit-assistant"
+import { DialogCompactWindow } from "../../component/dialog-compact-window"
+import { DialogCompactFrom } from "../../component/dialog-compact-from"
+import { DialogMemory } from "../../component/dialog-memory"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
+import { SideQuestionCard } from "./dialog-side-question"
+import { formatClock, friendlyJobText, useClockTick } from "./activity-jobs"
+import { JobDetailPanel, showJobDetail } from "./job-detail"
 import { Sidebar } from "./sidebar"
 import { SubagentFooter } from "./subagent-footer.tsx"
 import { filetype } from "../../util/filetype"
@@ -116,6 +124,7 @@ const sessionBindingCommands = [
   "session.share",
   "session.rename",
   "session.timeline",
+  "session.cron",
   "session.fork",
   "session.compact",
   "session.unshare",
@@ -253,6 +262,112 @@ export function Session() {
   })
 
   const dimensions = useTerminalDimensions()
+
+  // Cosmetic compaction indicator, rendered inline with the transcript where
+  // the old " Compaction " divider used to be. The percent is unrelated to the
+  // actual model work — it ramps from 0 to 100 over 30 seconds and parks there
+  // until the compaction finishes.
+  const compacting = createMemo(() => {
+    if (sync.session.status(route.sessionID) !== "compacting") return undefined
+    return sync.session.get(route.sessionID)?.time.compacting
+  })
+  const [compactingPercent, setCompactingPercent] = createSignal(0)
+  createEffect(
+    on(
+      compacting,
+      (started, previous) => {
+        // When the compaction ends (started becomes undefined) keep the last
+        // percent so the settle hold can snap it to 100; only a NEW compaction
+        // resets the ramp.
+        if (started === undefined) return
+        if (started !== previous) setCompactingPercent(0)
+        const tick = () => setCompactingPercent(Math.min(100, Math.floor((Date.now() - started) / 300)))
+        tick()
+        const timer = setInterval(tick, 1000)
+        onCleanup(() => clearInterval(timer))
+      },
+      { defer: true },
+    ),
+  )
+  const compactingBar = createMemo(() => {
+    const width = Math.max(16, Math.min(40, dimensions().width - 40))
+    const filled = Math.round((width * compactingPercent()) / 100)
+    return { filled: "█".repeat(filled), empty: "░".repeat(width - filled) }
+  })
+  // The summary assistant message exists from the moment compaction starts;
+  // it counts as settled once it carries an error or a completed timestamp.
+  const settledSummary = createMemo(() =>
+    messages().findLast(
+      (message): message is AssistantMessage =>
+        message.role === "assistant" &&
+        message.summary === true &&
+        ((message as AssistantMessage).error !== undefined || message.time.completed !== undefined),
+    ),
+  )
+  // Holds the live indicator visible for a beat after a SUCCESSFUL compaction
+  // settles early, so it snaps to 100% instead of vanishing mid-ramp. A failed
+  // or interrupted compaction drops the indicator immediately.
+  const [settledHold, setSettledHold] = createSignal(false)
+  // Delays the "Session Compacted" transcript marker until the bar has snapped
+  // to 100% and rested for a beat; without this the marker pops in while the
+  // bar is still ramping.
+  const [markerReady, setMarkerReady] = createSignal(false)
+  // A session can already contain a settled summary when the TUI opens (from a
+  // compaction in a previous run); ignoring it keeps the restart from flashing
+  // the bar at 100%. Only a compaction observed live may trigger the hold.
+  const [everLive, setEverLive] = createSignal(false)
+  createEffect(() => {
+    if (compacting() !== undefined) setEverLive(true)
+  })
+  createEffect(
+    on(
+      () => route.sessionID,
+      () => {
+        setEverLive(false)
+        setSettledHold(false)
+        setMarkerReady(false)
+        setCompactingPercent(0)
+      },
+    ),
+  )
+  createEffect(() => {
+    const settled = settledSummary()
+    if (settled === undefined) return
+    const live = compacting()
+    // A summary left by an earlier compaction must not snap a newly started
+    // compaction's ramp to 100%; only the running compaction's own summary
+    // (created after it started) may trigger the hold.
+    if (live !== undefined && settled.time.created < live) return
+    // On restart a session may already carry a settled summary from a previous
+    // run; only a compaction observed live may trigger the hold.
+    if (!everLive() && live === undefined) return
+    if (settled.error !== undefined) {
+      setSettledHold(false)
+      setMarkerReady(true)
+      setCompactingPercent(0)
+      return
+    }
+    setCompactingPercent(100)
+    setSettledHold(true)
+    const timer = setTimeout(() => {
+      setSettledHold(false)
+      setMarkerReady(true)
+      setCompactingPercent(0)
+    }, 1000)
+    onCleanup(() => clearTimeout(timer))
+  })
+  // A settled summary marker is delayed only for the live compaction it
+  // belongs to (created after it started); older markers are permanent
+  // history and always show.
+  const markerDelay = (message: AssistantMessage) => {
+    const live = compacting()
+    if (live !== undefined && message.time.created < live) return false
+    return everLive()
+  }
+  createEffect(() => {
+    if (compacting() !== undefined) setMarkerReady(false)
+  })
+
   const [sidebar, setSidebar] = kv.signal<"auto" | "hide">("sidebar", "auto")
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
   const [conceal, setConceal] = createSignal(true)
@@ -343,6 +458,7 @@ export function Session() {
   let seeded = false
   let scroll: ScrollBoxRenderable
   let prompt: PromptRef | undefined
+  const [sideQuestion, setSideQuestion] = createSignal<{ question: string } | undefined>()
   const bind = (r: PromptRef | undefined) => {
     prompt = r
     promptRef.set(r)
@@ -504,6 +620,27 @@ export function Session() {
       },
     },
     {
+      title: "Side question",
+      value: "session.ask",
+      category: "Session",
+      suggested: route.type === "session",
+      slash: {
+        name: "ask",
+      },
+      run: () => {
+        if (!local.model.current()) {
+          toast.show({
+            variant: "warning",
+            message: "Connect a provider to ask a side question",
+            duration: 3000,
+          })
+          return
+        }
+        prompt?.set({ input: "/ask ", parts: [] })
+        dialog.clear()
+      },
+    },
+    {
       title: "Rename session",
       value: "session.rename",
       category: "Session",
@@ -537,6 +674,17 @@ export function Session() {
       },
     },
     {
+      title: "Manage scheduled tasks",
+      value: "session.cron",
+      category: "Session",
+      slash: {
+        name: "cron",
+      },
+      run: () => {
+        dialog.replace(() => <DialogCron />)
+      },
+    },
+    {
       title: "Fork session",
       value: "session.fork",
       category: "Session",
@@ -556,6 +704,29 @@ export function Session() {
             sessionID={route.sessionID}
           />
         ))
+      },
+    },
+    {
+      title: "Edit assistant message",
+      value: "session.edit-assistant",
+      category: "Session",
+      slash: {
+        name: "edit-message",
+      },
+      run: () => {
+        const messages = sync.data.message[route.sessionID] ?? []
+        const editable = messages.some(
+          (message) =>
+            message.role === "assistant" &&
+            (sync.data.part[message.id] ?? []).some(
+              (part) => (part.type === "text" && !part.synthetic) || part.type === "reasoning",
+            ),
+        )
+        if (!editable) {
+          toast.show({ message: "No assistant messages to edit", variant: "info" })
+          return
+        }
+        dialog.replace(() => <DialogEditAssistant sessionID={route.sessionID} />)
       },
     },
     {
@@ -582,6 +753,30 @@ export function Session() {
           providerID: selectedModel.providerID,
         })
         dialog.clear()
+      },
+    },
+    {
+      title: "Auto-compact window",
+      value: "session.compact.window",
+      category: "Session",
+      run: () => {
+        dialog.replace(() => <DialogCompactWindow />)
+      },
+    },
+    {
+      title: "Compact from here…",
+      value: "session.compact.from",
+      category: "Session",
+      run: () => {
+        dialog.replace(() => <DialogCompactFrom sessionID={route.sessionID} onModelPick={() => {}} />)
+      },
+    },
+    {
+      title: "Memory",
+      value: "session.memory",
+      category: "Session",
+      run: () => {
+        dialog.replace(() => <DialogMemory sessionID={route.sessionID} />)
       },
     },
     {
@@ -1282,6 +1477,29 @@ export function Session() {
                           pending={pending()}
                         />
                       </Match>
+                      <Match
+                        when={
+                          message.role === "assistant" &&
+                          message.summary === true &&
+                          ((message as AssistantMessage).error !== undefined ||
+                            (message.time.completed !== undefined &&
+                              (!markerDelay(message as AssistantMessage) || markerReady())))
+                        }
+                      >
+                        {/* The summary text itself is model-internal state; the
+                            transcript keeps only a permanent outcome marker, shown
+                            once the compaction settles (not while it runs). On
+                            restart the settled marker is permanent history and
+                            shows immediately. */}
+                        <box marginTop={1} marginBottom={1} paddingLeft={2} flexShrink={0}>
+                          <text fg={(message as AssistantMessage).error ? theme.error : theme.success}>
+                            {(message as AssistantMessage).error ? "Compaction Failed" : "Session Compacted"}
+                          </text>
+                        </box>
+                      </Match>
+                      <Match when={message.role === "assistant" && message.summary === true}>
+                        <></>
+                      </Match>
                       <Match when={message.role === "assistant"}>
                         <AssistantMessage
                           last={lastAssistant()?.id === message.id}
@@ -1292,6 +1510,16 @@ export function Session() {
                     </Switch>
                   )}
                 </For>
+                <Show when={compacting() !== undefined || settledHold()}>
+                  <box marginTop={1} marginBottom={1} paddingLeft={2} flexShrink={0} flexDirection="column" gap={0}>
+                    <text fg={theme.primary}>Compacting Session</text>
+                    <text>
+                      <span style={{ fg: theme.primary }}>{compactingBar().filled}</span>
+                      <span style={{ fg: theme.textMuted }}>{compactingBar().empty}</span>
+                      <span style={{ fg: theme.textMuted }}> {compactingPercent()}%</span>
+                    </text>
+                  </box>
+                </Show>
               </scrollbox>
               <box flexShrink={0}>
                 <Show when={permissions().length > 0}>
@@ -1326,6 +1554,17 @@ export function Session() {
                       onSubmit={() => {
                         toBottom()
                       }}
+                      onSideQuestion={(question) => {
+                        if (!question) {
+                          toast.show({
+                            message: "Usage: /ask <question>",
+                            variant: "info",
+                          })
+                          return
+                        }
+                        setSideQuestion({ question })
+                        toBottom()
+                      }}
                       sessionID={route.sessionID}
                       right={<pluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
                     />
@@ -1333,6 +1572,16 @@ export function Session() {
                 </Show>
               </box>
             </Show>
+            <Show when={sideQuestion() !== undefined && local.model.current() !== undefined}>
+              <SideQuestionCard
+                sessionID={route.sessionID}
+                question={sideQuestion()!.question}
+                model={local.model.current()!}
+                onInsert={(text) => prompt?.set({ input: text, parts: [] })}
+                onClose={() => setSideQuestion(undefined)}
+              />
+            </Show>
+            <JobDetailPanel />
             <Toast />
           </box>
           <Show when={sidebarVisible()}>
@@ -1381,6 +1630,20 @@ function UserMessage(props: {
       .filter(Boolean)
     return texts.join("\n\n")
   })
+  // Background/monitor/wakeup injections arrive as synthetic parts carrying
+  // machine-facing XML. The model reads it raw; users get the friendly form.
+  const activityText = createMemo(() => {
+    const texts = props.parts
+      .map((x) => {
+        if (x.type === "text" && x.synthetic && x.text) {
+          const friendly = friendlyJobText(x.text)
+          return friendly.trim() && friendly !== x.text ? friendly : null
+        }
+        return null
+      })
+      .filter(Boolean)
+    return texts.join("\n\n")
+  })
   const files = createMemo(() => props.parts.flatMap((x) => (x.type === "file" ? [x] : [])))
   const { theme } = useTheme()
   const [hover, setHover] = createSignal(false)
@@ -1388,8 +1651,6 @@ function UserMessage(props: {
   const color = createMemo(() => local.agent.color(props.message.agent))
   const queuedFg = createMemo(() => selectedForeground(theme, color()))
   const metadataVisible = createMemo(() => queued() || ctx.showTimestamps())
-
-  const compaction = createMemo(() => props.parts.find((x) => x.type === "compaction"))
 
   return (
     <>
@@ -1417,6 +1678,11 @@ function UserMessage(props: {
             flexShrink={0}
           >
             <text fg={theme.text}>{text()}</text>
+            <Show when={activityText()}>
+              <box paddingTop={1}>
+                <text fg={theme.textMuted}>{activityText()}</text>
+              </box>
+            </Show>
             <Show when={files().length}>
               <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>
@@ -1453,15 +1719,6 @@ function UserMessage(props: {
           </box>
         </box>
       </Show>
-      <Show when={compaction()}>
-        <box
-          marginTop={1}
-          border={["top"]}
-          title=" Compaction "
-          titleAlignment="center"
-          borderColor={theme.borderActive}
-        />
-      </Show>
     </>
   )
 }
@@ -1493,6 +1750,9 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     <>
       <For each={props.parts}>
         {(part, index) => {
+          // Compaction summary text is model-internal state: never render it,
+          // live or settled. The transcript keeps only the outcome marker.
+          if (props.message.summary === true && part.type === "text") return <></>
           const component = createMemo(() => PART_MAPPING[part.type as keyof typeof PART_MAPPING])
           return (
             <Show when={component()}>
@@ -1762,6 +2022,9 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
         <Match when={display() === "edit"}>
           <Edit {...toolprops} />
         </Match>
+        <Match when={display() === "notebook_edit"}>
+          <NotebookEdit {...toolprops} />
+        </Match>
         <Match when={display() === "task"}>
           <Task {...toolprops} />
         </Match>
@@ -1780,6 +2043,18 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
         <Match when={display() === "skill"}>
           <Skill {...toolprops} />
         </Match>
+        <Match when={display() === "monitor"}>
+          <MonitorToolView {...toolprops} />
+        </Match>
+        <Match when={display() === "wakeup"}>
+          <WakeupToolView {...toolprops} />
+        </Match>
+        <Match when={display() === "sleep"}>
+          <SleepToolView {...toolprops} />
+        </Match>
+        <Match when={display() === "background"}>
+          <BackgroundToolView {...toolprops} />
+        </Match>
         <Match when={true}>
           <GenericTool {...toolprops} />
         </Match>
@@ -1795,6 +2070,224 @@ type ToolProps = {
   output?: string
   part: ToolPart
 }
+
+function timeBounds(part: ToolPart) {
+  const state = part.state
+  if (!("time" in state) || !state.time || typeof state.time.start !== "number") {
+    return { start: Date.now(), end: undefined as number | undefined }
+  }
+  const end = typeof (state.time as { end?: unknown }).end === "number" ? (state.time as { end: number }).end : undefined
+  return { start: state.time.start, end }
+}
+
+function BackgroundBash(props: ToolProps) {
+  const { theme } = useTheme()
+  const running = createMemo(() => props.part.state.status === "running")
+  const tick = useClockTick(running)
+  const command = createMemo(
+    () => stringValue(props.input.command) ?? stringValue(props.metadata.command) ?? "command",
+  )
+  const startedAt = createMemo(() => numberValue(props.metadata.started_at) ?? timeBounds(props.part).start)
+
+  const status = createMemo(() => {
+    tick()
+    const bounds = timeBounds(props.part)
+    const elapsed = Locale.duration((bounds.end ?? Date.now()) - startedAt())
+    if (props.part.state.status === "error") return `failed after ${elapsed}`
+    if (!running()) return `done in ${elapsed}`
+    return `running · ${elapsed}`
+  })
+
+  return (
+    <InlineTool
+      icon={props.part.state.status === "error" ? "✗" : "▣"}
+      iconColor={props.part.state.status === "error" ? theme.error : theme.success}
+      pending="Backgrounding command…"
+      complete={command()}
+      part={props.part}
+      onClick={() =>
+        showJobDetail({
+          kind: "bash",
+          part: props.part,
+          input: props.input,
+          metadata: props.metadata,
+          output: props.output,
+        })
+      }
+    >
+      {command()} · {status()}
+    </InlineTool>
+  )
+}
+
+function MonitorToolView(props: ToolProps) {
+  const { theme } = useTheme()
+  const running = createMemo(() => props.part.state.status === "running")
+  const tick = useClockTick(running)
+  const description = createMemo(() => stringValue(props.input.description) ?? "monitor")
+  const startedAt = createMemo(() => numberValue(props.metadata.started_at) ?? timeBounds(props.part).start)
+  const deadline = createMemo(() => {
+    const activity = recordValue(props.metadata.activity)
+    return numberValue(activity?.deadline) ?? numberValue(props.metadata.deadline)
+  })
+
+  const status = createMemo(() => {
+    tick()
+    const bounds = timeBounds(props.part)
+    const elapsed = Locale.duration((bounds.end ?? Date.now()) - startedAt())
+    if (props.part.state.status === "error") return `failed after ${elapsed}`
+    if (!running()) return `stopped after ${elapsed}`
+    if (deadline() === undefined) return `listening · ${elapsed}`
+    const remaining = deadline()! - Date.now()
+    return remaining <= 0 ? "listening" : `listening · ${Locale.duration(remaining)} left`
+  })
+
+  return (
+    <InlineTool
+      icon="◎"
+      iconColor={running() ? theme.primary : theme.success}
+      pending="Starting monitor…"
+      complete={stringValue(props.input.description) ?? "monitor"}
+      spinner={running()}
+      part={props.part}
+      onClick={() =>
+        showJobDetail({
+          kind: "monitor",
+          part: props.part,
+          input: props.input,
+          metadata: props.metadata,
+          output: props.output,
+        })
+      }
+    >
+      {description()} · {status()}
+    </InlineTool>
+  )
+}
+
+function WakeupToolView(props: ToolProps) {
+  const { theme } = useTheme()
+  const running = createMemo(() => props.part.state.status === "running")
+  const tick = useClockTick(running)
+  const note = createMemo(() => stringValue(props.input.note) ?? "")
+  const deadline = createMemo(() => {
+    const activity = recordValue(props.metadata.activity)
+    return numberValue(activity?.deadline) ?? numberValue(props.metadata.deadline)
+  })
+  const startedAt = createMemo(() => numberValue(props.metadata.started_at) ?? timeBounds(props.part).start)
+
+  const status = createMemo(() => {
+    tick()
+    if (running() && deadline() !== undefined) {
+      const remaining = deadline()! - Date.now()
+      return remaining <= 0 ? "firing" : `wakes in ${Locale.duration(remaining)}`
+    }
+    const bounds = timeBounds(props.part)
+    const elapsed = Locale.duration((bounds.end ?? Date.now()) - startedAt())
+    return props.part.state.status === "error" ? `failed after ${elapsed}` : `done · ${elapsed}`
+  })
+
+  return (
+    <InlineTool
+      icon={running() ? "◷" : "✓"}
+      iconColor={running() ? theme.warning : theme.success}
+      spinner={running()}
+      complete={note() || "wakeup"}
+      pending="Scheduling wakeup…"
+      part={props.part}
+      onClick={() =>
+        showJobDetail({
+          kind: "wakeup",
+          part: props.part,
+          input: props.input,
+          metadata: props.metadata,
+          output: props.output,
+        })
+      }
+    >
+      {note() || "wakeup"} · {deadline() !== undefined ? formatClock(deadline()!) : ""} {status()}
+    </InlineTool>
+  )
+}
+
+function SleepToolView(props: ToolProps) {
+  const { theme } = useTheme()
+  const running = createMemo(() => props.part.state.status === "running")
+  const tick = useClockTick(running)
+  const startedAt = createMemo(() => numberValue(props.metadata.started_at) ?? timeBounds(props.part).start)
+  const until = createMemo(() => {
+    const activity = recordValue(props.metadata.activity)
+    return numberValue(props.metadata.until) ?? numberValue(activity?.until)
+  })
+
+  const status = createMemo(() => {
+    tick()
+    const bounds = timeBounds(props.part)
+    const elapsed = Locale.duration((bounds.end ?? Date.now()) - startedAt())
+    if (running()) {
+      if (until() !== undefined) {
+        const remaining = until()! - Date.now()
+        return remaining <= 0 ? "waking" : `${Locale.duration(remaining)} left`
+      }
+      return elapsed
+    }
+    if (props.part.state.status === "error") return `interrupted after ${elapsed}`
+    return props.metadata.interrupted === true ? `interrupted after ${elapsed}` : `slept ${elapsed}`
+  })
+
+  return (
+    <InlineTool
+      icon={running() ? "☾" : "✓"}
+      iconColor={running() ? theme.warning : theme.success}
+      complete={true}
+      spinner={running()}
+      pending="Sleeping…"
+      part={props.part}
+      onClick={() =>
+        showJobDetail({
+          kind: "sleep",
+          part: props.part,
+          input: props.input,
+          metadata: props.metadata,
+          output: props.output,
+        })
+      }
+    >
+      Sleep{until() !== undefined ? ` until ${formatClock(until()!)}` : ""} · {status()}
+    </InlineTool>
+  )
+}
+
+function BackgroundToolView(props: ToolProps) {
+  const running = createMemo(() => props.part.state.status === "running")
+  const summary = createMemo(() => {
+    const preferred = stringValue(props.metadata.userOutput)?.trim()
+    const source = preferred && preferred.length > 0 ? preferred : (stringValue(props.output)?.trim() ?? "")
+    const first = source.split("\n")[0] ?? ""
+    return first.replace(/job_[a-zA-Z0-9]+/g, "[job]") || "jobs"
+  })
+  return (
+    <InlineTool
+      icon="≡"
+      pending="Inspecting background jobs…"
+      complete={stringValue(props.input.job_id) ?? "all"}
+      spinner={running()}
+      part={props.part}
+      onClick={() =>
+        showJobDetail({
+          kind: "jobs",
+          part: props.part,
+          input: props.input,
+          metadata: props.metadata,
+          output: props.output,
+        })
+      }
+    >
+      Background {stringValue(props.input.action) ?? "list"} · {summary()}
+    </InlineTool>
+  )
+}
+
 function GenericTool(props: ToolProps) {
   const { theme } = useTheme()
   const ctx = use()
@@ -1808,17 +2301,28 @@ function GenericTool(props: ToolProps) {
     return collapsed().output
   })
 
+  const icon = createMemo(() => toolIcon(props.tool))
+
   return (
     <Show
       when={props.output && ctx.showGenericToolOutput()}
       fallback={
-        <InlineTool icon="⚙" pending="Writing command…" complete={true} part={props.part}>
-          {props.tool} {input(props.input)}
-        </InlineTool>
+        <Switch>
+          <Match when={icon() !== undefined}>
+            <InlineTool icon={icon()!} pending="Running…" complete={true} part={props.part}>
+              {props.tool}
+            </InlineTool>
+          </Match>
+          <Match when={true}>
+            <InlineTool icon="⚙" pending="Writing command…" complete={true} part={props.part}>
+              {props.tool} {input(props.input)}
+            </InlineTool>
+          </Match>
+        </Switch>
       }
     >
       <BlockTool
-        title={`# ${props.tool} ${input(props.input)}`}
+        title={icon() !== undefined ? `# ${props.tool}` : `# ${props.tool} ${input(props.input)}`}
         part={props.part}
         onClick={collapsed().overflow ? () => setExpanded((prev) => !prev) : undefined}
       >
@@ -2048,6 +2552,7 @@ function Shell(props: ToolProps) {
   const pathFormatter = usePathFormatter()
   const ctx = use()
   const isRunning = createMemo(() => props.part.state.status === "running")
+  const isBackground = createMemo(() => props.metadata.background === true && props.metadata.jobId !== undefined)
   const output = createMemo(() => stripAnsi(stringValue(props.metadata.output)?.trim() ?? ""))
   const [expanded, setExpanded] = createSignal(false)
   const maxLines = 10
@@ -2074,6 +2579,9 @@ function Shell(props: ToolProps) {
 
   return (
     <Switch>
+      <Match when={isBackground()}>
+        <BackgroundBash {...props} />
+      </Match>
       <Match when={stringValue(props.metadata.output) !== undefined}>
         <BlockTool
           title={title()}
@@ -2440,6 +2948,63 @@ function Edit(props: ToolProps) {
   )
 }
 
+function NotebookEdit(props: ToolProps) {
+  const ctx = use()
+  const { theme, syntax } = useTheme()
+  const pathFormatter = usePathFormatter()
+
+  const view = createMemo(() => {
+    const diffStyle = ctx.tui.diff_style
+    if (diffStyle === "stacked") return "unified"
+    return ctx.width > 120 ? "split" : "unified"
+  })
+
+  const filePath = createMemo(() => stringValue(props.input.notebook_path))
+  const ft = createMemo(() => (stringValue(props.metadata.cell_type) === "code" ? "python" : "markdown"))
+  const cellLabel = createMemo(() => {
+    const index = numberValue(props.metadata.cell_index)
+    const kind = stringValue(props.metadata.cell_type) ?? "cell"
+    return index === undefined ? kind : `${kind} cell ${index}`
+  })
+
+  const diffContent = createMemo(() => stringValue(props.metadata.diff) ?? "")
+
+  return (
+    <Switch>
+      <Match when={stringValue(props.metadata.diff) !== undefined}>
+        <BlockTool title={"← Notebook " + pathFormatter.format(filePath()) + " · " + cellLabel()} part={props.part}>
+          <box paddingLeft={1}>
+            <diff
+              diff={diffContent()}
+              view={view()}
+              filetype={ft()}
+              syntaxStyle={syntax()}
+              showLineNumbers={true}
+              width="100%"
+              wrapMode={ctx.diffWrapMode()}
+              fg={theme.text}
+              addedBg={theme.diffAddedBg}
+              removedBg={theme.diffRemovedBg}
+              contextBg={theme.diffContextBg}
+              addedSignColor={theme.diffHighlightAdded}
+              removedSignColor={theme.diffHighlightRemoved}
+              lineNumberFg={theme.diffLineNumber}
+              lineNumberBg={theme.diffContextBg}
+              addedLineNumberBg={theme.diffAddedLineNumberBg}
+              removedLineNumberBg={theme.diffRemovedLineNumberBg}
+            />
+          </box>
+        </BlockTool>
+      </Match>
+      <Match when={true}>
+        <InlineTool icon="←" pending="Preparing notebook edit…" complete={filePath()} part={props.part}>
+          Notebook edit {pathFormatter.format(filePath())}
+        </InlineTool>
+      </Match>
+    </Switch>
+  )
+}
+
 function ApplyPatch(props: ToolProps) {
   const ctx = use()
   const { theme, syntax } = useTheme()
@@ -2451,7 +3016,7 @@ function ApplyPatch(props: ToolProps) {
     const diffStyle = ctx.tui.diff_style
     if (diffStyle === "stacked") return "unified"
     return ctx.width > 120 ? "split" : "unified"
-  })
+  }) 
 
   function Diff(p: { diff: string; filePath: string }) {
     return (
@@ -2528,7 +3093,7 @@ function TodoWrite(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="⚙" pending="Updating todos…" failure="Todo update failed" complete={false} part={props.part}>
+        <InlineTool icon="≡" pending="Updating todos…" failure="Todo update failed" complete={false} part={props.part}>
           Updating todos…
         </InlineTool>
       </Match>
@@ -2638,10 +3203,41 @@ const toolDisplays = new Set([
   "question",
   "skill",
   "execute",
+  "monitor",
+  "wakeup",
+  "sleep",
+  "background",
+  "notebook_edit",
 ])
 
 export function toolDisplay(tool: string) {
   return toolDisplays.has(tool) ? tool : "generic"
+}
+
+// Per-tool glyphs for built-in tools rendered by GenericTool. Unknown tools
+// (MCP servers, plugins) keep the gear fallback via `toolIcon` returning
+// undefined.
+const toolIcons: Record<string, string> = {
+  cron_create: "◷",
+  cron_list: "◷",
+  cron_delete: "◷",
+  worktree_list: "⎇",
+  worktree_enter: "⎇",
+  worktree_exit: "⎇",
+  moa: "∞",
+  tool_search: "⌕",
+  session_search: "⌕",
+  memory: "◉",
+  team_create: "⌘",
+  team_delete: "⎋",
+  send_message: "➤",
+  task_create: "≡",
+  task_update: "≡",
+  task_list: "≡",
+}
+
+export function toolIcon(tool: string) {
+  return toolIcons[tool]
 }
 
 function recordValue(value: unknown): Record<string, unknown> | undefined {

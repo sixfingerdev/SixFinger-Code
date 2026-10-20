@@ -21,6 +21,7 @@ import type {
   ConsoleState,
 } from "@opencode-ai/sdk/v2"
 import { createStore, produce, reconcile } from "solid-js/store"
+import { CompactionWindow } from "@opencode-ai/core/session/window"
 import { useProject } from "./project"
 import { useEvent } from "./event"
 import { useSDK } from "./sdk"
@@ -90,6 +91,10 @@ export const {
       session_status: {
         [sessionID: string]: SessionStatus
       }
+      compaction_window: CompactionWindow.Window
+      compaction_notice: {
+        [sessionID: string]: { ok: boolean; at: number }
+      }
       session_diff: {
         [sessionID: string]: SnapshotFileDiff[]
       }
@@ -132,6 +137,8 @@ export const {
       provider_default: {},
       session: [],
       session_status: {},
+      compaction_window: CompactionWindow.DEFAULT,
+      compaction_notice: {},
       session_diff: {},
       todo: {},
       message: {},
@@ -310,6 +317,27 @@ export const {
               session.time.updated = event.properties.timestamp
             }),
           )
+          break
+        }
+
+        // The server never persists time.compacting; live compaction state is
+        // driven purely by these events so the footer indicator can react.
+        // Timestamp is taken client-side: the wire format carries a decoded
+        // DateTime, not millis, and the ramp only needs "when did it start".
+        case "session.next.compaction.started": {
+          const result = search(store.session, event.properties.sessionID, (s) => s.id)
+          if (!result.found) break
+          setStore("session", result.index, "time", "compacting", Date.now())
+          break
+        }
+        case "session.next.compaction.ended": {
+          const result = search(store.session, event.properties.sessionID, (s) => s.id)
+          if (!result.found) break
+          setStore("session", result.index, "time", "compacting", undefined)
+          setStore("compaction_notice", event.properties.sessionID, {
+            ok: event.properties.text.trim().length > 0,
+            at: Date.now(),
+          })
           break
         }
 
@@ -532,6 +560,7 @@ export const {
             }),
             sdk.client.provider.auth({ workspace }).then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
             sdk.client.vcs.get({ workspace }).then((x) => setStore("vcs", reconcile(x.data))),
+            sdk.client.config.compaction.get({ workspace }).then((x) => setStore("compaction_window", x.data!.window)),
             project.workspace.sync(),
           ]).then(() => {
             setStore("status", "complete")

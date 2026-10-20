@@ -15,6 +15,7 @@ import path from "path"
 import { fileURLToPath } from "url"
 import { useLocal } from "../../context/local"
 import { Flag } from "@opencode-ai/core/flag/flag"
+import { CompactionWindow } from "@opencode-ai/core/session/window"
 import { tint, useTheme } from "../../context/theme"
 import { EmptyBorder, SplitBorder } from "../../ui/border"
 import { useTuiPaths, useTuiTerminalEnvironment } from "../../context/runtime"
@@ -65,6 +66,7 @@ export type PromptProps = {
   visible?: boolean
   disabled?: boolean
   onSubmit?: () => void
+  onSideQuestion?: (question: string) => void
   ref?: (ref: PromptRef | undefined) => void
   hint?: JSX.Element
   right?: JSX.Element
@@ -279,6 +281,30 @@ export function Prompt(props: PromptProps) {
       context: pct ? `${Locale.number(tokens)} (${pct})` : Locale.number(tokens),
       cost: cost > 0 ? money.format(cost) : undefined,
     }
+  })
+
+  // "X% until auto-compact": remaining share of the effective auto-compact
+  // threshold, shown left of the context readout. Hidden when auto-compact is
+  // off or the model limits are unknown.
+  const autoCompactPct = createMemo(() => {
+    if (!props.sessionID) return
+    if (sync.data.config.compaction?.auto === false) return
+    const msg = sync.data.message[props.sessionID] ?? []
+    const last = msg.findLast((item): item is AssistantMessage => item.role === "assistant" && item.tokens.output > 0)
+    const model = last
+      ? sync.data.provider.find((item) => item.id === last.providerID)?.models[last.modelID]
+      : undefined
+    if (!model || !model.limit.context) return
+    const tokens =
+      last!.tokens.input + last!.tokens.output + last!.tokens.reasoning + last!.tokens.cache.read + last!.tokens.cache.write
+    if (tokens <= 0) return
+    const threshold = CompactionWindow.resolve(sync.data.compaction_window, {
+      context: model.limit.context,
+      input: model.limit.input,
+      output: model.limit.output,
+    })
+    if (threshold <= 0) return
+    return Math.max(0, Math.min(100, Math.round(((threshold - tokens) / threshold) * 100)))
   })
 
   const [store, setStore] = createStore<{
@@ -1068,6 +1094,8 @@ export function Prompt(props: PromptProps) {
         command: inputText,
       })
       setStore("mode", "normal")
+    } else if (inputText === "/ask" || inputText.startsWith("/ask ") || inputText.startsWith("/ask\n")) {
+      props.onSideQuestion?.(inputText.replace(/^\/ask[ \n]?/, "").trim())
     } else if (
       inputText.startsWith("/") &&
       sync.data.command.some((x) => x.name === inputText.split("\n")[0].split(" ")[0].slice(1))
@@ -1665,7 +1693,9 @@ export function Prompt(props: PromptProps) {
                     <Match when={usage()}>
                       {(item) => (
                         <text fg={theme.textMuted} wrapMode="none">
-                          {[item().context, item().cost].filter(Boolean).join(" · ")}
+                          {[autoCompactPct() !== undefined ? `${autoCompactPct()}% until auto-compact` : undefined, item().context, item().cost]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </text>
                       )}
                     </Match>

@@ -30,6 +30,11 @@ export function DialogMessage(props: {
             const msg = message()
             if (!msg) return
 
+            const status = sync.data.session_status?.[props.sessionID]
+            if (status && status.type !== "idle") {
+              void sdk.client.session.abort({ sessionID: props.sessionID }).catch(() => {})
+            }
+
             void sdk.client.session.revert({
               sessionID: props.sessionID,
               messageID: msg.id,
