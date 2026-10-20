@@ -7,11 +7,11 @@ import config from "../../../../config.mjs"
 export const console = config.console
 export const email = `mailto:${config.email}`
 
-OpenCode Go er et lavprisabonnement til **$10/måned**, der giver dig pålidelig adgang til populære åbne kodningsmodeller.
+SixFinger Go er et lavprisabonnement til **$10/måned**, der giver dig pålidelig adgang til populære åbne kodningsmodeller.
 
-Go fungerer som enhver anden udbyder i OpenCode. Du abonnerer på OpenCode Go og
+Go fungerer som enhver anden udbyder i SixFinger. Du abonnerer på SixFinger Go og
 får din API-nøgle. Det er **helt valgfrit**, og du behøver ikke at bruge det for at
-bruge OpenCode.
+bruge SixFinger.
 
 Det er primært udviklet til internationale brugere og giver stabil global adgang.
 
@@ -27,7 +27,7 @@ Det kan dog være svært at få pålidelig adgang til dem med lav latenstid. Udb
 varierer i kvalitet og tilgængelighed.
 
 :::tip
-Vi testede en udvalgt gruppe af modeller og udbydere, der fungerer godt med OpenCode.
+Vi testede en udvalgt gruppe af modeller og udbydere, der fungerer godt med SixFinger.
 :::
 
 For at løse dette, gjorde vi et par ting:
@@ -39,22 +39,22 @@ For at løse dette, gjorde vi et par ting:
 3. Til sidst benchmarkede vi kombinationen af model og udbyder, og kom frem til
    en liste, som vi trygt kan anbefale.
 
-OpenCode Go giver dig adgang til disse modeller for **$10/måned**.
+SixFinger Go giver dig adgang til disse modeller for **$10/måned**.
 
 ---
 
 ## Sådan fungerer det
 
-OpenCode Go fungerer som enhver anden udbyder i OpenCode.
+SixFinger Go fungerer som enhver anden udbyder i SixFinger.
 
-1. Du logger ind på **<a href={console}>OpenCode Zen</a>**, abonnerer på Go, og
+1. Du logger ind på **<a href={console}>SixFinger Zen</a>**, abonnerer på Go, og
    kopierer din API-nøgle.
-2. Du kører kommandoen `/connect` i TUI'en, vælger `OpenCode Go`, og indsætter
+2. Du kører kommandoen `/connect` i TUI'en, vælger `SixFinger Go`, og indsætter
    din API-nøgle.
 3. Kør `/models` i TUI'en for at se listen over tilgængelige modeller gennem Go.
 
 :::note
-Kun ét medlem per arbejdsområde kan abonnere på OpenCode Go.
+Kun ét medlem per arbejdsområde kan abonnere på SixFinger Go.
 :::
 
 Den nuværende liste over modeller inkluderer:
@@ -93,7 +93,7 @@ Listen over modeller kan ændre sig, efterhånden som vi tester og tilføjer nye
 
 ## Hvor kan jeg bruge det?
 
-OpenCode Go er designet til brug med [OpenCode](https://opencode.ai) og andre populære kodningsagenter, der genererer lignende typer anmodninger.
+SixFinger Go er designet til brug med [SixFinger](https://opencode.ai) og andre populære kodningsagenter, der genererer lignende typer anmodninger.
 
 Trafikken overvåges for misbrug, der forringer oplevelsen for andre brugere.
 
@@ -101,11 +101,11 @@ For at sikre, at din konto ikke bliver markeret, skal du sørge for, at det vær
 
 1\. ikke genererer misbrugstrafik  
 2\. identificerer sig korrekt (ingen generiske User-Agent-identifikatorer)  
-3\. inkluderer `x-opencode-session`-headeren, så vi kan optimere prompt-caching
+3\. inkluderer `x-sixfinger-session`-headeren, så vi kan optimere prompt-caching
 
 ## Forbrugsgrænser
 
-OpenCode Go inkluderer følgende basisgrænser:
+SixFinger Go inkluderer følgende basisgrænser:
 
 - **5-timers grænse** — forbrug for $12
 - **Ugentlig grænse** — forbrug for $30
@@ -283,9 +283,9 @@ Du kan også få adgang til Go-modeller gennem følgende API-endpoints.
 | Hy3                          | hy3                          | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 | Omen Alpha                   | omen-alpha                   | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 
-Dit [model id](/docs/config/#models) i din OpenCode config
-bruger formatet `opencode-go/<model-id>`. For eksempel for Kimi K3, vil du
-bruge `opencode-go/kimi-k3` i din config.
+Dit [model id](/docs/config/#models) i din SixFinger config
+bruger formatet `sixfinger-go/<model-id>`. For eksempel for Kimi K3, vil du
+bruge `sixfinger-go/kimi-k3` i din config.
 
 ---
 
@@ -341,9 +341,9 @@ https://opencode.ai/zen/go/v1/models
 
 ## Mål
 
-Vi skabte OpenCode Go for at:
+Vi skabte SixFinger Go for at:
 
 1. Gøre AI-kodning **tilgængelig** for flere mennesker med et lavprisabonnement.
 2. Give **pålidelig** adgang til de bedste åbne kodningsmodeller.
 3. Kuratere modeller, der er **testet og benchmarkede** til brug med kodningsagenter.
-4. Undgå **lock-in** ved også at lade dig bruge enhver anden udbyder med OpenCode.
+4. Undgå **lock-in** ved også at lade dig bruge enhver anden udbyder med SixFinger.

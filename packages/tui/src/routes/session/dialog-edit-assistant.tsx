@@ -1,6 +1,6 @@
 import { createMemo, createSignal, onMount, Show } from "solid-js"
 import type { TextareaRenderable } from "@opentui/core"
-import type { ReasoningPart, TextPart } from "@opencode-ai/sdk/v2"
+import type { ReasoningPart, TextPart } from "@sixfinger/sdk/v2"
 import { useSync } from "../../context/sync"
 import { useSDK } from "../../context/sdk"
 import { useToast } from "../../ui/toast"

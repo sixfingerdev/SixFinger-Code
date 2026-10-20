@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { Button } from "@opencode-ai/ui/button"
-import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { Button } from "@sixfinger/ui/button"
+import { useDialog } from "@sixfinger/ui/context/dialog"
 import { createSignal, onMount } from "solid-js"
 import { DialogSelectModelUnpaidV2 } from "./dialog-select-model-unpaid-v2"
 
@@ -18,7 +18,7 @@ function SelectModelWithoutProviders() {
   const models = names.map((name, index) => ({
     id: name.toLowerCase().replaceAll(" ", "-"),
     name,
-    provider: { id: "opencode", name: "OpenCode" },
+    provider: { id: "sixfinger", name: "SixFinger" },
     cost: { input: 0, output: 0 },
     limit: { context: 128_000 },
     capabilities: {

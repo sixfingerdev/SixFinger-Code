@@ -1,6 +1,6 @@
 import { createMemo } from "solid-js"
-import { CompactionWindow } from "@opencode-ai/core/session/window"
-import type { AssistantMessage } from "@opencode-ai/sdk/v2"
+import { CompactionWindow } from "@sixfinger/core/session/window"
+import type { AssistantMessage } from "@sixfinger/sdk/v2"
 import { DialogSelect } from "../ui/dialog-select"
 import { useDialog } from "../ui/dialog"
 import { useSDK } from "../context/sdk"

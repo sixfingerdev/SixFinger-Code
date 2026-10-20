@@ -1,12 +1,12 @@
 import { Link, Meta, Title } from "@solidjs/meta"
-import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
+import { ProviderIcon } from "@sixfinger/ui/provider-icon"
 import {
   getStatsModelsComparisonData,
   type ModelUsagePoint,
   type RetentionEntry,
   type StatsModelComparisonInput,
   type StatsModelComparisonEntry,
-} from "@opencode-ai/stats-core/domain/home"
+} from "@sixfinger/stats-core/domain/home"
 import { createAsync, query, useParams, useSearchParams } from "@solidjs/router"
 import { createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js"
 import { getRequestEvent } from "solid-js/web"
@@ -241,7 +241,7 @@ export default function ModelCompareDetailPage(props: ModelCompareDetailPageProp
         <Meta name="robots" content={models().length > 2 ? "noindex,follow" : "index,follow"} />
         <Link rel="canonical" href={canonicalUrl()} />
         <Meta property="og:type" content="website" />
-        <Meta property="og:site_name" content="OpenCode" />
+        <Meta property="og:site_name" content="SixFinger" />
         <Meta property="og:title" content={title()} />
         <Meta property="og:description" content={description()} />
         <Meta property="og:url" content={canonicalUrl()} />

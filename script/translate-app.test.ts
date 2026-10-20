@@ -18,7 +18,7 @@ describe("translate app", () => {
     expect(parseTranslationArgs(["fr"])).toEqual({
       target: "fr",
       concurrency: 1,
-      model: "opencode/gpt-5.5",
+      model: "sixfinger/gpt-5.5",
       variant: "xhigh",
       dryRun: false,
       check: false,
@@ -33,7 +33,7 @@ describe("translate app", () => {
         "--concurrency",
         "7",
         "--model",
-        "opencode/gpt-5.4",
+        "sixfinger/gpt-5.4",
         "--variant",
         "high",
         "--dry-run",
@@ -41,7 +41,7 @@ describe("translate app", () => {
     ).toEqual({
       target: "all",
       concurrency: 7,
-      model: "opencode/gpt-5.4",
+      model: "sixfinger/gpt-5.4",
       variant: "high",
       dryRun: true,
       check: false,
@@ -78,9 +78,9 @@ describe("translate app", () => {
   })
 
   test("maps product locale codes to their glossaries", () => {
-    expect(glossaryFile("fr")).toBe(".opencode/glossary/fr.md")
-    expect(glossaryFile("zh")).toBe(".opencode/glossary/zh-cn.md")
-    expect(glossaryFile("zht")).toBe(".opencode/glossary/zh-tw.md")
+    expect(glossaryFile("fr")).toBe(".sixfinger/glossary/fr.md")
+    expect(glossaryFile("zh")).toBe(".sixfinger/glossary/zh-cn.md")
+    expect(glossaryFile("zht")).toBe(".sixfinger/glossary/zh-tw.md")
   })
 
   test("finds key and placeholder drift", () => {
@@ -160,14 +160,14 @@ describe("translate app", () => {
           {
             info: {
               role: "assistant",
-              providerID: "opencode",
+              providerID: "sixfinger",
               modelID: "gpt-5.5",
               variant: "xhigh",
             },
           },
         ],
       }),
-    ).toEqual([{ model: "opencode/gpt-5.5", variant: "xhigh" }])
+    ).toEqual([{ model: "sixfinger/gpt-5.5", variant: "xhigh" }])
     expect(
       textFromEvents(
         'shared: https://example.test\n{"type":"text","sessionID":"ses_test","part":{"text":"finished"}}\n',
@@ -176,21 +176,21 @@ describe("translate app", () => {
   })
 
   test("resolves variants from verbose model output", () => {
-    const output = `opencode/other
+    const output = `sixfinger/other
 {"variants":{}}
-opencode/gpt-5.5
+sixfinger/gpt-5.5
 {"variants":{"high":{"reasoningEffort":"high"},"xhigh":{"reasoningEffort":"xhigh"}}}
-opencode/next
+sixfinger/next
 {"variants":{}}
 `
-    expect(modelVariants(output, "opencode/gpt-5.5")).toEqual({
+    expect(modelVariants(output, "sixfinger/gpt-5.5")).toEqual({
       high: { reasoningEffort: "high" },
       xhigh: { reasoningEffort: "xhigh" },
     })
   })
 
   test("disables side effects and scopes edits for the translation agent", () => {
-    const config = translationConfig("translate-app-fr", "opencode/gpt-5.5", ["packages/app/src/i18n/fr.ts"])
+    const config = translationConfig("translate-app-fr", "sixfinger/gpt-5.5", ["packages/app/src/i18n/fr.ts"])
     expect(config.share).toBe("disabled")
     expect(config.formatter).toBe(false)
     expect(config.lsp).toBe(false)

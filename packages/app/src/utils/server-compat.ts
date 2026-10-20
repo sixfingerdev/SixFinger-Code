@@ -1,6 +1,6 @@
 import type { ServerApi } from "./server"
 import type { ServerProtocol } from "./server-protocol"
-import type { AgentPartInput, FilePartInput, OpencodeClient, Session, TextPartInput } from "@opencode-ai/sdk/v2/client"
+import type { AgentPartInput, FilePartInput, SixfingerClient, Session, TextPartInput } from "@sixfinger/sdk/v2/client"
 import type {
   Project,
   ProjectCurrent,
@@ -16,7 +16,7 @@ import type {
   SessionShellOutput,
 } from "@opencode-ai/client/promise"
 
-type LegacyClient = OpencodeClient
+type LegacyClient = SixfingerClient
 type LegacyFor = (directory?: string) => LegacyClient
 type CompatibleSessionApi = Omit<
   SessionApi,

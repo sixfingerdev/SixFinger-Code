@@ -7,7 +7,7 @@ export const config = {
 
   // GitHub
   github: {
-    repoUrl: "https://github.com/anomalyco/opencode",
+    repoUrl: "https://github.com/sixfingerdev/sixfinger-code",
     starsFormatted: {
       compact: "195K",
       full: "195,000",
@@ -16,8 +16,8 @@ export const config = {
 
   // Social links
   social: {
-    twitter: "https://x.com/opencode",
-    discord: "https://discord.gg/opencode",
+    twitter: "https://x.com/sixfinger",
+    discord: "https://discord.gg/sixfinger",
   },
 
   // Static stats (used on landing page)

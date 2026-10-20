@@ -19,9 +19,9 @@ import type {
   VcsInfo,
   SnapshotFileDiff,
   ConsoleState,
-} from "@opencode-ai/sdk/v2"
+} from "@sixfinger/sdk/v2"
 import { createStore, produce, reconcile } from "solid-js/store"
-import { CompactionWindow } from "@opencode-ai/core/session/window"
+import { CompactionWindow } from "@sixfinger/core/session/window"
 import { useProject } from "./project"
 import { useEvent } from "./event"
 import { useSDK } from "./sdk"

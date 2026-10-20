@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=SixFinger
+Exec=/opt/SixFinger/ai.sixfinger.desktop %U
+Terminal=false
+Type=Application
+Icon=ai.sixfinger.desktop
+StartupWMClass=ai.sixfinger.desktop
+NoDisplay=true
+Comment=Open source AI coding agent
+Categories=Development;

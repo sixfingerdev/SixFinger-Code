@@ -7,11 +7,11 @@ import config from "../../../config.mjs"
 export const console = config.console
 export const email = `mailto:${config.email}`
 
-OpenCode Go is a low cost **$10/month subscription** that gives you reliable access to popular open coding models.
+SixFinger Go is a low cost **$10/month subscription** that gives you reliable access to popular open coding models.
 
-Go works like any other provider in OpenCode. You subscribe to OpenCode Go and
+Go works like any other provider in SixFinger. You subscribe to SixFinger Go and
 get your API key. It's **completely optional** and you don't need to use it to
-use OpenCode.
+use SixFinger.
 
 It is designed primarily for international users and provides stable global access.
 
@@ -27,7 +27,7 @@ However, getting reliable, low latency access to them can be difficult. Provider
 vary in quality and availability.
 
 :::tip
-We tested a select group of models and providers that work well with OpenCode.
+We tested a select group of models and providers that work well with SixFinger.
 :::
 
 To fix this, we did a couple of things:
@@ -39,22 +39,22 @@ To fix this, we did a couple of things:
 3. Finally, we benchmarked the combination of the model/provider and came up
    with a list that we feel good recommending.
 
-OpenCode Go gives you access to these models for **$10/month**.
+SixFinger Go gives you access to these models for **$10/month**.
 
 ---
 
 ## How it works
 
-OpenCode Go works like any other provider in OpenCode.
+SixFinger Go works like any other provider in SixFinger.
 
-1. You sign in to **<a href={console}>OpenCode Zen</a>**, subscribe to Go, and
+1. You sign in to **<a href={console}>SixFinger Zen</a>**, subscribe to Go, and
    copy your API key.
-2. You run the `/connect` command in the TUI, select `OpenCode Go`, and paste
+2. You run the `/connect` command in the TUI, select `SixFinger Go`, and paste
    your API key.
 3. Run `/models` in the TUI to see the list of models available through Go.
 
 :::note
-Only one member per workspace can subscribe to OpenCode Go.
+Only one member per workspace can subscribe to SixFinger Go.
 :::
 
 The current list of models includes:
@@ -93,7 +93,7 @@ The list of models may change as we test and add new ones.
 
 ## Where can I use it?
 
-OpenCode Go is designed for [OpenCode](https://opencode.ai) and other coding agents
+SixFinger Go is designed for [SixFinger](https://opencode.ai) and other coding agents
 that produce similar types of requests. Traffic is monitored for abuse that
 degrades the experience for other users.
 
@@ -102,23 +102,23 @@ Your client should:
 1. Send typical coding agent traffic
 2. Identify itself with its own user agent, such as `my-coding-agent/1.0`, rather
    than a generic SDK or HTTP-library name.
-3. Send a stable session ID in `x-opencode-session` for each conversation so we can optimize routing and
+3. Send a stable session ID in `x-sixfinger-session` for each conversation so we can optimize routing and
    prompt caching.
 
 ### Validated Clients
 
-Besides OpenCode, the following clients have been validated to work properly
-with OpenCode Go. Although we do not guarantee that they will continue to work in the future.
+Besides SixFinger, the following clients have been validated to work properly
+with SixFinger Go. Although we do not guarantee that they will continue to work in the future.
 
 | Client            | Session support                                                                                                                                                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hermes**        | Builds containing [PR #101864](https://github.com/NousResearch/hermes-agent/pull/101864) send the header on main and auxiliary OpenCode requests. The fix was merged after v0.21.0; that release alone does not include it.                 |
+| **Hermes**        | Builds containing [PR #101864](https://github.com/NousResearch/hermes-agent/pull/101864) send the header on main and auxiliary SixFinger requests. The fix was merged after v0.21.0; that release alone does not include it.                 |
 | **Claude Code**   | Go recognizes its native session header. No custom-header wrapper is needed.                                                                                                                                                                |
 | **Codex**         | Go recognizes its native session header. Some versions and proxy setups still omit it; preserve the session header when forwarding requests.                                                                                                |
-| **ZCode**         | Go recognizes its native session header. Our [request for `x-opencode-session`](https://github.com/zai-org/feedback/issues/492) remains open, but it is no longer necessary to send that specific header.                                   |
-| **Pi**            | Current builds send session information for OpenCode. Update older installations.                                                                                                                                                           |
+| **ZCode**         | Go recognizes its native session header. Our [request for `x-sixfinger-session`](https://github.com/zai-org/feedback/issues/492) remains open, but it is no longer necessary to send that specific header.                                   |
+| **Pi**            | Current builds send session information for SixFinger. Update older installations.                                                                                                                                                           |
 | **jcode**         | Update to **v0.81.6 or later**, which includes the [session-header fix](https://github.com/1jehuang/jcode/issues/1167).                                                                                                                     |
-| **Kilo Code CLI** | Builds containing [PR #13752](https://github.com/Kilo-Org/kilocode/pull/13752) restore OpenCode session headers. This fix covers the CLI, not the VS Code extension. See [issue #13723](https://github.com/Kilo-Org/kilocode/issues/13723). |
+| **Kilo Code CLI** | Builds containing [PR #13752](https://github.com/Kilo-Org/kilocode/pull/13752) restore SixFinger session headers. This fix covers the CLI, not the VS Code extension. See [issue #13723](https://github.com/Kilo-Org/kilocode/issues/13723). |
 
 ### Known Problematic Clients
 
@@ -134,7 +134,7 @@ investigated. The linked reports track fixes and workarounds.
 
 ## Usage limits
 
-OpenCode Go includes the following base limits:
+SixFinger Go includes the following base limits:
 
 - **5 hour limit** — $12 of usage
 - **Weekly limit** — $30 of usage
@@ -312,9 +312,9 @@ You can also access Go models through the following API endpoints.
 | Hy3                          | hy3                          | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 | Omen Alpha                   | omen-alpha                   | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 
-The [model id](/docs/config/#models) in your OpenCode config
-uses the format `opencode-go/<model-id>`. For example, for Kimi K3, you would
-use `opencode-go/kimi-k3` in your config.
+The [model id](/docs/config/#models) in your SixFinger config
+uses the format `sixfinger-go/<model-id>`. For example, for Kimi K3, you would
+use `sixfinger-go/kimi-k3` in your config.
 
 ---
 
@@ -370,9 +370,9 @@ https://opencode.ai/zen/go/v1/models
 
 ## Goals
 
-We created OpenCode Go to:
+We created SixFinger Go to:
 
 1. Make AI coding **accessible** to more people with a low cost subscription.
 2. Provide **reliable** access to the best open coding models.
 3. Curate models that are **tested and benchmarked** for coding agent use.
-4. Have **no lock-in** by allowing you to use any other provider with OpenCode as well.
+4. Have **no lock-in** by allowing you to use any other provider with SixFinger as well.

@@ -1,17 +1,17 @@
 ---
 title: Zen
-description: Lista curata di modelli fornita da OpenCode.
+description: Lista curata di modelli fornita da SixFinger.
 ---
 
 import config from "../../../../config.mjs"
 export const console = config.console
 export const email = `mailto:${config.email}`
 
-OpenCode Zen è un elenco di modelli testati e verificati forniti dal team di OpenCode.
+SixFinger Zen è un elenco di modelli testati e verificati forniti dal team di SixFinger.
 
-Zen funziona come qualsiasi altro provider in OpenCode. Accedi a OpenCode Zen e ottieni
+Zen funziona come qualsiasi altro provider in SixFinger. Accedi a SixFinger Zen e ottieni
 la tua chiave API. È **completamente opzionale** e non ti serve usarlo per usare
-OpenCode.
+SixFinger.
 
 ---
 
@@ -22,7 +22,7 @@ questi modelli funzionano bene come agenti di coding. Inoltre, la maggior parte 
 configurata in modo molto diverso; quindi ottieni prestazioni e qualità molto diverse.
 
 :::tip
-Abbiamo testato un gruppo selezionato di modelli e provider che funzionano bene con OpenCode.
+Abbiamo testato un gruppo selezionato di modelli e provider che funzionano bene con SixFinger.
 :::
 
 Quindi, se usi un modello tramite qualcosa come OpenRouter, non puoi mai essere
@@ -37,17 +37,17 @@ Per risolvere questo problema, abbiamo fatto un paio di cose:
 3. Infine, abbiamo fatto benchmark della combinazione modello/provider e creato
    un elenco che ci sentiamo di raccomandare.
 
-OpenCode Zen è un gateway AI che ti dà accesso a questi modelli.
+SixFinger Zen è un gateway AI che ti dà accesso a questi modelli.
 
 ---
 
 ## Come funziona
 
-OpenCode Zen funziona come qualsiasi altro provider in OpenCode.
+SixFinger Zen funziona come qualsiasi altro provider in SixFinger.
 
-1. Accedi a **<a href={console}>OpenCode Zen</a>**, aggiungi i dettagli di fatturazione,
+1. Accedi a **<a href={console}>SixFinger Zen</a>**, aggiungi i dettagli di fatturazione,
    e copia la tua chiave API.
-2. Esegui il comando `/connect` nella TUI, seleziona OpenCode Zen, e incolla la tua chiave API.
+2. Esegui il comando `/connect` nella TUI, seleziona SixFinger Zen, e incolla la tua chiave API.
 3. Esegui `/models` nella TUI per vedere l'elenco dei modelli che raccomandiamo.
 
 Ti viene addebitato ogni richiesta e puoi aggiungere credito al tuo account.
@@ -130,9 +130,9 @@ Puoi anche accedere ai nostri modelli tramite i seguenti endpoint API.
 | Nemotron 3.5 Lightning Free     | nemotron-3.5-lightning-free     | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
 | Muse Spark 1.3 Contributor Free | muse-spark-1.3-contributor-free | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
 
-Il [model id](/docs/config/#models) nella config di OpenCode
-usa il formato `opencode/<model-id>`. Per esempio, per GPT 5.5, useresti
-`opencode/gpt-5.5` nella tua config.
+Il [model id](/docs/config/#models) nella config di SixFinger
+usa il formato `sixfinger/<model-id>`. Per esempio, per GPT 5.5, useresti
+`sixfinger/gpt-5.5` nella tua config.
 
 ---
 
@@ -236,7 +236,7 @@ Supportiamo un modello pay-as-you-go. Qui sotto trovi i prezzi **per 1M token**.
 
 **DeepSeek V4 Flash Vision Exp:** Le immagini vengono convertite in token in base alle loro dimensioni e fatturate come token di input insieme ai token di testo. [Scopri di più](https://api-docs.deepseek.com/quick_start/pricing/).
 
-Potresti notare [modelli a basso costo](/docs/config/#models), come Haiku, Nano o Flash, nella cronologia di utilizzo. OpenCode usa questi modelli per generare i titoli delle sessioni.
+Potresti notare [modelli a basso costo](/docs/config/#models), come Haiku, Nano o Flash, nella cronologia di utilizzo. SixFinger usa questi modelli per generare i titoli delle sessioni.
 
 :::note
 Le commissioni della carta di credito vengono trasferite al costo (4.4% + $0.30 per transazione); non addebitiamo nulla oltre a questo.
@@ -244,12 +244,12 @@ Le commissioni della carta di credito vengono trasferite al costo (4.4% + $0.30 
 
 I modelli gratuiti:
 
-- MiMo-V2.5 Free è disponibile su OpenCode per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
-- Ling 3.0 Flash Fin Free è disponibile su OpenCode per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
-- Nemotron 3 Ultra Free è disponibile su OpenCode per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
-- Nemotron 3.5 Lightning Free è disponibile su OpenCode per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
-- Big Pickle è un modello stealth che è gratuito su OpenCode per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
-- Muse Spark 1.3 Contributor Free è disponibile su OpenCode per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
+- MiMo-V2.5 Free è disponibile su SixFinger per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
+- Ling 3.0 Flash Fin Free è disponibile su SixFinger per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
+- Nemotron 3 Ultra Free è disponibile su SixFinger per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
+- Nemotron 3.5 Lightning Free è disponibile su SixFinger per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
+- Big Pickle è un modello stealth che è gratuito su SixFinger per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
+- Muse Spark 1.3 Contributor Free è disponibile su SixFinger per un periodo limitato. Il team usa questo periodo per raccogliere feedback e migliorare il modello.
 
 <a href={email}>Contattaci</a> se hai domande.
 
@@ -361,9 +361,9 @@ e vuoi usare quella invece di quella fornita da Zen.
 
 ## Obiettivi
 
-Abbiamo creato OpenCode Zen per:
+Abbiamo creato SixFinger Zen per:
 
 1. Fare **benchmark** dei migliori modelli/provider per agenti di coding.
 2. Avere accesso alle opzioni di **massima qualità** e non degradare le prestazioni né instradare verso provider più economici.
 3. Trasferire eventuali **riduzioni di prezzo** vendendo al costo; quindi l'unico markup serve a coprire le nostre commissioni di elaborazione.
-4. Non avere **lock-in** permettendoti di usarlo con qualsiasi altro agente di coding. E permettendoti sempre di usare anche qualsiasi altro provider con OpenCode.
+4. Non avere **lock-in** permettendoti di usarlo con qualsiasi altro agente di coding. E permettendoti sempre di usare anche qualsiasi altro provider con SixFinger.

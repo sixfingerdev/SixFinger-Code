@@ -7,9 +7,9 @@ import config from "../../../../config.mjs"
 export const console = config.console
 export const email = `mailto:${config.email}`
 
-OpenCode Go est un abonnement à bas coût à **10 $/mois** qui vous donne un accès fiable aux modèles de codage ouverts populaires.
+SixFinger Go est un abonnement à bas coût à **10 $/mois** qui vous donne un accès fiable aux modèles de codage ouverts populaires.
 
-Go fonctionne comme n'importe quel autre fournisseur dans OpenCode. Vous vous abonnez à OpenCode Go et obtenez votre clé d'API. C'est **totalement facultatif** et vous n'avez pas besoin de l'utiliser pour utiliser OpenCode.
+Go fonctionne comme n'importe quel autre fournisseur dans SixFinger. Vous vous abonnez à SixFinger Go et obtenez votre clé d'API. C'est **totalement facultatif** et vous n'avez pas besoin de l'utiliser pour utiliser SixFinger.
 
 Il est conçu principalement pour les utilisateurs internationaux et offre un accès mondial stable.
 
@@ -22,7 +22,7 @@ Les modèles ouverts sont devenus vraiment performants. Ils atteignent désormai
 Cependant, obtenir un accès fiable et à faible latence à ces modèles peut être difficile. Les fournisseurs varient en qualité et en disponibilité.
 
 :::tip
-Nous avons testé un groupe sélectionné de modèles et de fournisseurs qui fonctionnent bien avec OpenCode.
+Nous avons testé un groupe sélectionné de modèles et de fournisseurs qui fonctionnent bien avec SixFinger.
 :::
 
 Pour remédier à cela, nous avons fait plusieurs choses :
@@ -31,20 +31,20 @@ Pour remédier à cela, nous avons fait plusieurs choses :
 2. Nous avons ensuite travaillé avec quelques fournisseurs pour nous assurer qu'ils étaient correctement servis.
 3. Enfin, nous avons évalué les performances de la combinaison modèle/fournisseur et avons dressé une liste que nous nous sentons à l'aise de recommander.
 
-OpenCode Go vous donne accès à ces modèles pour **10 $/mois**.
+SixFinger Go vous donne accès à ces modèles pour **10 $/mois**.
 
 ---
 
 ## Comment ça marche
 
-OpenCode Go fonctionne comme n'importe quel autre fournisseur dans OpenCode.
+SixFinger Go fonctionne comme n'importe quel autre fournisseur dans SixFinger.
 
-1. Vous vous connectez à **<a href={console}>OpenCode Zen</a>**, vous vous abonnez à Go et copiez votre clé d'API.
-2. Vous exécutez la commande `/connect` dans la TUI, sélectionnez `OpenCode Go` et collez votre clé d'API.
+1. Vous vous connectez à **<a href={console}>SixFinger Zen</a>**, vous vous abonnez à Go et copiez votre clé d'API.
+2. Vous exécutez la commande `/connect` dans la TUI, sélectionnez `SixFinger Go` et collez votre clé d'API.
 3. Exécutez `/models` dans la TUI pour voir la liste des modèles disponibles via Go.
 
 :::note
-Un seul membre par espace de travail peut s'abonner à OpenCode Go.
+Un seul membre par espace de travail peut s'abonner à SixFinger Go.
 :::
 
 La liste actuelle des modèles comprend :
@@ -83,7 +83,7 @@ La liste des modèles peut changer au fur et à mesure que nous en testons et en
 
 ## Où puis-je l'utiliser ?
 
-OpenCode Go est conçu pour être utilisé avec [OpenCode](https://opencode.ai) et d'autres agents de codage populaires qui génèrent des types de requêtes similaires.
+SixFinger Go est conçu pour être utilisé avec [SixFinger](https://opencode.ai) et d'autres agents de codage populaires qui génèrent des types de requêtes similaires.
 
 Le trafic est surveillé afin de détecter tout trafic abusif qui dégrade l'expérience des autres utilisateurs.
 
@@ -91,11 +91,11 @@ Pour éviter que votre compte ne soit signalé, assurez-vous que l'outil que vou
 
 1\. ne génère pas de trafic abusif  
 2\. s'identifie correctement (pas d'agents utilisateur génériques)  
-3\. inclut l'en-tête `x-opencode-session` afin que nous puissions optimiser la mise en cache des prompts
+3\. inclut l'en-tête `x-sixfinger-session` afin que nous puissions optimiser la mise en cache des prompts
 
 ## Limites d'utilisation
 
-OpenCode Go inclut les limites de base suivantes :
+SixFinger Go inclut les limites de base suivantes :
 
 - **Limite de 5 heures** — 12 $ d'utilisation
 - **Limite hebdomadaire** — 30 $ d'utilisation
@@ -271,7 +271,7 @@ Vous pouvez également accéder aux modèles Go via les points de terminaison d'
 | Hy3                          | hy3                          | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 | Omen Alpha                   | omen-alpha                   | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 
-L'[ID de modèle](/docs/config/#models) dans votre configuration OpenCode utilise le format `opencode-go/<model-id>`. Par exemple, pour Kimi K3, vous utiliseriez `opencode-go/kimi-k3` dans votre configuration.
+L'[ID de modèle](/docs/config/#models) dans votre configuration SixFinger utilise le format `sixfinger-go/<model-id>`. Par exemple, pour Kimi K3, vous utiliseriez `sixfinger-go/kimi-k3` dans votre configuration.
 
 ---
 
@@ -327,9 +327,9 @@ https://opencode.ai/zen/go/v1/models
 
 ## Objectifs
 
-Nous avons créé OpenCode Go pour :
+Nous avons créé SixFinger Go pour :
 
 1. Rendre le codage par IA **accessible** à un plus grand nombre de personnes avec un abonnement à bas coût.
 2. Fournir un accès **fiable** aux meilleurs modèles de codage ouverts.
 3. Sélectionner des modèles qui sont **testés et évalués** pour une utilisation en tant qu'agent de codage.
-4. N'avoir **aucun verrouillage exclusif** en vous permettant d'utiliser n'importe quel autre fournisseur avec OpenCode également.
+4. N'avoir **aucun verrouillage exclusif** en vous permettant d'utiliser n'importe quel autre fournisseur avec SixFinger également.
