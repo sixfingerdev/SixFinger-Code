@@ -109,6 +109,23 @@ describe("tool.registry", () => {
     }),
   )
 
+  it.instance("every exposed tool converts to JSON schema", () =>
+    Effect.gen(function* () {
+      const registry = yield* ToolRegistry.Service
+      const agents = yield* Agent.Service
+      const tools = yield* registry.tools({
+        providerID: ProviderV2.ID.opencode,
+        modelID: ModelV2.ID.make("test"),
+        agent: yield* agents.defaultInfo(),
+      })
+
+      for (const item of tools) {
+        expect(() => ToolJsonSchema.fromTool(item), `tool ${item.id} converts`).not.toThrow()
+      }
+      expect(tools.map((item) => item.id)).toContain("tool_search")
+    }),
+  )
+
   it.instance("does not expose execute unless code mode is enabled", () =>
     Effect.gen(function* () {
       const registry = yield* ToolRegistry.Service

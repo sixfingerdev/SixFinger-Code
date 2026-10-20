@@ -6,6 +6,7 @@ import { SessionProjector } from "@opencode-ai/core/session/projector"
 import { Cause, Deferred, Effect, Exit, Fiber, Layer } from "effect"
 import { Agent } from "../../src/agent/agent"
 import { BackgroundJob } from "@/background/job"
+import { Team } from "@/team/team"
 import { EventV2Bridge } from "@/event-v2-bridge"
 import { Config } from "@/config/config"
 import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
@@ -39,6 +40,7 @@ const layer = (flags: Partial<RuntimeFlags.Info> = {}) =>
     LayerNode.group([
       Agent.node,
       BackgroundJob.node,
+      Team.node,
       EventV2Bridge.node,
       Config.node,
       CrossSpawnSpawner.node,

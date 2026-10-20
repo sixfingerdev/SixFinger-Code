@@ -20,12 +20,20 @@ exports[`tool parameters JSON Schema (wire shape) bash 1`] = `
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "properties": {
+    "background": {
+      "description": "Run the command in the background and return immediately with a job ID. You will be notified automatically when it finishes. Commands running longer than 60 seconds are moved to the background automatically. Read accumulated output with the Read tool, stop with the background tool.",
+      "type": "boolean",
+    },
     "command": {
       "description": "The command to execute",
       "type": "string",
     },
+    "confirm_timeout": {
+      "description": "Required to be true when timeout is set. The first call with timeout and without this flag is rejected so you can confirm the timeout value.",
+      "type": "boolean",
+    },
     "timeout": {
-      "description": "Optional timeout in milliseconds",
+      "description": "Optional kill timeout in milliseconds. There is no default timeout: commands run until they finish. An explicit timeout only takes effect together with confirm_timeout=true.",
       "exclusiveMinimum": 0,
       "maximum": 9007199254740991,
       "minimum": -9007199254740991,
@@ -186,6 +194,72 @@ exports[`tool parameters JSON Schema (wire shape) lsp 1`] = `
 }
 `;
 
+exports[`tool parameters JSON Schema (wire shape) moa 1`] = `
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "aggregator": {
+      "description": "Agent type that synthesizes the proposals into one answer. Defaults to general.",
+      "type": "string",
+    },
+    "description": {
+      "description": "A short (3-5 words) description of the task",
+      "type": "string",
+    },
+    "prompt": {
+      "description": "The task every proposer works on independently",
+      "type": "string",
+    },
+    "proposers": {
+      "description": "Agent types that propose independently in parallel (for example coder, reviewer, researcher). At least one. Diversity is the point: different roles produce different angles.",
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "rounds": {
+      "description": "How many propose-synthesize layers to run (default 1, maximum 5). Later rounds see the previous synthesis.",
+      "type": "number",
+    },
+  },
+  "required": [
+    "description",
+    "prompt",
+    "proposers",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`tool parameters JSON Schema (wire shape) notebook_edit 1`] = `
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "cell_id": {
+      "description": "The id of the cell to edit. Preferred over new_source matching when present.",
+      "type": "string",
+    },
+    "new_string": {
+      "description": "The new source for the cell",
+      "type": "string",
+    },
+    "notebook_path": {
+      "description": "The absolute path to the .ipynb file to edit",
+      "type": "string",
+    },
+    "old_string": {
+      "description": "The exact cell source to replace. Must match the full current source of exactly one cell.",
+      "type": "string",
+    },
+  },
+  "required": [
+    "notebook_path",
+    "new_string",
+  ],
+  "type": "object",
+}
+`;
+
 exports[`tool parameters JSON Schema (wire shape) plan 1`] = `
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -313,6 +387,10 @@ exports[`tool parameters JSON Schema (wire shape) task 1`] = `
       "description": "A short (3-5 words) description of the task",
       "type": "string",
     },
+    "name": {
+      "description": "Teammate name (lowercase letters, numbers, hyphens). Only with team_name. Defaults to the subagent type.",
+      "type": "string",
+    },
     "prompt": {
       "description": "The task for the agent to perform",
       "type": "string",
@@ -323,6 +401,10 @@ exports[`tool parameters JSON Schema (wire shape) task 1`] = `
     },
     "task_id": {
       "description": "This should only be set if you mean to resume a previous task (you can pass a prior task_id and the task will continue the same subagent session as before instead of creating a fresh one)",
+      "type": "string",
+    },
+    "team_name": {
+      "description": "Spawn as a teammate on this team instead of a plain subagent. Requires the team to exist.",
       "type": "string",
     },
   },
@@ -440,6 +522,50 @@ exports[`tool parameters JSON Schema (wire shape) websearch 1`] = `
   "required": [
     "query",
   ],
+  "type": "object",
+}
+`;
+
+exports[`tool parameters JSON Schema (wire shape) worktree_enter 1`] = `
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "name": {
+      "description": "Name for the new worktree (also used for its branch). A new branch is created automatically.",
+      "type": "string",
+    },
+    "start_command": {
+      "description": "Startup script to run after the project's start command once the worktree is created.",
+      "type": "string",
+    },
+  },
+  "required": [
+    "name",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`tool parameters JSON Schema (wire shape) worktree_exit 1`] = `
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "directory": {
+      "description": "Worktree directory, as returned by worktree_enter or worktree_list.",
+      "type": "string",
+    },
+  },
+  "required": [
+    "directory",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`tool parameters JSON Schema (wire shape) worktree_list 1`] = `
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {},
   "type": "object",
 }
 `;

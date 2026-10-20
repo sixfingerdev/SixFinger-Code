@@ -15,6 +15,8 @@ import { Parameters as Glob } from "../../src/tool/glob"
 import { Parameters as Grep } from "../../src/tool/grep"
 import { Parameters as Invalid } from "../../src/tool/invalid"
 import { Parameters as Lsp } from "../../src/tool/lsp"
+import { Parameters as Moa } from "../../src/tool/moa"
+import { Parameters as NotebookEdit } from "../../src/tool/notebook-edit"
 import { Parameters as Plan } from "../../src/tool/plan"
 import { Parameters as Question } from "../../src/tool/question"
 import { Parameters as Read } from "../../src/tool/read"
@@ -24,6 +26,7 @@ import { Parameters as Task } from "../../src/tool/task"
 import { Parameters as Todo } from "../../src/tool/todo"
 import { Parameters as WebFetch } from "../../src/tool/webfetch"
 import { Parameters as WebSearch } from "../../src/tool/websearch"
+import { EnterParameters as WorktreeEnter, ExitParameters as WorktreeExit, ListParameters as WorktreeList } from "../../src/tool/worktree"
 import { Parameters as Write } from "../../src/tool/write"
 
 const parse = <S extends Schema.Decoder<unknown>>(schema: S, input: unknown): S["Type"] =>
@@ -43,6 +46,8 @@ describe("tool parameters", () => {
     test("grep", () => expect(toJsonSchema(Grep)).toMatchSnapshot())
     test("invalid", () => expect(toJsonSchema(Invalid)).toMatchSnapshot())
     test("lsp", () => expect(toJsonSchema(Lsp)).toMatchSnapshot())
+    test("moa", () => expect(toJsonSchema(Moa)).toMatchSnapshot())
+    test("notebook_edit", () => expect(toJsonSchema(NotebookEdit)).toMatchSnapshot())
     test("plan", () => expect(toJsonSchema(Plan)).toMatchSnapshot())
     test("question", () => expect(toJsonSchema(Question)).toMatchSnapshot())
     test("read", () => expect(toJsonSchema(Read)).toMatchSnapshot())
@@ -51,6 +56,9 @@ describe("tool parameters", () => {
     test("todo", () => expect(toJsonSchema(Todo)).toMatchSnapshot())
     test("webfetch", () => expect(toJsonSchema(WebFetch)).toMatchSnapshot())
     test("websearch", () => expect(toJsonSchema(WebSearch)).toMatchSnapshot())
+    test("worktree_enter", () => expect(toJsonSchema(WorktreeEnter)).toMatchSnapshot())
+    test("worktree_exit", () => expect(toJsonSchema(WorktreeExit)).toMatchSnapshot())
+    test("worktree_list", () => expect(toJsonSchema(WorktreeList)).toMatchSnapshot())
     test("write", () => expect(toJsonSchema(Write)).toMatchSnapshot())
 
     test("inlines named child schemas for provider compatibility", () => {
@@ -248,8 +256,7 @@ describe("tool parameters", () => {
     })
   })
 
-  describe("todo", () => {
-    test("accepts todos array", () => {
+  describe("todo", () => {    test("accepts todos array", () => {
       const parsed = parse(Todo, {
         todos: [{ id: "t1", content: "do x", status: "pending", priority: "medium" }],
       })

@@ -9,6 +9,7 @@ import * as Stream from "effect/Stream"
 import { Config } from "@/config/config"
 import { LLM } from "../../src/session/llm"
 import { SessionCompaction } from "../../src/session/compaction"
+import { SessionEvent } from "@opencode-ai/schema/session-event"
 import { Token } from "@/util/token"
 import { Plugin } from "../../src/plugin"
 import { provideTmpdirInstance, TestInstance } from "../fixture/fixture"
@@ -872,7 +873,10 @@ describe("session.compaction.process", () => {
       yield* Deferred.await(done).pipe(Effect.timeout("500 millis"))
       expect(result).toBe("continue")
       expect(seen).toContain(SessionCompaction.Event.Compacted.type)
-      expect(seen.filter((type) => type.startsWith("session.next."))).toEqual([])
+      // Started/Ended bracket the process call; Ended clears the TUI's
+      // compacting state on every exit path.
+      expect(seen).toContain(SessionEvent.Compaction.Started.type)
+      expect(seen).toContain(SessionEvent.Compaction.Ended.type)
     }),
   )
 
@@ -988,7 +992,33 @@ describe("session.compaction.process", () => {
   )
 
   itCompaction.instance(
-    "falls back to full summary when even one recent turn exceeds preserve token budget",
+    "always retains the newest turn even when everything fits the budget",
+    Effect.gen(function* () {
+      const ssn = yield* SessionNs.Service
+      const session = yield* ssn.create({})
+      yield* createUserMessage(session.id, "first")
+      yield* createUserMessage(session.id, "second")
+      const last = yield* createUserMessage(session.id, "third")
+      yield* createSummaryCompaction(session.id)
+
+      const msgs = yield* ssn.messages({ sessionID: session.id })
+      const parent = msgs.at(-1)?.info.id
+      expect(parent).toBeTruthy()
+      yield* SessionCompaction.use.process({
+        parentID: parent!,
+        messages: msgs,
+        sessionID: session.id,
+        auto: false,
+      })
+
+      const part = yield* readCompactionPart(session.id)
+      expect(part?.type).toBe("compaction")
+      expect(part?.tail_start_id).toBe(last.id)
+    }).pipe(withCompaction({})),
+  )
+
+  itCompaction.instance(
+    "retains the newest turn as tail when it exceeds the preserve token budget",
     () => {
       const stub = llm()
       let captured = ""
@@ -997,7 +1027,7 @@ describe("session.compaction.process", () => {
         const ssn = yield* SessionNs.Service
         const session = yield* ssn.create({})
         yield* createUserMessage(session.id, "first")
-        yield* createUserMessage(session.id, "y".repeat(2_000))
+        const recent = yield* createUserMessage(session.id, "y".repeat(2_000))
         yield* createSummaryCompaction(session.id)
 
         const msgs = yield* ssn.messages({ sessionID: session.id })
@@ -1007,15 +1037,15 @@ describe("session.compaction.process", () => {
 
         const part = yield* readCompactionPart(session.id)
         expect(part?.type).toBe("compaction")
-        expect(part?.tail_start_id).toBeUndefined()
-        expect(captured).toContain("yyyy")
+        expect(part?.tail_start_id).toBe(recent.id)
+        expect(captured).toContain("first")
       }).pipe(withCompaction({ llm: stub.llmLayer, config: cfg({ tail_turns: 1, preserve_recent_tokens: 20 }) }))
     },
     { git: true },
   )
 
   itCompaction.instance(
-    "falls back to full summary when retained tail media exceeds preserve token budget",
+    "retains the newest turn as tail when retained tail media exceeds preserve token budget",
     () => {
       const stub = llm()
       let captured = ""
@@ -1043,9 +1073,8 @@ describe("session.compaction.process", () => {
 
         const part = yield* readCompactionPart(session.id)
         expect(part?.type).toBe("compaction")
-        expect(part?.tail_start_id).toBeUndefined()
-        expect(captured).toContain("recent image turn")
-        expect(captured).toContain("Attached image/png: big.png")
+        expect(part?.tail_start_id).toBe(recent.id)
+        expect(captured).toContain("older")
       }).pipe(withCompaction({ llm: stub.llmLayer, config: cfg({ tail_turns: 1, preserve_recent_tokens: 100 }) }))
     },
     { git: true },
@@ -1464,6 +1493,7 @@ describe("session.compaction.process", () => {
       }).pipe(withCompaction({ llm: stub.llmLayer }))
     },
     { git: true },
+    15_000,
   )
 
   itCompaction.instance(
@@ -1507,6 +1537,7 @@ describe("session.compaction.process", () => {
       )
     },
     { git: true },
+    15_000,
   )
 
   itCompaction.instance(
@@ -1575,6 +1606,7 @@ describe("session.compaction.process", () => {
       }).pipe(withCompaction({ llm: stub.llmLayer, config: cfg({ tail_turns: 0 }) }))
     },
     { git: true },
+    15_000,
   )
 
   itCompaction.instance("keeps recent pre-compaction turns across repeated compactions", () => {

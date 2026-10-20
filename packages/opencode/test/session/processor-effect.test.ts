@@ -473,7 +473,7 @@ it.live("session.processor effect tests reset reasoning state across retries", (
       Effect.gen(function* () {
         const { processors, session, provider } = yield* boot()
 
-        yield* llm.push(reply().reason("one").reset(), reply().reason("two").stop())
+        yield* llm.push(reply().reason("one").reset(), reply().reason("two").text("done two").stop())
 
         const chat = yield* session.create({})
         const parent = yield* user(chat.id, "reason")
@@ -514,47 +514,54 @@ it.live("session.processor effect tests reset reasoning state across retries", (
   ),
 )
 
-it.live("session.processor effect tests do not retry unknown json errors", () =>
-  provideTmpdirServer(
-    ({ dir, llm }) =>
-      Effect.gen(function* () {
-        const { processors, session, provider } = yield* boot()
+it.live(
+  "session.processor effect tests retry unknown json errors with increasing delays",
+  () =>
+    provideTmpdirServer(
+      ({ dir, llm }) =>
+        Effect.gen(function* () {
+          const { processors, session, provider } = yield* boot()
 
-        yield* llm.error(400, { error: { message: "no_kv_space" } })
+          yield* llm.error(400, { error: { message: "no_kv_space" } })
+          yield* llm.error(400, { error: { message: "no_kv_space" } })
 
-        const chat = yield* session.create({})
-        const parent = yield* user(chat.id, "json")
-        const msg = yield* assistant(chat.id, parent.id, path.resolve(dir))
-        const mdl = yield* provider.getModel(ref.providerID, ref.modelID)
-        const handle = yield* processors.create({
-          assistantMessage: msg,
-          sessionID: chat.id,
-          model: mdl,
-        })
-
-        const value = yield* handle.process({
-          user: {
-            id: parent.id,
+          const chat = yield* session.create({})
+          const parent = yield* user(chat.id, "json")
+          const msg = yield* assistant(chat.id, parent.id, path.resolve(dir))
+          const mdl = yield* provider.getModel(ref.providerID, ref.modelID)
+          const handle = yield* processors.create({
+            assistantMessage: msg,
             sessionID: chat.id,
-            role: "user",
-            time: parent.time,
-            agent: parent.agent,
-            model: { providerID: ref.providerID, modelID: ref.modelID },
-          } satisfies SessionV1.User,
-          sessionID: chat.id,
-          model: mdl,
-          agent: agent(),
-          system: [],
-          messages: [{ role: "user", content: "json" }],
-          tools: {},
-        })
+            model: mdl,
+          })
 
-        expect(value).toBe("stop")
-        expect(yield* llm.calls).toBe(1)
-        expect(handle.message.error?.name).toBe("APIError")
-      }),
-    { config: (url) => providerCfg(url) },
-  ),
+          process.env.OPENCODE_RETRY_MAX_RETRIES = "1"
+          const value = yield* handle
+            .process({
+              user: {
+                id: parent.id,
+                sessionID: chat.id,
+                role: "user",
+                time: parent.time,
+                agent: parent.agent,
+                model: { providerID: ref.providerID, modelID: ref.modelID },
+              } satisfies SessionV1.User,
+              sessionID: chat.id,
+              model: mdl,
+              agent: agent(),
+              system: [],
+              messages: [{ role: "user", content: "json" }],
+              tools: {},
+            })
+            .pipe(Effect.ensuring(Effect.sync(() => delete process.env.OPENCODE_RETRY_MAX_RETRIES)))
+
+          expect(value).toBe("stop")
+          expect(yield* llm.calls).toBe(2)
+          expect(handle.message.error?.name).toBe("APIError")
+        }),
+      { config: (url) => providerCfg(url) },
+    ),
+  15_000,
 )
 
 it.live("session.processor effect tests retry recognized structured json errors", () =>
@@ -716,7 +723,7 @@ it.live("session.processor effect tests publish retry status updates", () =>
         const events = yield* EventV2Bridge.Service
 
         yield* llm.error(503, { error: "boom" })
-        yield* llm.text("")
+        yield* llm.text("ok")
 
         const chat = yield* session.create({})
         const parent = yield* user(chat.id, "retry")
@@ -1117,55 +1124,62 @@ itProviderError.live("session.processor effect tests fail provider-executed erro
   ),
 )
 
-itFragmentFailure.live("session.processor effect tests retain partial legacy parts without v2 events", () =>
-  provideTmpdirInstance(
-    (dir) =>
-      Effect.gen(function* () {
-        const { processors, session, provider } = yield* boot()
-        const events = yield* EventV2Bridge.Service
+itFragmentFailure.live(
+  "session.processor effect tests retain partial legacy parts without v2 events",
+  () =>
+    provideTmpdirInstance(
+      (dir) =>
+        Effect.gen(function* () {
+          const { processors, session, provider } = yield* boot()
+          const events = yield* EventV2Bridge.Service
+          // Fragment failures are terminal provider errors; disable retries so
+          // the test exercises the halt path directly.
+          process.env.OPENCODE_RETRY_MAX_RETRIES = "0"
 
-        const chat = yield* session.create({})
-        const parent = yield* user(chat.id, "provider failure")
-        const msg = yield* assistant(chat.id, parent.id, path.resolve(dir))
-        const mdl = yield* provider.getModel(ref.providerID, ref.modelID)
-        const seen: string[] = []
-        const off = yield* events.listen((event) => {
-          seen.push(event.type)
-          return Effect.void
-        })
-        const handle = yield* processors.create({ assistantMessage: msg, sessionID: chat.id, model: mdl })
+          const chat = yield* session.create({})
+          const parent = yield* user(chat.id, "provider failure")
+          const msg = yield* assistant(chat.id, parent.id, path.resolve(dir))
+          const mdl = yield* provider.getModel(ref.providerID, ref.modelID)
+          const seen: string[] = []
+          const off = yield* events.listen((event) => {
+            seen.push(event.type)
+            return Effect.void
+          })
+          const handle = yield* processors.create({ assistantMessage: msg, sessionID: chat.id, model: mdl })
 
-        expect(
-          yield* handle.process({
-            user: {
-              id: parent.id,
-              sessionID: chat.id,
-              role: "user",
-              time: parent.time,
-              agent: parent.agent,
-              model: { providerID: ref.providerID, modelID: ref.modelID },
-            } satisfies SessionV1.User,
-            sessionID: chat.id,
-            model: mdl,
-            agent: agent(),
-            system: [],
-            messages: [{ role: "user", content: "provider failure" }],
-            tools: {},
-          }),
-        ).toBe("stop")
-        yield* off
+          expect(
+            yield* handle
+              .process({
+                user: {
+                  id: parent.id,
+                  sessionID: chat.id,
+                  role: "user",
+                  time: parent.time,
+                  agent: parent.agent,
+                  model: { providerID: ref.providerID, modelID: ref.modelID },
+                } satisfies SessionV1.User,
+                sessionID: chat.id,
+                model: mdl,
+                agent: agent(),
+                system: [],
+                messages: [{ role: "user", content: "provider failure" }],
+                tools: {},
+              })
+              .pipe(Effect.ensuring(Effect.sync(() => delete process.env.OPENCODE_RETRY_MAX_RETRIES))),
+          ).toBe("stop")
+          yield* off
 
-        const parts = yield* MessageV2.parts(msg.id)
-        expect(parts).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ type: "text", text: "partial" }),
-            expect.objectContaining({ type: "reasoning", text: "thinking" }),
-          ]),
-        )
-        expect(seen).toContain(MessageV2.Event.PartUpdated.type)
-        expect(seen).toContain(Session.Event.Error.type)
-        expect(seen.filter((type) => type.startsWith("session.next."))).toEqual([])
-      }),
-    { config: cfg },
-  ),
+          const parts = yield* MessageV2.parts(msg.id)
+          expect(parts).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ type: "text", text: "partial" }),
+              expect.objectContaining({ type: "reasoning", text: "thinking" }),
+            ]),
+          )
+          expect(seen).toContain(MessageV2.Event.PartUpdated.type)
+          expect(seen).toContain(Session.Event.Error.type)
+          expect(seen.filter((type) => type.startsWith("session.next."))).toEqual([])
+        }),
+      { config: cfg },
+    ),
 )

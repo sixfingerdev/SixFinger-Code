@@ -17,10 +17,11 @@ import { SessionID, MessageID } from "../../src/session/schema"
 import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
 import { FSUtil } from "@opencode-ai/core/fs-util"
 import { Plugin } from "../../src/plugin"
-import { testEffect } from "../lib/effect"
+import { testEffect, pollWithTimeout } from "../lib/effect"
 import { Tool } from "@/tool/tool"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { InstanceStore } from "@/project/instance-store"
+import { BackgroundJob } from "@/background/job"
 
 const shellLayer = Layer.mergeAll(
   LayerNode.compile(
@@ -32,6 +33,7 @@ const shellLayer = Layer.mergeAll(
       Config.node,
       Agent.node,
       RuntimeFlags.node,
+      BackgroundJob.node,
     ]),
   ),
   testInstanceStoreLayer,
@@ -176,7 +178,7 @@ const mustTruncate = (result: {
 }) => {
   if (result.metadata.truncated) return
   throw new Error(
-    [`shell: ${process.env.SHELL || ""}`, `exit: ${String(result.metadata.exit)}`, "output:", result.output].join("\n"),
+    [`shell: ${process.env.SHELL || ""}`, `exit: ${String("exit" in result.metadata ? result.metadata.exit : "?")}`, "output:", result.output].join("\n"),
   )
 }
 
@@ -188,7 +190,7 @@ describe("tool.shell", () => {
         const result = yield* run({
           command: "echo test",
         })
-        expect(result.metadata.exit).toBe(0)
+        expect("exit" in result.metadata ? result.metadata.exit : undefined).toBe(0)
         expect(result.metadata.output).toContain("test")
       }),
     ),
@@ -211,7 +213,7 @@ describe("tool.shell", () => {
             },
             ctx,
           )
-          expect(result.metadata.exit).toBe(0)
+          expect("exit" in result.metadata ? result.metadata.exit : undefined).toBe(0)
           expect(result.output).toContain("fallback")
         }),
       )
@@ -1007,41 +1009,45 @@ describe("tool.shell permissions", () => {
 })
 
 describe("tool.shell abort", () => {
-  it.live(
-    "preserves output when aborted",
-    () =>
-      runIn(
-        projectRoot,
-        Effect.gen(function* () {
-          const controller = new AbortController()
-          const collected: string[] = []
-          const res = yield* run(
-            {
-              command: `echo before && sleep 30`,
-            },
-            {
-              ...ctx,
-              abort: controller.signal,
-              metadata: (input) =>
-                Effect.sync(() => {
-                  const output = (input.metadata as { output?: string })?.output
-                  if (output && output.includes("before") && !controller.signal.aborted) {
-                    collected.push(output)
-                    controller.abort()
-                  }
-                }),
-            },
-          )
-          expect(res.output).toContain("before")
-          expect(res.output).toContain("User aborted the command")
-          expect(collected.length).toBeGreaterThan(0)
-        }),
-      ),
-    15_000,
-  )
+  if (bash)
+    it.live(
+      "preserves output when aborted",
+      () =>
+        withShell(
+          { label: "bash", shell: bash },
+          runIn(
+            projectRoot,
+            Effect.gen(function* () {
+              const controller = new AbortController()
+              const collected: string[] = []
+              const res = yield* run(
+                {
+                  command: `echo before && sleep 30`,
+                },
+                {
+                  ...ctx,
+                  abort: controller.signal,
+                  metadata: (input) =>
+                    Effect.sync(() => {
+                      const output = (input.metadata as { output?: string })?.output
+                      if (output && output.includes("before") && !controller.signal.aborted) {
+                        collected.push(output)
+                        controller.abort()
+                      }
+                    }),
+                },
+              )
+              expect(res.output).toContain("before")
+              expect(res.output).toContain("User aborted the command")
+              expect(collected.length).toBeGreaterThan(0)
+            }),
+          ),
+        ),
+      15_000,
+    )
 
   it.live(
-    "terminates command on timeout",
+    "terminates command on confirmed timeout",
     () =>
       runIn(
         projectRoot,
@@ -1049,31 +1055,29 @@ describe("tool.shell abort", () => {
           const result = yield* run({
             command: `sleep 60`,
             timeout: 500,
+            confirm_timeout: true,
           })
-          expect(result.output).toContain("shell tool terminated command after exceeding timeout")
-          expect(result.output).toContain("retry with a larger timeout value in milliseconds")
+          expect(result.output).toContain("shell tool terminated command after exceeding the confirmed timeout 500 ms")
         }),
       ),
     15_000,
   )
 
   it.live(
-    "uses RuntimeFlags bashDefaultTimeoutMs when timeout is omitted",
+    "rejects unconfirmed timeout and describes background behavior",
     () =>
       runIn(
         projectRoot,
         Effect.gen(function* () {
           const tool = yield* initShell()
-          expect(tool.description).toContain("commands will time out after 500ms")
-          const result = yield* tool.execute(
-            {
-              command: `sleep 60`,
-            },
-            ctx,
-          )
-          expect(result.output).toContain("exceeding timeout 500 ms")
+          expect(tool.description).toContain("no default timeout")
+          const err = yield* fail({
+            command: `sleep 60`,
+            timeout: 500,
+          })
+          expect(err.message).toContain("confirm_timeout=true")
         }),
-      ).pipe(Effect.provide(RuntimeFlags.layer({ bashDefaultTimeoutMs: 500 }))),
+      ),
     15_000,
   )
 
@@ -1087,7 +1091,7 @@ describe("tool.shell abort", () => {
           })
           expect(result.output).toContain("stdout_msg")
           expect(result.output).toContain("stderr_msg")
-          expect(result.metadata.exit).toBe(0)
+          expect("exit" in result.metadata ? result.metadata.exit : undefined).toBe(0)
         }),
       ),
     )
@@ -1100,35 +1104,79 @@ describe("tool.shell abort", () => {
         const result = yield* run({
           command: `exit 42`,
         })
-        expect(result.metadata.exit).toBe(42)
+        expect("exit" in result.metadata ? result.metadata.exit : undefined).toBe(42)
       }),
     ),
   )
 
-  it.live("streams metadata updates progressively", () =>
+  it.live("starts background job and returns job id", () =>
     runIn(
       projectRoot,
       Effect.gen(function* () {
-        const updates: string[] = []
-        const result = yield* run(
-          {
-            command: `echo first && sleep 0.1 && echo second`,
-          },
-          {
-            ...ctx,
-            metadata: (input) =>
-              Effect.sync(() => {
-                const output = (input.metadata as { output?: string })?.output
-                if (output) updates.push(output)
-              }),
-          },
-        )
-        expect(result.output).toContain("first")
-        expect(result.output).toContain("second")
-        expect(updates.length).toBeGreaterThan(1)
+        const result = yield* run({
+          command: `echo bg_hi`,
+          background: true,
+        })
+        expect(result.metadata.background).toBe(true)
+        expect(typeof result.metadata.jobId).toBe("string")
+        expect(result.output).toContain("background_job")
       }),
     ),
+    15_000,
   )
+
+  it.live("background job survives the tool abort signal", () =>
+    runIn(
+      projectRoot,
+      Effect.gen(function* () {
+        const controller = new AbortController()
+        const result = yield* run(
+          {
+            command: `sleep 2 && echo done_late`,
+            background: true,
+          },
+          { ...ctx, abort: controller.signal },
+        )
+        expect(result.metadata.background).toBe(true)
+        controller.abort()
+        const jobs = yield* BackgroundJob.Service
+        const waited = yield* jobs.wait({ id: String(result.metadata.jobId) })
+        expect(waited.timedOut).toBe(false)
+        expect(waited.info?.status).toBe("completed")
+        expect(waited.info?.output).toContain("done_late")
+      }),
+    ),
+    15_000,
+  )
+
+  if (bash)
+    it.live("streams metadata updates progressively", () =>
+      withShell(
+        { label: "bash", shell: bash },
+        runIn(
+          projectRoot,
+          Effect.gen(function* () {
+            const updates: string[] = []
+            const result = yield* run(
+              {
+                command: `echo first && sleep 0.1 && echo second`,
+              },
+              {
+                ...ctx,
+                metadata: (input) =>
+                  Effect.sync(() => {
+                    const output = (input.metadata as { output?: string })?.output
+                    if (output) updates.push(output)
+                  }),
+              },
+            )
+            expect(result.output).toContain("first")
+            expect(result.output).toContain("second")
+            expect(updates.length).toBeGreaterThan(1)
+          }),
+        ),
+      ),
+    )
 })
 
 describe("tool.shell truncation", () => {
@@ -1160,6 +1208,64 @@ describe("tool.shell truncation", () => {
         expect(result.output).toMatch(/Full output saved to:\s+\S+/)
       }),
     ),
+  )
+
+  it.live("wakes the session when a background job produces output", () =>
+    runIn(
+      projectRoot,
+      Effect.gen(function* () {
+        const wakes: string[] = []
+        const promptOps = {
+          cancel: () => Effect.void,
+          resolvePromptParts: (template: string) => Effect.succeed([{ type: "text" as const, text: template }]),
+          prompt: (input: { parts: ReadonlyArray<{ type: string; text?: string }> }) =>
+            Effect.sync(() => {
+              for (const part of input.parts) {
+                if (part.text?.includes('state="progress"')) wakes.push(part.text)
+              }
+              return {
+                info: {
+                  id: MessageID.ascending(),
+                  role: "assistant" as const,
+                  parentID: MessageID.ascending(),
+                  sessionID: SessionID.make("ses_test"),
+                  mode: "build",
+                  agent: "build",
+                  cost: 0,
+                  path: { cwd: "/tmp", root: "/tmp" },
+                  tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } },
+                  modelID: "test-model",
+                  providerID: "test",
+                  time: { created: Date.now() },
+                  finish: "stop" as const,
+                },
+                parts: [],
+              } as never
+            }),
+        }
+        const result = yield* run(
+          {
+            command: `echo wake_one; sleep 30`,
+            background: true,
+          },
+          { ...ctx, extra: { promptOps } },
+        )
+        expect(result.metadata.background).toBe(true)
+        const jobID = String(result.metadata.jobId)
+
+        const wake = yield* pollWithTimeout(
+          Effect.sync(() => wakes.find((text) => text.includes("wake_one"))),
+          "background job output change never woke the session",
+          "20 seconds",
+        )
+        expect(wake).toContain('state="progress"')
+        expect(wake).toContain("still running")
+
+        const jobs = yield* BackgroundJob.Service
+        yield* jobs.cancel(jobID)
+      }),
+    ),
+    30_000,
   )
 
   it.live("does not truncate small output", () =>

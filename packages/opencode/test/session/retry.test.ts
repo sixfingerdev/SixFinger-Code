@@ -164,20 +164,22 @@ describe("session.retry.retryable", () => {
     expect(SessionRetry.retryable(wrap(message), retryProvider)).toEqual({ message })
   })
 
-  test("does not retry unknown json messages", () => {
+  test("retries unknown json messages with increasing delays", () => {
     const error = wrap(JSON.stringify({ error: { message: "no_kv_space" } }))
-    expect(SessionRetry.retryable(error, retryProvider)).toBeUndefined()
+    expect(SessionRetry.retryable(error, retryProvider)).toEqual({
+      message: JSON.stringify({ error: { message: "no_kv_space" } }),
+    })
   })
 
   test("does not throw on numeric error codes", () => {
     const error = wrap(JSON.stringify({ type: "error", error: { code: 123 } }))
     const result = SessionRetry.retryable(error, retryProvider)
-    expect(result).toBeUndefined()
+    expect(result).toBeDefined()
   })
 
-  test("returns undefined for non-json message", () => {
+  test("retries non-json message with its original text", () => {
     const error = wrap("not-json")
-    expect(SessionRetry.retryable(error, retryProvider)).toBeUndefined()
+    expect(SessionRetry.retryable(error, retryProvider)).toEqual({ message: "not-json" })
   })
 
   test("retries plain text rate limit errors from Alibaba", () => {
@@ -309,12 +311,22 @@ describe("session.retry.retryable", () => {
     expect(SessionRetry.retryable(error, retryProvider)).toEqual({ message: "Service unavailable" })
   })
 
-  test("does not retry 4xx errors when isRetryable is false", () => {
+  test("retries 4xx errors even when isRetryable is false", () => {
     const error = Schema.decodeUnknownSync(SessionV1.APIError.Schema)(
       new SessionV1.APIError({
         message: "Bad request",
         isRetryable: false,
         statusCode: 400,
+      }).toObject(),
+    )
+
+    expect(SessionRetry.retryable(error, retryProvider)).toEqual({ message: "Bad request" })
+  })
+
+  test("does not retry context overflow errors", () => {
+    const error = Schema.decodeUnknownSync(SessionV1.ContextOverflowError.Schema)(
+      new SessionV1.ContextOverflowError({
+        message: "prompt is too long",
       }).toObject(),
     )
 
