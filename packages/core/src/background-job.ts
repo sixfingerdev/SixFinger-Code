@@ -14,6 +14,8 @@ export type Info = {
   started_at: number
   completed_at?: number
   output?: string
+  /** Rolling live output reported while the job is still running; cleared on settle. */
+  progress?: string
   error?: string
   metadata?: Record<string, unknown>
 }
@@ -26,6 +28,7 @@ type Active = {
   pending: number
   next: number
   output?: { sequence: number; text: string }
+  progress?: { sequence: number; text: string }
   tail: Deferred.Deferred<void>
   promoted: Deferred.Deferred<Info>
   onPromote?: Effect.Effect<void>
@@ -94,13 +97,18 @@ export interface Interface {
   readonly waitForPromotion: (id: string) => Effect.Effect<Info>
   readonly promote: (id: string) => Effect.Effect<Info | undefined>
   readonly cancel: (id: string) => Effect.Effect<Info | undefined>
+  /** Append live output to a running job; ignored once the job settles. */
+  readonly report: (id: string, text: string) => Effect.Effect<boolean>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/BackgroundJob") {}
 
+const MAX_PROGRESS_BYTES = 64_000
+
 function snapshot(job: Active): Info {
   return {
     ...job.info,
+    ...(job.progress ? { progress: job.progress.text } : {}),
     ...(job.info.metadata ? { metadata: { ...job.info.metadata } } : {}),
   }
 }
@@ -153,6 +161,7 @@ export const make = Effect.gen(function* () {
         onPromote: undefined,
         pending: 0,
         output,
+        progress: undefined,
         info: {
           ...job.info,
           status,
@@ -334,6 +343,24 @@ export const make = Effect.gen(function* () {
     return result.info
   })
 
+  const report: Interface["report"] = Effect.fn("BackgroundJob.report")(function* (id, text) {
+    if (!text) return false
+    const reported = yield* SynchronizedRef.modify(state.jobs, (jobs): readonly [boolean, Map<string, Active>] => {
+      const job = jobs.get(id)
+      if (!job || job.info.status !== "running") return [false, jobs]
+      const combined = job.progress ? job.progress.text + text : text
+      const trimmed = combined.length > MAX_PROGRESS_BYTES ? combined.slice(-MAX_PROGRESS_BYTES) : combined
+      return [
+        true,
+        new Map(jobs).set(id, {
+          ...job,
+          progress: { sequence: (job.progress?.sequence ?? 0) + 1, text: trimmed },
+        }),
+      ]
+    })
+    return reported
+  })
+
   const cancel: Interface["cancel"] = Effect.fn("BackgroundJob.cancel")(function* (id) {
     const completed_at = yield* Clock.currentTimeMillis
     const result = yield* SynchronizedRef.modify(state.jobs, (jobs): readonly [FinishResult, Map<string, Active>] => {
@@ -357,7 +384,7 @@ export const make = Effect.gen(function* () {
     return result.info
   })
 
-  return Service.of({ list, get, start, extend, wait, waitForPromotion, promote, cancel })
+  return Service.of({ list, get, start, extend, wait, waitForPromotion, promote, cancel, report })
 })
 
 const layer = Layer.effect(Service, make)

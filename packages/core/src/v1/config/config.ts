@@ -154,6 +154,10 @@ export const Info = Schema.Struct({
       prune: Schema.optional(Schema.Boolean).annotate({
         description: "Enable pruning of old tool outputs (default: false)",
       }),
+      mode: Schema.optional(Schema.Literals(["summary", "memory"])).annotate({
+        description:
+          'summary (default): compact with a model-generated summary. "memory": no model call — the working context keeps persistent memories plus the most recent turns.',
+      }),
       tail_turns: Schema.optional(NonNegativeInt).annotate({
         description:
           "Maximum number of recent user turns, including their following assistant/tool responses, to keep verbatim during compaction. By default retention is limited only by the preserved token budget.",

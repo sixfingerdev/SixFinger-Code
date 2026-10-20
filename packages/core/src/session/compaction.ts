@@ -32,18 +32,24 @@ const SUMMARY_TEMPLATE = `Output exactly the Markdown structure shown inside <te
 - [blockers, failing commands, or unknowns; otherwise "(none)"]
 
 ## Next Move
-1. [immediate concrete action, or "(none)"]
+1. [immediate concrete action, or "(none)"; quote the user's most recent explicit request verbatim when one exists]
 2. [next action if known, or "(none)"]
 
 ## Relevant Files
-- [file or directory path: why it matters, or "(none)"]
+- [file or directory path: why it matters, with important code snippets quoted verbatim where they matter for continuing; otherwise "(none)"]
+
+## All User Messages
+- [every user message in the conversation that is not a tool result, newest intent last; never drop user feedback or corrections]
 </template>
 
 Rules:
 - Keep every section, even when empty.
 - Use terse bullets, not prose paragraphs.
 - Preserve exact file paths, symbols, commands, error strings, URLs, and identifiers when known.
-- Do not mention the summary process or that context was compacted.`
+- Quote critical code snippets, commands, and user requests verbatim instead of paraphrasing them.
+- Never drop user corrections, changed intent, or explicit "do it this way" feedback.
+- Do not mention the summary process or that context was compacted.
+- Pay special attention to the most recent messages: current work, pending tasks, and the next step must reflect where the conversation actually left off, not older completed work.`
 const SUMMARY_UPDATE_INSTRUCTIONS = `The <prior-summary> summarizes everything that happened before the <conversation>. Construct a new summary that combines both. The <prior-summary> is discarded after this: anything you do not carry into the new summary is lost.
 
 When combining:
