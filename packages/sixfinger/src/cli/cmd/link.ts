@@ -49,7 +49,7 @@ export const LinkCommand = cmd({
         base = s.url
         stop = s.stop
       }
-      const bridge = createBridge(httpLocal(base, password), { server: Login.server(), token: () => Login.accessToken() }, { log: (m) => say(`[link] ${m}`) })
+      const bridge = createBridge(httpLocal(base, password), { server: Login.server(), token: (force) => Login.accessToken(force) }, { log: (m) => say(`[link] ${m}`) })
       say(tr ? `Köprü açık: oturumlar ${Login.server()} üzerinden izlenebilir. Durdurmak için Ctrl+C.` : `Bridge is on: sessions are viewable at ${Login.server()}. Press Ctrl+C to stop.`)
       await bridge.loop(ac.signal)
     } catch (e) {

@@ -10,12 +10,31 @@ import * as Login from "./login"
 
 export interface LocalApi {
   get<T = unknown>(path: string, query?: Record<string, string | number | undefined>): Promise<T>
-  post(path: string, query: Record<string, string | undefined>, body?: unknown): Promise<void>
+  post<T = unknown>(path: string, query: Record<string, string | undefined>, body?: unknown): Promise<T | undefined>
+  /** Yerel sunucunun olay akışı (SSE). Kapanırsa/kopunca promise biter; çağıran yeniden dener. */
+  events?(onEvent: () => void, signal: AbortSignal): Promise<void>
 }
 
 export interface Remote {
   server: string
-  token: () => Promise<string>
+  /** `force`: önbellekteki jetonu atla ve yenile (401 sonrası). */
+  token: (force?: boolean) => Promise<string>
+}
+
+/** Bu CLI'nın anladığı komut türleri; sunucuya bildirilir. Bilinmeyen tür gelirse "desteklenmeyen komut" diye onaylanır. */
+export const CAPABILITIES = ["prompt", "abort", "permission", "question", "new_session"]
+export const PROTOCOL = 1
+
+interface Cmd {
+  id: string
+  sessionId: string
+  kind: string
+  payload: Json
+}
+interface Ack {
+  id: string
+  ok: boolean
+  error?: string
 }
 
 type Json = Record<string, any>
@@ -79,18 +98,34 @@ export function createBridge(local: LocalApi, remote: Remote, opts: { name?: str
   const dirOf = new Map<string, string>()
   const seen = new Map<string, string>() // oturum → son parmak izi
   let sent = new Set<string>()
+  let acks: Ack[] = []
+  /** Uygulanmış komutlar (kimlik → sonuç): sunucu aynı komutu yeniden teslim ederse tekrar çalıştırmadan yeniden onaylanır. */
+  const finished = new Map<string, Ack>()
+  let wake: (() => void) | undefined
 
-  async function api<T>(path: string, body: unknown): Promise<{ status: number; json: T }> {
-    const res = await fetch(`${remote.server}/api${path}`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${await remote.token()}` },
-      body: JSON.stringify(body),
-    })
-    return { status: res.status, json: (await res.json().catch(() => ({}))) as T }
+  async function api<T>(path: string, body: unknown, signal?: AbortSignal): Promise<{ status: number; json: T }> {
+    const once = async (force: boolean) => {
+      const res = await fetch(`${remote.server}/api${path}`, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${await remote.token(force)}` },
+        body: JSON.stringify(body),
+        signal,
+      })
+      return { status: res.status, json: (await res.json().catch(() => ({}))) as T }
+    }
+    const r = await once(false)
+    return r.status === 401 ? once(true) : r
   }
 
   async function register() {
-    const r = await api<{ deviceId: string }>("/link/register", { name, platform: `${os.platform()}-${os.arch()}`, version: process.env.SIXFINGER_VERSION ?? "" })
+    const r = await api<{ deviceId: string; error?: { message?: string } }>("/link/register", {
+      name,
+      platform: `${os.platform()}-${os.arch()}`,
+      version: process.env.SIXFINGER_VERSION ?? "",
+      protocol: PROTOCOL,
+      capabilities: CAPABILITIES,
+    })
+    if (r.status === 426) throw new Error(r.json.error?.message ?? "CLI sürümü eski, güncelle.")
     if (r.status !== 200) throw new Error(`register ${r.status}`)
     deviceId = r.json.deviceId
   }
@@ -138,59 +173,175 @@ export function createBridge(local: LocalApi, remote: Remote, opts: { name?: str
     sent = now
     for (const id of gone) seen.delete(id)
 
-    const r = await api<{ commands: Array<{ id: string; sessionId: string; kind: string; payload: Json }> }>("/link/sync", { deviceId, sessions, gone })
+    const sending = acks
+    acks = []
+    const r = await api<{ commands: Cmd[] }>("/link/sync", { deviceId, sessions, gone, acks: sending })
     if (r.status === 404) {
       deviceId = undefined // sunucu cihazı unuttu (silinmiş): yeniden kaydol
+      acks = [...sending, ...acks]
       return { busy: true }
     }
-    if (r.status !== 200) throw new Error(`sync ${r.status}`)
-    for (const c of r.json.commands) {
-      await run(c).catch((e) => log(`komut başarısız (${c.kind}): ${e instanceof Error ? e.message : String(e)}`))
-      seen.delete(c.sessionId) // sonucu hızla göster
+    if (r.status !== 200) {
+      acks = [...sending, ...acks] // ulaşmadı: bir sonraki istekte yeniden gönder
+      throw new Error(`sync ${r.status}`)
     }
+    await handle(r.json.commands)
     return { busy: anyBusy || r.json.commands.length > 0 }
   }
 
-  async function run(c: { sessionId: string; kind: string; payload: Json }) {
+  /** Gelen komutları sırayla uygular; her biri için onay (ack) biriktirir. Daha önce uygulananı yeniden çalıştırmaz. */
+  async function handle(cmds: Cmd[]) {
+    for (const c of cmds) {
+      const prev = finished.get(c.id)
+      if (prev) {
+        acks.push(prev)
+        continue
+      }
+      let ack: Ack
+      try {
+        await run(c)
+        ack = { id: c.id, ok: true }
+      } catch (e) {
+        const error = e instanceof Error ? e.message : String(e)
+        log(`komut başarısız (${c.kind}): ${error}`)
+        ack = { id: c.id, ok: false, error: error.slice(0, 400) }
+      }
+      finished.set(c.id, ack)
+      if (finished.size > 500) finished.delete(finished.keys().next().value!)
+      acks.push(ack)
+      seen.delete(c.sessionId) // sonucu hızla göster
+    }
+    if (cmds.length) wake?.()
+  }
+
+  const modelOf = (m: unknown) => (m === "fast" || m === "deep" ? { model: { providerID: "sixfinger", modelID: m } } : {})
+
+  async function run(c: Cmd) {
+    if (c.kind === "new_session") {
+      const dir = typeof c.payload.directory === "string" && c.payload.directory ? c.payload.directory : process.cwd()
+      const created = await local.post<{ id: string }>("/session", { directory: dir }, {})
+      if (!created?.id) throw new Error("oturum oluşturulamadı")
+      dirOf.set(created.id, dir)
+      const text = String(c.payload.text ?? "").trim()
+      if (text) await local.post(`/session/${created.id}/prompt_async`, { directory: dir }, { parts: [{ type: "text", text }], ...modelOf(c.payload.model) })
+      return
+    }
+    if (!CAPABILITIES.includes(c.kind)) throw new Error(`desteklenmeyen komut: ${c.kind}`)
     const directory = dirOf.get(c.sessionId)
     if (!directory) throw new Error("oturum yerelde yok")
     switch (c.kind) {
       case "prompt":
-        return local.post(`/session/${c.sessionId}/prompt_async`, { directory }, { parts: [{ type: "text", text: String(c.payload.text ?? "") }] })
+        return void (await local.post(`/session/${c.sessionId}/prompt_async`, { directory }, { parts: [{ type: "text", text: String(c.payload.text ?? "") }], ...modelOf(c.payload.model) }))
       case "abort":
-        return local.post(`/session/${c.sessionId}/abort`, { directory })
+        return void (await local.post(`/session/${c.sessionId}/abort`, { directory }))
       case "permission":
-        return local.post(`/permission/${c.payload.requestId}/reply`, { directory }, { reply: c.payload.reply })
+        return void (await local.post(`/permission/${c.payload.requestId}/reply`, { directory }, { reply: c.payload.reply }))
       case "question":
-        return c.payload.reject
-          ? local.post(`/question/${c.payload.requestId}/reject`, { directory })
-          : local.post(`/question/${c.payload.requestId}/reply`, { directory }, { answers: c.payload.answers ?? [] })
+        return void (c.payload.reject
+          ? await local.post(`/question/${c.payload.requestId}/reject`, { directory })
+          : await local.post(`/question/${c.payload.requestId}/reply`, { directory }, { answers: c.payload.answers ?? [] }))
     }
   }
 
-  /** Döngü: iş varken 1 sn, boştayken 3 sn; hata olursa üstel bekleme. `signal` ile durur. */
-  async function loop(signal: AbortSignal) {
+  const sleep = (ms: number, signal: AbortSignal) =>
+    new Promise<void>((resolve) => {
+      const t = setTimeout(done, ms)
+      function done() {
+        clearTimeout(t)
+        wake = undefined
+        signal.removeEventListener("abort", done)
+        resolve()
+      }
+      wake = done
+      signal.addEventListener("abort", done, { once: true })
+    })
+
+  let lastState = ""
+  const state = (s: string) => {
+    if (s !== lastState) {
+      lastState = s
+      log(s)
+    }
+  }
+
+  /** İtme döngüsü: yerel olay gelince hemen (debounce), yoksa en geç 5 sn'de bir; iş varken 1 sn. Hata olursa üstel bekleme. */
+  async function pushLoop(signal: AbortSignal) {
     let backoff = 0
     while (!signal.aborted) {
-      let wait = 3_000
+      let wait = 5_000
       try {
         const { busy } = await tick()
+        if (backoff) state("bağlandı")
         backoff = 0
         if (busy) wait = 1_000
       } catch (e) {
+        if (e instanceof Login.LoginRequiredError) throw e
         backoff = Math.min(60_000, backoff ? backoff * 2 : 2_000)
         wait = backoff
-        log(`bağlantı sorunu: ${e instanceof Error ? e.message : String(e)} (${Math.round(wait / 1000)} sn sonra yeniden)`)
-        if (e instanceof Login.LoginRequiredError) throw e
+        state(`bağlantı sorunu: ${e instanceof Error ? e.message : String(e)} (yeniden deneniyor)`)
       }
-      await new Promise<void>((resolve) => {
-        const t = setTimeout(resolve, wait)
-        signal.addEventListener("abort", () => (clearTimeout(t), resolve()), { once: true })
-      })
+      await sleep(wait, signal)
     }
   }
 
-  return { tick, loop }
+  /** Çekme döngüsü: sunucuya uzun yoklama; komut gelince anında döner. Komutları uygular, onayları bir sonraki istekle yollar. */
+  async function pollLoop(signal: AbortSignal) {
+    let backoff = 0
+    while (!signal.aborted) {
+      if (!deviceId) {
+        await sleep(500, signal)
+        continue
+      }
+      try {
+        const sending = acks
+        acks = []
+        const r = await api<{ commands: Cmd[] }>("/link/poll", { deviceId, acks: sending, wait: 15 }, signal).catch((e) => {
+          acks = [...sending, ...acks]
+          throw e
+        })
+        if (r.status === 404) {
+          deviceId = undefined
+          acks = [...sending, ...acks]
+          continue
+        }
+        if (r.status !== 200) {
+          acks = [...sending, ...acks]
+          throw new Error(`poll ${r.status}`)
+        }
+        backoff = 0
+        if (r.json.commands.length) await handle(r.json.commands)
+      } catch (e) {
+        if (signal.aborted) return
+        if (e instanceof Login.LoginRequiredError) throw e
+        backoff = Math.min(60_000, backoff ? backoff * 2 : 2_000)
+        await sleep(backoff, signal)
+      }
+    }
+  }
+
+  /** Yerel sunucunun olay akışını dinler; her olayda itme döngüsünü hemen uyandırır (150 ms toplayarak). */
+  async function watchLocal(signal: AbortSignal) {
+    if (!local.events) return
+    let timer: ReturnType<typeof setTimeout> | undefined
+    while (!signal.aborted) {
+      await local
+        .events(() => {
+          if (timer) return
+          timer = setTimeout(() => {
+            timer = undefined
+            wake?.()
+          }, 150)
+        }, signal)
+        .catch(() => {})
+      await sleep(2_000, signal) // akış koptu: kısa bekleyip yeniden bağlan (yoksa 5 sn'lik yedek döngü işler)
+    }
+  }
+
+  async function loop(signal: AbortSignal) {
+    await Promise.all([pushLoop(signal), pollLoop(signal), watchLocal(signal)])
+  }
+
+  return { tick, loop, handle, flushAcks: () => acks }
 }
 
 /** Yerel sunucuya (Basic auth'lu) bağlanan basit HTTP istemcisi. */
@@ -211,6 +362,17 @@ export function httpLocal(base: string, password?: string, username = "sixfinger
     async post(path, query, body) {
       const res = await fetch(url(path, query), { method: "POST", headers, body: body === undefined ? undefined : JSON.stringify(body) })
       if (!res.ok) throw new Error(`${path} ${res.status}`)
+      return (res.status === 204 ? undefined : await res.json().catch(() => undefined)) as never
+    },
+    async events(onEvent, signal) {
+      const res = await fetch(url("/global/event"), { headers: { ...headers, accept: "text/event-stream" }, signal })
+      if (!res.ok || !res.body) throw new Error(`events ${res.status}`)
+      const reader = res.body.getReader()
+      for (;;) {
+        const { done } = await reader.read()
+        if (done) return
+        onEvent()
+      }
     },
   }
 }
