@@ -58,8 +58,8 @@ function View(props: { api: TuiPluginApi; sessionID: string }) {
               Connect from 75+ providers to use other models, including Claude, GPT, Gemini etc
             </text>
             <box flexDirection="row" gap={1} justifyContent="space-between">
-              <text fg={theme().text}>Connect provider</text>
-              <text fg={theme().textMuted}>/connect</text>
+              <text fg={theme().text}>Sign in</text>
+              <text fg={theme().textMuted}>sixfinger login</text>
             </box>
           </box>
         </box>
