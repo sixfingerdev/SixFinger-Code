@@ -19,6 +19,7 @@ describe("sunucu sistem istemi", () => {
     expect(P.get()).toBe(TEXT)
     // yeni "süreç": modülü sıfırla, sunucuyu kapat → önbellek
     process.env.SIXFINGER_SERVER = "http://localhost:1"
+    // @ts-expect-error sorgu dizesiyle modülü yeniden yüklemek için
     const P2 = await import("../../src/sixfinger/prompt?fresh=1")
     await P2.refresh(500)
     expect(P2.get()).toBe(TEXT)

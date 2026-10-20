@@ -31,7 +31,6 @@ import { SleepTool } from "./sleep"
 import { MonitorTool } from "./monitor"
 import { BackgroundTool } from "./background"
 import { WakeupTool } from "./wakeup"
-import { MoaTool } from "./moa"
 import { SessionSearchTool } from "./session-search"
 import { MemoryTool } from "./memory"
 import { CronCreateTool, CronListTool, CronDeleteTool } from "./cron"
@@ -139,7 +138,6 @@ const layer = Layer.effect(
     const monitor = yield* MonitorTool
     const backgroundTool = yield* BackgroundTool
     const wakeup = yield* WakeupTool
-    const moa = yield* MoaTool
     const sessionSearch = yield* SessionSearchTool
     const memory = yield* MemoryTool
     const cronCreate = yield* CronCreateTool
@@ -269,7 +267,6 @@ const layer = Layer.effect(
           monitor: Tool.init(monitor),
           backgroundTool: Tool.init(backgroundTool),
           wakeup: Tool.init(wakeup),
-          moa: Tool.init(moa),
           sessionSearch: Tool.init(sessionSearch),
           memory: Tool.init(memory),
           cronCreate: Tool.init(cronCreate),
@@ -312,7 +309,6 @@ const layer = Layer.effect(
             tool.monitor,
             tool.backgroundTool,
             tool.wakeup,
-            tool.moa,
             tool.sessionSearch,
             tool.memory,
             tool.cronCreate,

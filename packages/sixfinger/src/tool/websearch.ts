@@ -1,11 +1,7 @@
 import { Effect, Schema } from "effect"
-import { HttpClient } from "effect/unstable/http"
 import * as Tool from "./tool"
-import * as McpWebSearch from "./mcp-websearch"
+import * as Login from "../sixfinger/login"
 import DESCRIPTION from "./websearch.txt"
-import { checksum } from "@sixfinger/core/util/encode"
-import { InstallationVersion } from "@sixfinger/core/installation/version"
-import { RuntimeFlags } from "@/effect/runtime-flags"
 
 export const Parameters = Schema.Struct({
   query: Schema.String.annotate({ description: "Websearch query" }),
@@ -24,16 +20,12 @@ export const Parameters = Schema.Struct({
   }),
 })
 
-const WebSearchProviderSchema = Schema.Literals(["exa", "parallel"])
+const WebSearchProviderSchema = Schema.Literals(["sixfinger", "exa", "parallel"])
 export type WebSearchProvider = Schema.Schema.Type<typeof WebSearchProviderSchema>
 
-export function selectWebSearchProvider(sessionID: string, flags = { exa: false, parallel: false }): WebSearchProvider {
-  const override = process.env.SIXFINGER_WEBSEARCH_PROVIDER
-  if (override === "exa" || override === "parallel") return override
-  if (flags.parallel) return "parallel"
-  if (flags.exa) return "exa"
-
-  return Number.parseInt(checksum(sessionID) ?? "0", 36) % 2 === 0 ? "exa" : "parallel"
+/** Web araması tek sağlayıcıdan gelir: SixFinger sunucusu. (Eski Exa/Parallel seçimi kaldırıldı.) */
+export function selectWebSearchProvider(_sessionID?: string, _flags?: unknown): WebSearchProvider {
+  return "sixfinger"
 }
 
 export function webSearchProviderLabel(provider: unknown) {
@@ -51,56 +43,29 @@ export function webSearchModelName(extra: Tool.Context["extra"]) {
   return (apiID ?? id)?.slice(0, 100)
 }
 
-function parallelAuthHeaders() {
-  const headers = { "User-Agent": `sixfinger/${InstallationVersion}` }
-  if (!process.env.PARALLEL_API_KEY) return headers
-  return { ...headers, Authorization: `Bearer ${process.env.PARALLEL_API_KEY}` }
-}
-
-function callProvider(
-  http: HttpClient.HttpClient,
-  provider: WebSearchProvider,
-  params: Schema.Schema.Type<typeof Parameters>,
-  ctx: Tool.Context,
-) {
-  if (provider === "parallel") {
-    return McpWebSearch.call(
-      http,
-      McpWebSearch.PARALLEL_URL,
-      "web_search",
-      McpWebSearch.ParallelSearchArgs,
-      {
-        objective: params.query,
-        search_queries: [params.query],
-        session_id: ctx.sessionID,
-        model_name: webSearchModelName(ctx.extra),
-      },
-      "25 seconds",
-      parallelAuthHeaders(),
-    )
-  }
-
-  return McpWebSearch.call(
-    http,
-    McpWebSearch.EXA_URL,
-    "web_search_exa",
-    McpWebSearch.SearchArgs,
-    {
-      query: params.query,
-      type: params.type || "auto",
-      numResults: params.numResults || 8,
-      livecrawl: params.livecrawl || "fallback",
-      contextMaxCharacters: params.contextMaxCharacters,
+/** Web araması SixFinger sunucusundan geçer (kendi aramamız); dış arama hizmetlerine (Exa, Parallel) gidilmez. */
+function callServer(params: Schema.Schema.Type<typeof Parameters>) {
+  return Effect.tryPromise({
+    try: async () => {
+      const res = await Login.sixfingerFetch(`${Login.server()}/api/llm/v1/web_search`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ query: params.query, limit: Math.min(10, Math.max(1, Math.round(params.numResults || 8))) }),
+        signal: AbortSignal.timeout(25_000),
+      })
+      if (!res.ok) throw new Error(`web search failed (${res.status})`)
+      const j = (await res.json()) as { results?: Array<{ title: string; url: string; snippet?: string }> }
+      const results = j.results ?? []
+      if (results.length === 0) return undefined
+      return results.map((r, i) => `${i + 1}. ${r.title}\n   ${r.url}${r.snippet ? `\n   ${r.snippet}` : ""}`).join("\n\n")
     },
-    "25 seconds",
-  )
+    catch: (e) => (e instanceof Error ? e : new Error(String(e))),
+  })
 }
 
 export const WebSearchTool = Tool.define(
   "websearch",
   Effect.gen(function* () {
-    const http = yield* HttpClient.HttpClient
-    const flags = yield* RuntimeFlags.Service
 
     return {
       get description() {
@@ -109,10 +74,7 @@ export const WebSearchTool = Tool.define(
       parameters: Parameters,
       execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
         Effect.gen(function* () {
-          const provider = selectWebSearchProvider(ctx.sessionID, {
-            exa: flags.enableExa,
-            parallel: flags.enableParallel,
-          })
+          const provider: WebSearchProvider = "sixfinger"
           const title = webSearchProviderLabel(provider)
           yield* ctx.metadata({ title: `${title} "${params.query}"`, metadata: { provider } })
 
@@ -130,7 +92,7 @@ export const WebSearchTool = Tool.define(
             },
           })
 
-          const result = yield* callProvider(http, provider, params, ctx)
+          const result = yield* callServer(params)
 
           return {
             output: result ?? "No search results found. Please try a different query.",

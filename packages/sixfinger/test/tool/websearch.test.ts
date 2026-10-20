@@ -14,27 +14,16 @@ describe("websearch provider", () => {
     expect(selectWebSearchProvider(SESSION_ID)).toBe(selectWebSearchProvider(SESSION_ID))
   })
 
-  test("supports an operational override", () => {
-    const original = process.env.SIXFINGER_WEBSEARCH_PROVIDER
-
+  test("her zaman SixFinger sunucusunu seçer (Exa/Parallel seçimi yok)", () => {
+    expect(selectWebSearchProvider(SESSION_ID)).toBe("sixfinger")
+    expect(selectWebSearchProvider(SESSION_ID, { exa: true, parallel: false })).toBe("sixfinger")
+    expect(selectWebSearchProvider(SESSION_ID, { exa: false, parallel: true })).toBe("sixfinger")
+    process.env.SIXFINGER_WEBSEARCH_PROVIDER = "exa"
     try {
-      process.env.SIXFINGER_WEBSEARCH_PROVIDER = "parallel"
-      expect(selectWebSearchProvider(SESSION_ID)).toBe("parallel")
-
-      process.env.SIXFINGER_WEBSEARCH_PROVIDER = "exa"
-      expect(selectWebSearchProvider(SESSION_ID)).toBe("exa")
+      expect(selectWebSearchProvider(SESSION_ID)).toBe("sixfinger")
     } finally {
-      if (original === undefined) delete process.env.SIXFINGER_WEBSEARCH_PROVIDER
-      else process.env.SIXFINGER_WEBSEARCH_PROVIDER = original
+      delete process.env.SIXFINGER_WEBSEARCH_PROVIDER
     }
-  })
-
-  test("routes to Exa when the Exa flag is enabled", () => {
-    expect(selectWebSearchProvider(SESSION_ID, { exa: true, parallel: false })).toBe("exa")
-  })
-
-  test("routes to Parallel when the Parallel flag is enabled", () => {
-    expect(selectWebSearchProvider(SESSION_ID, { exa: false, parallel: true })).toBe("parallel")
   })
 
   test("is enabled for SixFinger providers or explicit websearch provider flags", () => {
