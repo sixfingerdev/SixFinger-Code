@@ -32,7 +32,7 @@ curl -fsSL https://code.sixfinger.live/install | head -3   # betiğin ilk satır
 `https://github.com/sixfingerdev/SixFinger-Code/releases/latest/download/sixfinger-<os>-<arch>.tar.gz`
 (`os`: `linux`/`darwin`, `arch`: `x64`/`arm64`). Arşivin içinde `sixfinger` adlı çalıştırılabilir dosya olmalı.
 Derleme: `cd packages/sixfinger && SIXFINGER_VERSION=… bun run build --single` → `dist/sixfinger-<os>-<arch>/bin/sixfinger`; dosyayı `tar -czf sixfinger-<os>-<arch>.tar.gz sixfinger` ile paketleyip GitHub Release'e yükle.
-**Şu an release yok;** ilk sürümü yüklemeden `install` "indirilemedi" der. Sürüm otomasyonu (GitHub Actions ile 4 hedef için derleme + yükleme) sonraki iştir.
+**Otomasyon:** `.github/workflows/release-cli.yml` `v*` etiketinde (ya da Actions'tan elle, sürüm girerek) 4 hedef için derleyip dosyaları Release'e yükler. İlk sürüm: `git tag v0.1.0 && git push origin v0.1.0`. Release yokken `install` "indirilemedi" der. Not: derleme web arayüzünü de gömer (`packages/app`), bu yüzden CI'ın `ghostty-web` bağımlılığını indirebilmesi gerekir (bu sandbox'ta 403 veriyordu, GitHub Actions'ta sorun olmamalı).
 
 ## Notlar
 - Sayfa MIT atfını (opencode) altbilgide taşır; lisans gereği kaldırma.
