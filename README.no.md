@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://opencode.ai">
+  <a href="https://code.sixfinger.live">
     <picture>
       <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
@@ -9,7 +9,7 @@
 </p>
 <p align="center">AI-kodeagent med åpen kildekode.</p>
 <p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
+  <a href="https://code.sixfinger.live/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/sixfinger-code"><img alt="npm" src="https://img.shields.io/npm/v/sixfinger-code?style=flat-square" /></a>
   <a href="https://github.com/sixfingerdev/sixfinger-code/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/sixfingerdev/sixfinger-code/publish.yml?style=flat-square&branch=dev" /></a>
 </p>
@@ -39,7 +39,7 @@
   <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
-[![SixFinger Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+[![SixFinger Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://code.sixfinger.live)
 
 ---
 
@@ -47,7 +47,7 @@
 
 ```bash
 # YOLO
-curl -fsSL https://opencode.ai/install | bash
+curl -fsSL https://code.sixfinger.live/install | bash
 
 # Pakkehåndterere
 npm i -g sixfinger-code@latest        # eller bun/pnpm/yarn
@@ -66,7 +66,7 @@ nix run nixpkgs#sixfinger           # eller github:sixfingerdev/sixfinger-code f
 
 ### Desktop-app (BETA)
 
-SixFinger er også tilgjengelig som en desktop-app. Last ned direkte fra [releases-siden](https://github.com/sixfingerdev/sixfinger-code/releases) eller [opencode.ai/download](https://opencode.ai/download).
+SixFinger er også tilgjengelig som en desktop-app. Last ned direkte fra [releases-siden](https://github.com/sixfingerdev/sixfinger-code/releases) eller [code.sixfinger.live/download](https://code.sixfinger.live/download).
 
 | Plattform             | Nedlasting                         |
 | --------------------- | ---------------------------------- |
@@ -93,8 +93,8 @@ Installasjonsskriptet bruker følgende prioritet for installasjonsstien:
 
 ```bash
 # Eksempler
-SIXFINGER_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
+SIXFINGER_INSTALL_DIR=/usr/local/bin curl -fsSL https://code.sixfinger.live/install | bash
+XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://code.sixfinger.live/install | bash
 ```
 
 ### Agents
@@ -110,11 +110,11 @@ SixFinger har to innebygde agents du kan bytte mellom med `Tab`-tasten.
 Det finnes også en **general**-subagent for komplekse søk og flertrinnsoppgaver.
 Den brukes internt og kan kalles via `@general` i meldinger.
 
-Les mer om [agents](https://opencode.ai/docs/agents).
+Les mer om [agents](https://code.sixfinger.live/docs/agents).
 
 ### Dokumentasjon
 
-For mer info om hvordan du konfigurerer SixFinger, [**se dokumentasjonen**](https://opencode.ai/docs).
+For mer info om hvordan du konfigurerer SixFinger, [**se dokumentasjonen**](https://code.sixfinger.live/docs).
 
 ### Bidra
 

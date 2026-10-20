@@ -35,7 +35,7 @@ config.
 
 ```json title="sixfinger.json" {6}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "anthropic": {
       "options": {
@@ -57,7 +57,7 @@ sixfinger ile iyi çalıştığı test edilip doğrulandı. [Daha fazla bilgi](/
 Yeniyseniz SixFinger Zen ile başlamanızı öneririz.
 :::
 
-1. TUI'de `/connect` komutunu çalıştırın, sixfinger'u seçin ve [opencode.ai/auth](https://opencode.ai/auth)'ye gidin.
+1. TUI'de `/connect` komutunu çalıştırın, sixfinger'u seçin ve [code.sixfinger.live/auth](https://code.sixfinger.live/auth)'ye gidin.
 
    ```txt
    /connect
@@ -88,7 +88,7 @@ sixfinger'daki diğer sağlayıcılar gibi çalışır ve kullanımı tamamen is
 
 SixFinger Go, sixfinger ile iyi çalıştığı test edilmiş ve doğrulanmış, sixfinger ekibi tarafından sağlanan popüler açık kodlama modellerine güvenilir erişim sağlayan düşük maliyetli bir abonelik planıdır.
 
-1. TUI'de `/connect` komutunu çalıştırın, `SixFinger Go`'yu seçin ve [opencode.ai/auth](https://opencode.ai/zen) adresine gidin.
+1. TUI'de `/connect` komutunu çalıştırın, `SixFinger Go`'yu seçin ve [code.sixfinger.live/auth](https://code.sixfinger.live/zen) adresine gidin.
 
    ```txt
    /connect
@@ -194,7 +194,7 @@ Amazon Bedrock'u sixfinger ile kullanmak için:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -221,7 +221,7 @@ Bedrock için VPC uç noktaları kullanıyorsanız:
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "amazon-bedrock": {
       "options": {
@@ -267,7 +267,7 @@ Bir taşıyıcı belirteç ayarlandığında (`/connect` veya `AWS_BEARER_TOKEN_
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "amazon-bedrock": {
       // ...
@@ -329,7 +329,7 @@ sixfinger'u, yerel LLM'leri OpenAI uyumlu bir API sunucusunun arkasında çalı�
 
 ```json title="sixfinger.json" "atomic-chat" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "atomic-chat": {
       "npm": "@ai-sdk/openai-compatible",
@@ -557,7 +557,7 @@ Cloudflare AI Gateway, OpenAI, Anthropic, Workers AI ve daha fazlasındaki model
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "cloudflare-ai-gateway": {
          "models": {
@@ -763,7 +763,7 @@ yalnızca kendi GitLab tarafından barındırılan örneğinizi kullanmak için 
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "small_model": "gitlab/duo-chat-haiku-4-5",
   "share": "disabled"
 }
@@ -825,7 +825,7 @@ Daha fazla belge [opencode-gitlab-auth](https://www.npmjs.com/package/opencode-g
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "gitlab": {
       "options": {
@@ -842,7 +842,7 @@ GitLab araçlarına (birleştirme istekleri, sorunlar, işlem hatları, CI/CD vb
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "plugin": ["opencode-gitlab-plugin"]
 }
 ```
@@ -1024,7 +1024,7 @@ Helicone'un sixfinger aracılığıyla otomatik olarak yapılandırılmayan bir 
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1052,7 +1052,7 @@ Helicone, önbelleğe alma, kullanıcı izleme ve oturum yönetimi gibi özellik
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1106,7 +1106,7 @@ sixfinger'u yerel modelleri kullanacak şekilde [llama.cpp's](https://github.com
 
 ```json title="sixfinger.json" "llama.cpp" {5, 6, 8, 10-15}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "llama.cpp": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1173,7 +1173,7 @@ LM Studio aracılığıyla sixfinger'u yerel modelleri kullanacak şekilde yapı
 
 ```json title="sixfinger.json" "lmstudio" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "lmstudio": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1294,7 +1294,7 @@ Ollama kendisini sixfinger için otomatik olarak yapılandırabilir. Ayrıntıla
 
 ```json title="sixfinger.json" "ollama" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1456,7 +1456,7 @@ SixFinger Zen, sixfinger ekibinin test edip doğruladığı modellerin bir liste
 
    ```json title="sixfinger.json" {6}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1471,7 +1471,7 @@ SixFinger Zen, sixfinger ekibinin test edip doğruladığı modellerin bir liste
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1720,7 +1720,7 @@ Modelleri sixfinger yapılandırmanız aracılığıyla da özelleştirebilirsin
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "vercel": {
       "models": {
@@ -1830,7 +1830,7 @@ Bazı yararlı yönlendirme seçenekleri:
 
    ```json title="sixfinger.json" {6}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "zenmux": {
          "models": {
@@ -1898,7 +1898,7 @@ OpenAI uyumlu herhangi bir sağlayıcıyı sixfinger ile kullanabilirsiniz. Ço�
 
    ```json title="sixfinger.json" ""myprovider"" {5-15}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "myprovider": {
          "npm": "@ai-sdk/openai-compatible",
@@ -1936,7 +1936,7 @@ Burada `apiKey`, `headers` ve model `limit` seçeneklerini ayarlayan bir örnek 
 
 ```json title="sixfinger.json" {9,11,17-20}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "myprovider": {
       "npm": "@ai-sdk/openai-compatible",

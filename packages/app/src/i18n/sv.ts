@@ -231,7 +231,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Med en enda API-nyckel får du tillgång till modeller som Claude, GPT, Gemini, GLM och mer.",
   "provider.connect.sixfingerZen.visit.prefix": "Besök ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " för att hämta din API-nyckel.",
   "provider.connect.oauth.code.visit.prefix": "Besök ",
   "provider.connect.oauth.code.visit.link": "denna länk",

@@ -272,7 +272,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line1": "SixFinger Zen 为你提供一组精选的可靠优化模型，用于代码智能体。",
   "provider.connect.sixfingerZen.line2": "只需一个 API 密钥，你就能使用 Claude、GPT、Gemini、GLM 等模型。",
   "provider.connect.sixfingerZen.visit.prefix": "访问 ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " 获取你的 API 密钥。",
   "provider.connect.oauth.code.visit.prefix": "访问 ",
   "provider.connect.oauth.code.visit.link": "此链接",

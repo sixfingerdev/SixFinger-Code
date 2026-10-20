@@ -35,7 +35,7 @@ config.
 
 ```json title="sixfinger.json" {6}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "anthropic": {
       "options": {
@@ -57,7 +57,7 @@ SixFinger で適切に動作することがテストおよび検証されてい�
 初めての方は、SixFinger Zen から始めることをお勧めします。
 :::
 
-1. TUI で `/connect` コマンドを実行し、`SixFinger Zen` を選択して、[opencode.ai/zen](https://opencode.ai/zen) にアクセスします。
+1. TUI で `/connect` コマンドを実行し、`SixFinger Zen` を選択して、[code.sixfinger.live/zen](https://code.sixfinger.live/zen) にアクセスします。
 
    ```txt
    /connect
@@ -88,7 +88,7 @@ SixFinger で適切に動作することがテストおよび検証されてい�
 
 SixFinger Go は、SixFinger チームによって提供される、人気のあるオープンコーディングモデルへの信頼性の高いアクセスを提供する低コストのサブスクリプションプランです。これらは SixFinger でうまく機能することがテストおよび検証されています。
 
-1. TUI で `/connect` コマンドを実行し、`SixFinger Go` を選択して、[opencode.ai/zen](https://opencode.ai/zen) にアクセスします。
+1. TUI で `/connect` コマンドを実行し、`SixFinger Go` を選択して、[code.sixfinger.live/zen](https://code.sixfinger.live/zen) にアクセスします。
 
    ```txt
    /connect
@@ -197,7 +197,7 @@ SixFinger で Amazon Bedrock を使用するには:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -226,7 +226,7 @@ SixFinger で Amazon Bedrock を使用するには:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -275,7 +275,7 @@ SixFinger で Amazon Bedrock を使用するには:
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "amazon-bedrock": {
       // ...
@@ -335,7 +335,7 @@ sixfinger は、OpenAI 互換の API サーバーの背後でローカル LLM �
 
 ```json title="sixfinger.json" "atomic-chat" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "atomic-chat": {
       "npm": "@ai-sdk/openai-compatible",
@@ -563,7 +563,7 @@ SixFinger 設定を通じてモデルを追加することもできます。
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "cloudflare-ai-gateway": {
       "models": {
@@ -865,7 +865,7 @@ export GITLAB_OAUTH_CLIENT_ID=your_application_id_here
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "gitlab": {
       "options": {
@@ -882,7 +882,7 @@ GitLab ツール (マージリクエスト、問題、パイプライン、CI/CD
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "plugin": ["opencode-gitlab-plugin"]
 }
 ```
@@ -1066,7 +1066,7 @@ SixFinger を通じて自動的に構成されていない Helicone の機能ま
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1094,7 +1094,7 @@ Helicone は、キャッシュ、ユーザー追跡、セッション管理な�
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1148,7 +1148,7 @@ npm install -g opencode-helicone-session
 
 ```json title="sixfinger.json" "llama.cpp" {5, 6, 8, 10-15}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "llama.cpp": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1215,7 +1215,7 @@ LM Studio を通じてローカルモデルを使用するように sixfinger �
 
 ```json title="sixfinger.json" "lmstudio" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "lmstudio": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1336,7 +1336,7 @@ Ollama は SixFinger 用に自動的に構成できます。詳細について�
 
 ```json title="sixfinger.json" "ollama" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1498,7 +1498,7 @@ SixFinger 設定を通じて追加のモデルを追加することもできま�
 
 ```json title="sixfinger.json" {6}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "openrouter": {
       "models": {
@@ -1513,7 +1513,7 @@ SixFinger 設定を通じて追加のモデルを追加することもできま�
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1729,7 +1729,7 @@ SixFinger 設定を通じてモデルをカスタマイズすることもでき�
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "vercel": {
       "models": {
@@ -1839,7 +1839,7 @@ SixFinger 設定を通じて追加のモデルを追加することもできま�
 
 ```json title="sixfinger.json" {6}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "zenmux": {
       "models": {
@@ -1907,7 +1907,7 @@ OpenAI と互換性のある任意のプロバイダーを SixFinger で使用�
 
    ```json title="sixfinger.json" ""myprovider"" {5-15}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "myprovider": {
          "npm": "@ai-sdk/openai-compatible",
@@ -1946,7 +1946,7 @@ OpenAI と互換性のある任意のプロバイダーを SixFinger で使用�
 
 ```json title="sixfinger.json" {9,11,17-20}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "myprovider": {
       "npm": "@ai-sdk/openai-compatible",

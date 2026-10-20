@@ -1280,7 +1280,7 @@ it.instance(
   Effect.gen(function* () {
     const providers = yield* list
     expect(providers[ProviderV2.ID.make("nvidia")].options.headers).toEqual({
-      "HTTP-Referer": "https://opencode.ai/",
+      "HTTP-Referer": "https://code.sixfinger.live/",
       "X-Title": "sixfinger",
       "X-BILLING-INVOKE-ORIGIN": "SixFinger",
     })
@@ -1293,7 +1293,7 @@ it.instance(
   Effect.gen(function* () {
     const providers = yield* list
     expect(providers[ProviderV2.ID.make("nvidia")].options.headers).toEqual({
-      "HTTP-Referer": "https://opencode.ai/",
+      "HTTP-Referer": "https://code.sixfinger.live/",
       "X-Title": "sixfinger",
       "X-BILLING-INVOKE-ORIGIN": "SixFinger",
     })

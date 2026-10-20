@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://opencode.ai">
+  <a href="https://code.sixfinger.live">
     <picture>
       <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
@@ -9,7 +9,7 @@
 </p>
 <p align="center">開源的 AI Coding Agent。</p>
 <p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
+  <a href="https://code.sixfinger.live/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/sixfinger-code"><img alt="npm" src="https://img.shields.io/npm/v/sixfinger-code?style=flat-square" /></a>
   <a href="https://github.com/sixfingerdev/sixfinger-code/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/sixfingerdev/sixfinger-code/publish.yml?style=flat-square&branch=dev" /></a>
 </p>
@@ -39,7 +39,7 @@
   <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
-[![SixFinger Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+[![SixFinger Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://code.sixfinger.live)
 
 ---
 
@@ -47,7 +47,7 @@
 
 ```bash
 # 直接安裝 (YOLO)
-curl -fsSL https://opencode.ai/install | bash
+curl -fsSL https://code.sixfinger.live/install | bash
 
 # 套件管理員
 npm i -g sixfinger-code@latest        # 也可使用 bun/pnpm/yarn
@@ -66,7 +66,7 @@ nix run nixpkgs#sixfinger           # 或使用 github:sixfingerdev/sixfinger-co
 
 ### 桌面應用程式 (BETA)
 
-SixFinger 也提供桌面版應用程式。您可以直接從 [發佈頁面 (releases page)](https://github.com/sixfingerdev/sixfinger-code/releases) 或 [opencode.ai/download](https://opencode.ai/download) 下載。
+SixFinger 也提供桌面版應用程式。您可以直接從 [發佈頁面 (releases page)](https://github.com/sixfingerdev/sixfinger-code/releases) 或 [code.sixfinger.live/download](https://code.sixfinger.live/download) 下載。
 
 | 平台                  | 下載連結                           |
 | --------------------- | ---------------------------------- |
@@ -93,8 +93,8 @@ scoop bucket add extras; scoop install extras/sixfinger-desktop
 
 ```bash
 # 範例
-SIXFINGER_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
+SIXFINGER_INSTALL_DIR=/usr/local/bin curl -fsSL https://code.sixfinger.live/install | bash
+XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://code.sixfinger.live/install | bash
 ```
 
 ### Agents
@@ -109,11 +109,11 @@ SixFinger 內建了兩種 Agent，您可以使用 `Tab` 鍵快速切換。
 
 此外，SixFinger 還包含一個 **general** 子 Agent，用於處理複雜搜尋與多步驟任務。此 Agent 供系統內部使用，亦可透過在訊息中輸入 `@general` 來呼叫。
 
-了解更多關於 [Agents](https://opencode.ai/docs/agents) 的資訊。
+了解更多關於 [Agents](https://code.sixfinger.live/docs/agents) 的資訊。
 
 ### 線上文件
 
-關於如何設定 SixFinger 的詳細資訊，請參閱我們的 [**官方文件**](https://opencode.ai/docs)。
+關於如何設定 SixFinger 的詳細資訊，請參閱我們的 [**官方文件**](https://code.sixfinger.live/docs)。
 
 ### 參與貢獻
 

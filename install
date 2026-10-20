@@ -20,8 +20,8 @@ Options:
         --no-modify-path    Don't modify shell config files (.zshrc, .bashrc, etc.)
 
 Examples:
-    curl -fsSL https://opencode.ai/install | bash
-    curl -fsSL https://opencode.ai/install | bash -s -- --version 1.0.180
+    curl -fsSL https://code.sixfinger.live/install | bash
+    curl -fsSL https://code.sixfinger.live/install | bash -s -- --version 1.0.180
     ./install --binary /path/to/sixfinger
 EOF
 }
@@ -455,6 +455,6 @@ echo -e ""
 echo -e "cd <project>  ${MUTED}# Open directory${NC}"
 echo -e "sixfinger      ${MUTED}# Run command${NC}"
 echo -e ""
-echo -e "${MUTED}For more information visit ${NC}https://opencode.ai/docs"
+echo -e "${MUTED}For more information visit ${NC}https://code.sixfinger.live/docs"
 echo -e ""
 echo -e ""

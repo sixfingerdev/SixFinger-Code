@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://opencode.ai">
+  <a href="https://code.sixfinger.live">
     <picture>
       <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
@@ -9,7 +9,7 @@
 </p>
 <p align="center">SixFinger je open source AI agent za programiranje.</p>
 <p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
+  <a href="https://code.sixfinger.live/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/sixfinger-code"><img alt="npm" src="https://img.shields.io/npm/v/sixfinger-code?style=flat-square" /></a>
   <a href="https://github.com/sixfingerdev/sixfinger-code/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/sixfingerdev/sixfinger-code/publish.yml?style=flat-square&branch=dev" /></a>
 </p>
@@ -39,7 +39,7 @@
   <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
-[![SixFinger Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+[![SixFinger Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://code.sixfinger.live)
 
 ---
 
@@ -47,7 +47,7 @@
 
 ```bash
 # YOLO
-curl -fsSL https://opencode.ai/install | bash
+curl -fsSL https://code.sixfinger.live/install | bash
 
 # Package manageri
 npm i -g sixfinger-code@latest        # ili bun/pnpm/yarn
@@ -66,7 +66,7 @@ nix run nixpkgs#sixfinger           # ili github:sixfingerdev/sixfinger-code za 
 
 ### Desktop aplikacija (BETA)
 
-SixFinger je dostupan i kao desktop aplikacija. Preuzmi je direktno sa [stranice izdanja](https://github.com/sixfingerdev/sixfinger-code/releases) ili sa [opencode.ai/download](https://opencode.ai/download).
+SixFinger je dostupan i kao desktop aplikacija. Preuzmi je direktno sa [stranice izdanja](https://github.com/sixfingerdev/sixfinger-code/releases) ili sa [code.sixfinger.live/download](https://code.sixfinger.live/download).
 
 | Platforma             | Preuzimanje                        |
 | --------------------- | ---------------------------------- |
@@ -93,8 +93,8 @@ Instalacijska skripta koristi sljedeći redoslijed prioriteta za putanju instala
 
 ```bash
 # Primjeri
-SIXFINGER_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
+SIXFINGER_INSTALL_DIR=/usr/local/bin curl -fsSL https://code.sixfinger.live/install | bash
+XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://code.sixfinger.live/install | bash
 ```
 
 ### Agenti
@@ -110,11 +110,11 @@ SixFinger uključuje dva ugrađena agenta između kojih možeš prebacivati tast
 Uključen je i **general** pod-agent za složene pretrage i višekoračne zadatke.
 Koristi se interno i može se pozvati pomoću `@general` u porukama.
 
-Saznaj više o [agentima](https://opencode.ai/docs/agents).
+Saznaj više o [agentima](https://code.sixfinger.live/docs/agents).
 
 ### Dokumentacija
 
-Za više informacija o konfiguraciji SixFinger-a, [**pogledaj dokumentaciju**](https://opencode.ai/docs).
+Za više informacija o konfiguraciji SixFinger-a, [**pogledaj dokumentaciju**](https://code.sixfinger.live/docs).
 
 ### Doprinosi
 

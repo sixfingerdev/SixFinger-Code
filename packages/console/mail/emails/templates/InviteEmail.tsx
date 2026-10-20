@@ -15,7 +15,7 @@ import {
   buttonText,
 } from "../styles"
 
-const CONSOLE_URL = "https://opencode.ai/"
+const CONSOLE_URL = "https://code.sixfinger.live/"
 
 interface InviteEmailProps {
   inviter: string

@@ -1,10 +1,10 @@
 # sixfinger VS Code Extension
 
-A Visual Studio Code extension that integrates [sixfinger](https://opencode.ai) directly into your development workflow.
+A Visual Studio Code extension that integrates [sixfinger](https://code.sixfinger.live) directly into your development workflow.
 
 ## Prerequisites
 
-This extension requires the [sixfinger CLI](https://opencode.ai) to be installed on your system. Visit [opencode.ai](https://opencode.ai) for installation instructions.
+This extension requires the [sixfinger CLI](https://code.sixfinger.live) to be installed on your system. Visit [code.sixfinger.live](https://code.sixfinger.live) for installation instructions.
 
 ## Features
 

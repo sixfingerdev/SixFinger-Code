@@ -74,7 +74,7 @@ describe("plugin.workspace", () => {
           path.join(dir, "sixfinger.json"),
           JSON.stringify(
             {
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://code.sixfinger.live/config.json",
               plugin: [pathToFileURL(file).href],
             },
             null,

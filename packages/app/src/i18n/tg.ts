@@ -230,7 +230,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Бо як калиди API шумо метавонед ба моделҳое мисли Claude, GPT, Gemini, GLM ва ғайра дастрасӣ пайдо кунед.",
   "provider.connect.sixfingerZen.visit.prefix": "Ташриф",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": "барои гирифтани калиди API худ.",
   "provider.connect.oauth.code.visit.prefix": "Ташриф",
   "provider.connect.oauth.code.visit.link": "ин пайванд",

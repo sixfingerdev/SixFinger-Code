@@ -229,7 +229,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "ດ້ວຍລະຫັດ API ດຽວເຈົ້າຈະໄດ້ຮັບການເຂົ້າເຖິງຕົວແບບເຊັ່ນ: Claude, GPT, Gemini, GLM ແລະອື່ນໆ.",
   "provider.connect.sixfingerZen.visit.prefix": "ຢ້ຽມຢາມ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": "ເພື່ອເກັບກຳລະຫັດ API ຂອງທ່ານ.",
   "provider.connect.oauth.code.visit.prefix": "ຢ້ຽມຢາມ",
   "provider.connect.oauth.code.visit.link": "ລິ້ງນີ້",

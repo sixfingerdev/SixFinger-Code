@@ -35,7 +35,7 @@ inputs:
     required: false
 
   oidc_base_url:
-    description: "Base URL for OIDC token exchange API. Only required when running a custom GitHub App install. Defaults to https://api.opencode.ai"
+    description: "Base URL for OIDC token exchange API. Only required when running a custom GitHub App install. Defaults to https://api.code.sixfinger.live"
     required: false
 
 runs:
@@ -58,7 +58,7 @@ runs:
     - name: Install sixfinger
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      run: curl -fsSL https://opencode.ai/install | bash
+      run: curl -fsSL https://code.sixfinger.live/install | bash
 
     - name: Add sixfinger to PATH
       shell: bash

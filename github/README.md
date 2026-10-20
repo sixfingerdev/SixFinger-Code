@@ -1,6 +1,6 @@
 # sixfinger GitHub Action
 
-A GitHub Action that integrates [sixfinger](https://opencode.ai) directly into your GitHub workflow.
+A GitHub Action that integrates [sixfinger](https://code.sixfinger.live) directly into your GitHub workflow.
 
 Mention `/sixfinger` in your comment, and sixfinger will execute tasks within your GitHub Actions runner.
 

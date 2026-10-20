@@ -138,7 +138,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Con una sola chiave API avrai accesso a modelli come Claude, GPT, Gemini, GLM e altri.",
   "provider.connect.sixfingerZen.visit.prefix": "Visita ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " per ottenere la tua chiave API.",
   "provider.connect.oauth.code.visit.prefix": "Visita ",
   "provider.connect.oauth.code.visit.link": "questo collegamento",

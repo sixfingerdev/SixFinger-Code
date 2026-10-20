@@ -133,7 +133,7 @@ export function Header(props: { githubStars: string; links?: readonly HeaderLink
             <strong>{i18n.t("header.github")}</strong>
             <span>[{props.githubStars}]</span>
           </a>
-          <a data-slot="header-button" data-variant="contrast" href="https://opencode.ai/">
+          <a data-slot="header-button" data-variant="contrast" href="https://code.sixfinger.live/">
             <strong>{i18n.t("header.trySixFinger")}</strong>
           </a>
           <button
@@ -233,12 +233,12 @@ export function Footer(props: {
     { href: "#geo-breakdown", label: i18n.t("nav.geoBreakdown") },
   ]
   const legal = [
-    { href: "https://opencode.ai/legal/terms-of-service", label: i18n.t("footer.terms") },
-    { href: "https://opencode.ai/legal/privacy-policy", label: i18n.t("footer.privacy") },
+    { href: "https://code.sixfinger.live/legal/terms-of-service", label: i18n.t("footer.terms") },
+    { href: "https://code.sixfinger.live/legal/privacy-policy", label: i18n.t("footer.privacy") },
   ]
   const connect = [
-    { href: "mailto:hello@opencode.ai", label: i18n.t("footer.contact") },
-    { href: "https://opencode.ai/discord", label: i18n.t("footer.community") },
+    { href: "mailto:hello@code.sixfinger.live", label: i18n.t("footer.contact") },
+    { href: "https://code.sixfinger.live/discord", label: i18n.t("footer.community") },
     { href: "https://x.com/sixfinger", label: "X" },
     { href: githubLink.href, label: i18n.t("header.github") },
     { href: "https://www.youtube.com/@sixfingerdev", label: i18n.t("footer.youtube") },
@@ -252,7 +252,7 @@ export function Footer(props: {
     <footer data-component="footer">
       <Show when={bridge()}>{(link) => <SectionBridge label={link().label} href={link().href} />}</Show>
       <div data-slot="footer-grid">
-        <a data-slot="footer-mark" href="https://opencode.ai" aria-label={i18n.t("footer.homeAria")}>
+        <a data-slot="footer-mark" href="https://code.sixfinger.live" aria-label={i18n.t("footer.homeAria")}>
           <SixFingerMark />
         </a>
         <FooterColumn title={i18n.t("footer.modelData")} links={modelStats} localHref={localHref} />

@@ -233,7 +233,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "އެއް API ކީ އާއެކު Claude، GPT، Gemini، GLM އަދި އެހެނިހެން މޮޑެލްތަކަށް އެކްސެސް ލިބިގެންދާނެއެވެ.",
   "provider.connect.sixfingerZen.visit.prefix": "ޒިޔާރަތްކުރުން ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen އެވެ",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen އެވެ",
   "provider.connect.sixfingerZen.visit.suffix": " ތިބާގެ API ކީ އެއްކުރުމަށްޓަކައެވެ.",
   "provider.connect.oauth.code.visit.prefix": "ޒިޔާރަތްކުރުން ",
   "provider.connect.oauth.code.visit.link": "މި ލިންކެވެ",

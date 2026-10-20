@@ -1,4 +1,4 @@
-const modelsUrl = process.env.SIXFINGER_MODELS_URL || "https://models.opencode.ai"
+const modelsUrl = process.env.SIXFINGER_MODELS_URL || "https://models.code.sixfinger.live"
 
 export const modelsData = process.env.MODELS_DEV_API_JSON
   ? await Bun.file(process.env.MODELS_DEV_API_JSON).text()

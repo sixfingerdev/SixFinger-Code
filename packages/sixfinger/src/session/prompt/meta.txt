@@ -62,4 +62,4 @@ Use the instructions below and the tools available to assist the user.
 
 # User Help & Feedback
 - Users can give feedback or report issues at https://github.com/sixfingerdev/sixfinger-code and mention that they are using Meta {{MODEL_NAME}}.
-- When users ask directly about SixFinger (eg. "can SixFinger do...", "are you able to do...") or its features (eg. implement a hook, write a slash command, or install an MCP server), use the WebFetch tool to gather information to answer the question from the SixFinger docs at https://opencode.ai/docs.
+- When users ask directly about SixFinger (eg. "can SixFinger do...", "are you able to do...") or its features (eg. implement a hook, write a slash command, or install an MCP server), use the WebFetch tool to gather information to answer the question from the SixFinger docs at https://code.sixfinger.live/docs.

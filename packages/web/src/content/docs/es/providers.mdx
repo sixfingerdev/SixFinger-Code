@@ -35,7 +35,7 @@ Puede personalizar la URL base para cualquier proveedor configurando la opción 
 
 ```json title="sixfinger.json" {6}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "anthropic": {
       "options": {
@@ -57,7 +57,7 @@ probado y verificado para funcionar bien con SixFinger. [Más información](/doc
 Si eres nuevo, te recomendamos comenzar con SixFinger Zen.
 :::
 
-1. Ejecute el comando `/connect` en TUI, seleccione sixfinger y diríjase a [opencode.ai/auth](https://opencode.ai/auth).
+1. Ejecute el comando `/connect` en TUI, seleccione sixfinger y diríjase a [code.sixfinger.live/auth](https://code.sixfinger.live/auth).
 
    ```txt
    /connect
@@ -89,7 +89,7 @@ Funciona como cualquier otro proveedor en SixFinger y su uso es completamente op
 SixFinger Go es un plan de suscripción de bajo costo que brinda acceso confiable a modelos de codificación abiertos populares proporcionados por el equipo de SixFinger que han sido
 probado y verificado para funcionar bien con SixFinger.
 
-1. Ejecute el comando `/connect` en TUI, seleccione `SixFinger Go` y diríjase a [opencode.ai/auth](https://opencode.ai/zen).
+1. Ejecute el comando `/connect` en TUI, seleccione `SixFinger Go` y diríjase a [code.sixfinger.live/auth](https://code.sixfinger.live/zen).
 
    ```txt
    /connect
@@ -195,7 +195,7 @@ Para usar Amazon Bedrock con SixFinger:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -222,7 +222,7 @@ Para usar Amazon Bedrock con SixFinger:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -266,7 +266,7 @@ Para perfiles de inferencia personalizados, utilice el modelo y el nombre del pr
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "amazon-bedrock": {
       // ...
@@ -328,7 +328,7 @@ Puedes configurar sixfinger para usar modelos locales mediante [Atomic Chat](htt
 
 ```json title="sixfinger.json" "atomic-chat" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "atomic-chat": {
       "npm": "@ai-sdk/openai-compatible",
@@ -556,7 +556,7 @@ Cloudflare AI Gateway le permite acceder a modelos de OpenAI, Anthropic, Workers
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "cloudflare-ai-gateway": {
          "models": {
@@ -763,7 +763,7 @@ Archivo `sixfinger.json`. También se recomienda desactivar el uso compartido de
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "small_model": "gitlab/duo-chat-haiku-4-5",
   "share": "disabled"
 }
@@ -825,7 +825,7 @@ Personalizar a través de `sixfinger.json`:
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "gitlab": {
       "options": {
@@ -842,7 +842,7 @@ Para acceder a herramientas GitLab (solicitudes de fusión, problemas, canalizac
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "plugin": ["opencode-gitlab-plugin"]
 }
 ```
@@ -1024,7 +1024,7 @@ Aquí está el [Directorio de modelos de Helicone](https://helicone.ai/models), 
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1052,7 +1052,7 @@ Helicone admite encabezados personalizados para funciones como almacenamiento en
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1106,7 +1106,7 @@ Puede configurar sixfinger para usar modelos locales a través de la utilidad ll
 
 ```json title="sixfinger.json" "llama.cpp" {5, 6, 8, 10-15}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "llama.cpp": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1173,7 +1173,7 @@ Puede configurar sixfinger para usar modelos locales a través de LM Studio.
 
 ```json title="sixfinger.json" "lmstudio" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "lmstudio": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1294,7 +1294,7 @@ Ollama puede configurarse automáticamente para SixFinger. Consulte los [documen
 
 ```json title="sixfinger.json" "ollama" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1457,7 +1457,7 @@ SixFinger Zen es una lista de modelos probados y verificados proporcionada por e
 
    ```json title="sixfinger.json" {6}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1472,7 +1472,7 @@ SixFinger Zen es una lista de modelos probados y verificados proporcionada por e
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1721,7 +1721,7 @@ También puede personalizar modelos a través de su configuración sixfinger. A 
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "vercel": {
       "models": {
@@ -1831,7 +1831,7 @@ Algunas opciones de enrutamiento útiles:
 
    ```json title="sixfinger.json" {6}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "zenmux": {
          "models": {
@@ -1899,7 +1899,7 @@ Puede utilizar cualquier proveedor compatible con OpenAI con sixfinger. La mayor
 
    ```json title="sixfinger.json" ""myprovider"" {5-15}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "myprovider": {
          "npm": "@ai-sdk/openai-compatible",
@@ -1937,7 +1937,7 @@ A continuación se muestra un ejemplo de configuración de las opciones `apiKey`
 
 ```json title="sixfinger.json" {9,11,17-20}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "myprovider": {
       "npm": "@ai-sdk/openai-compatible",

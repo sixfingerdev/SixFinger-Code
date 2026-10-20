@@ -126,7 +126,7 @@ export function NovelTokens() {
             }}
           >
             <div style={{ color: c.dim }}>{nf.format(AVG)} tokens / request · last week</div>
-            <div style={{ color: c.white }}>opencode.ai/data</div>
+            <div style={{ color: c.white }}>code.sixfinger.live/data</div>
           </div>
         </div>
       </div>

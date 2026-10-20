@@ -4,10 +4,10 @@
   "version": "1.18.29",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://opencode.ai",
+  "homepage": "https://code.sixfinger.live",
   "author": {
     "name": "SixFinger",
-    "email": "hello@opencode.ai"
+    "email": "hello@code.sixfinger.live"
   },
   "scripts": {
     "typecheck": "tsgo -b",

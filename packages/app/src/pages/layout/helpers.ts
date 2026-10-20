@@ -87,7 +87,7 @@ export function homeSessionServerStatus(active: boolean, status: () => { working
 const SIXFINGER_PROJECT_ID = "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750"
 
 export function getProjectAvatarSource(id?: string, icon?: { color?: string; url?: string; override?: string }) {
-  if (id === SIXFINGER_PROJECT_ID) return "https://opencode.ai/favicon.svg"
+  if (id === SIXFINGER_PROJECT_ID) return "https://code.sixfinger.live/favicon.svg"
   if (icon?.override) return icon.override
   if (icon?.color) return undefined
   return icon?.url

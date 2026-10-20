@@ -232,7 +232,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Ганц API товчлуураар та Claude, GPT, Gemini, GLM болон бусад загваруудад хандах боломжтой болно.",
   "provider.connect.sixfingerZen.visit.prefix": "зочилно уу",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": "API түлхүүрээ авахын тулд.",
   "provider.connect.oauth.code.visit.prefix": "зочилно уу",
   "provider.connect.oauth.code.visit.link": "энэ холбоос",

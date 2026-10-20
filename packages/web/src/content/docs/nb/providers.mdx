@@ -35,7 +35,7 @@ Du kan tilpasse base-URL-en for enhver leverandør ved å angi alternativet `bas
 
 ```json title="sixfinger.json" {6}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "anthropic": {
       "options": {
@@ -57,7 +57,7 @@ testet og verifisert for å fungere godt med SixFinger. [Finn ut mer](/docs/zen)
 Hvis du er ny, anbefaler vi å starte med SixFinger Zen.
 :::
 
-1. Kjør kommandoen `/connect` i TUI, velg `SixFinger Zen` og gå til [opencode.ai/auth](https://opencode.ai/zen).
+1. Kjør kommandoen `/connect` i TUI, velg `SixFinger Zen` og gå til [code.sixfinger.live/auth](https://code.sixfinger.live/zen).
 
    ```txt
    /connect
@@ -89,7 +89,7 @@ Det fungerer som alle andre leverandører i SixFinger og er helt valgfritt å br
 SixFinger Go er en lavpris abonnementsplan som gir pålitelig tilgang til populære åpne kodemodeller levert av SixFinger-teamet som har vært
 testet og verifisert for å fungere godt med SixFinger.
 
-1. Kjør kommandoen `/connect` i TUI, velg `SixFinger Go`, og gå til [opencode.ai/auth](https://opencode.ai/zen).
+1. Kjør kommandoen `/connect` i TUI, velg `SixFinger Go`, og gå til [code.sixfinger.live/auth](https://code.sixfinger.live/zen).
 
    ```txt
    /connect
@@ -196,7 +196,7 @@ Slik bruker du Amazon Bedrock med SixFinger:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -223,7 +223,7 @@ Slik bruker du Amazon Bedrock med SixFinger:
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -267,7 +267,7 @@ For egendefinerte slutningsprofiler, bruk modellen og leverandørnavnet i nøkke
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "amazon-bedrock": {
       // ...
@@ -329,7 +329,7 @@ Du kan konfigurere sixfinger til å bruke lokale modeller via [Atomic Chat](http
 
 ```json title="sixfinger.json" "atomic-chat" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "atomic-chat": {
       "npm": "@ai-sdk/openai-compatible",
@@ -557,7 +557,7 @@ Cloudflare AI Gateway lar deg få tilgang til modeller fra OpenAI, Anthropic, Wo
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "cloudflare-ai-gateway": {
          "models": {
@@ -763,7 +763,7 @@ for kun å bruke din egen GitLab-hostede forekomst, legg til følgende i din
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "small_model": "gitlab/duo-chat-haiku-4-5",
   "share": "disabled"
 }
@@ -825,7 +825,7 @@ Tilpass gjennom `sixfinger.json`:
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "gitlab": {
       "options": {
@@ -842,7 +842,7 @@ For å få tilgang til GitLab-verktøy (sammenslåingsforespørsler, problemer, 
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "plugin": ["opencode-gitlab-plugin"]
 }
 ```
@@ -1025,7 +1025,7 @@ Her er [Helicone's Model Directory](https://helicone.ai/models), du trenger denn
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1053,7 +1053,7 @@ Helicone støtter tilpassede headere for funksjoner som bufring, brukersporing o
 
 ```jsonc title="~/.config/sixfinger/sixfinger.jsonc"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1107,7 +1107,7 @@ Du kan konfigurere SixFinger for å bruke lokale modeller gjennom [llama.cpp](ht
 
 ```json title="sixfinger.json" "llama.cpp" {5, 6, 8, 10-15}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "llama.cpp": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1174,7 +1174,7 @@ Du kan konfigurere SixFinger for å bruke lokale modeller gjennom LM Studio.
 
 ```json title="sixfinger.json" "lmstudio" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "lmstudio": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1295,7 +1295,7 @@ Ollama kan automatisk konfigurere seg selv for SixFinger. Se [Ollama-integrasjon
 
 ```json title="sixfinger.json" "ollama" {5, 6, 8, 10-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1457,7 +1457,7 @@ SixFinger Zen er en liste over testede og verifiserte modeller levert av SixFing
 
    ```json title="sixfinger.json" {6}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1472,7 +1472,7 @@ SixFinger Zen er en liste over testede og verifiserte modeller levert av SixFing
 
    ```json title="sixfinger.json"
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1688,7 +1688,7 @@ Du kan også tilpasse modeller gjennom SixFinger-konfigurasjonen. Her er et ekse
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "vercel": {
       "models": {
@@ -1798,7 +1798,7 @@ Noen nyttige rutealternativer:
 
    ```json title="sixfinger.json" {6}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "zenmux": {
          "models": {
@@ -1866,7 +1866,7 @@ Du kan bruke hvilken som helst OpenAI-kompatibel leverandør med SixFinger. De f
 
    ```json title="sixfinger.json" ""myprovider"" {5-15}
    {
-     "$schema": "https://opencode.ai/config.json",
+     "$schema": "https://code.sixfinger.live/config.json",
      "provider": {
        "myprovider": {
          "npm": "@ai-sdk/openai-compatible",
@@ -1904,7 +1904,7 @@ Her er et eksempel på innstilling av alternativene `apiKey`, `headers` og model
 
 ```json title="sixfinger.json" {9,11,17-20}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "provider": {
     "myprovider": {
       "npm": "@ai-sdk/openai-compatible",

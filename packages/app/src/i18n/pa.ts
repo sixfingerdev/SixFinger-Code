@@ -236,7 +236,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "اک API کلید دے نال تہانوں Claude، GPT، Gemini، GLM تے ہور ماڈلاں تک رسائی ملے گی۔",
   "provider.connect.sixfingerZen.visit.prefix": "ویکھو ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " اپنی API کلید حاصل کرن لئی۔",
   "provider.connect.oauth.code.visit.prefix": "ویکھو ",
   "provider.connect.oauth.code.visit.link": "ایہہ لنک",

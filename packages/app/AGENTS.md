@@ -9,7 +9,7 @@
 
 ## Local Dev
 
-- `sixfinger dev web` proxies `https://app.opencode.ai`, so local UI/CSS changes will not show there.
+- `sixfinger dev web` proxies `https://app.code.sixfinger.live`, so local UI/CSS changes will not show there.
 - For local UI changes, run the backend and app dev servers separately.
 - Backend (from `packages/sixfinger`): `bun run ./src/index.ts serve --port 4096`
 - App (from `packages/app`): `bun dev -- --port 4444`

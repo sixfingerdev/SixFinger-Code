@@ -3,7 +3,7 @@ title: Enterprise
 description: Using SixFinger securely in your organization.
 ---
 
-export const enterprise = "https://opencode.ai/enterprise"
+export const enterprise = "https://code.sixfinger.live/enterprise"
 
 SixFinger Enterprise is for organizations that want to ensure that their code and data never leaves their infrastructure. It can do this by using a centralized config that integrates with your SSO and internal AI gateway.
 
@@ -37,7 +37,7 @@ The only caveat here is the optional `/share` feature.
 
 #### Sharing conversations
 
-If a user enables the `/share` feature, the conversation and the data associated with it are sent to the service we use to host these share pages at opencode.ai.
+If a user enables the `/share` feature, the conversation and the data associated with it are sent to the service we use to host these share pages at code.sixfinger.live.
 
 The data is currently served through our CDN's edge network, and is cached on the edge near your users.
 
@@ -45,7 +45,7 @@ We recommend you disable this for your trial.
 
 ```json title="sixfinger.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://code.sixfinger.live/config.json",
   "share": "disabled"
 }
 ```

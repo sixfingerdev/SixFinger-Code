@@ -233,7 +233,7 @@ export const dict: Record<string, string> = {
   "provider.connect.sixfingerZen.line2":
     "API ལྡེ་མིག་རྐྱང་པ་གཅིག་གིས་ ཁྱོད་ཀྱིས་ Claude དང་ GPT དེ་ལས་ Gemini དང་ GLM དེ་ལས་མངམ་བཟུམ་གྱི་དཔེ་ཚད་ཚུ་ལུ་འཛུལ་སྤྱོད་འབད་ཚུགས།",
   "provider.connect.sixfingerZen.visit.prefix": "འགྱོ་ནི",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": "ཁྱོད་རའི་ API ལྡེ་མིག་བསྡུ་ལེན་འབད་ནིའི་དོན་ལུ།",
   "provider.connect.oauth.code.visit.prefix": "འགྱོ་ནི",
   "provider.connect.oauth.code.visit.link": "འབྲེལ་མཐུད་འདི།",

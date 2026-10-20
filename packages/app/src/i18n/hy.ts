@@ -231,7 +231,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Մեկ API բանալիով դուք մուտք կունենաք այնպիսի մոդելների, ինչպիսիք են՝ Claude, GPT, Gemini, GLM և ավելին:",
   "provider.connect.sixfingerZen.visit.prefix": "Այցելություն ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " ձեր API բանալին հավաքելու համար",
   "provider.connect.oauth.code.visit.prefix": "Այցելություն ",
   "provider.connect.oauth.code.visit.link": "այս հղումը",

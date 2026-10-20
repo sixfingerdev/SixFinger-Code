@@ -67,7 +67,7 @@ export default function Home() {
               <span>
                 <span>curl -fsSL </span>
                 <span data-slot="protocol">https://</span>
-                <span data-slot="highlight">opencode.ai/install</span>
+                <span data-slot="highlight">code.sixfinger.live/install</span>
                 <span> | bash</span>
               </span>
               <CopyStatus />
@@ -164,7 +164,7 @@ export default function Home() {
             <a href="https://github.com/sixfingerdev/sixfinger-code">{i18n.t("footer.github")}</a>
           </div>
           <div data-slot="cell">
-            <a href="https://opencode.ai/discord">{i18n.t("footer.discord")}</a>
+            <a href="https://code.sixfinger.live/discord">{i18n.t("footer.discord")}</a>
           </div>
         </footer>
       </div>

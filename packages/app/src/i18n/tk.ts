@@ -230,7 +230,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Zekeje API açary bilen Claude, GPT, Gemini, GLM we başgalar ýaly modellere girip bilersiňiz.",
   "provider.connect.sixfingerZen.visit.prefix": "Sapar ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " API açaryňyzy ýygnamak.",
   "provider.connect.oauth.code.visit.prefix": "Sapar ",
   "provider.connect.oauth.code.visit.link": "Bu baglanyşyk",

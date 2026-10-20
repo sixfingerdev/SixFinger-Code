@@ -5,7 +5,7 @@
  *   bun script/rebrand.ts            # uygular
  *   bun script/rebrand.ts --check    # kalan izleri listeler (CI denetimi); izin verilenler PROTECTED + ALLOWED_PATHS
  *
- * Korunanlar: üçüncü taraf paket/depo adları, henüz karar verilmemiş alan adı (opencode.ai), vendor paketi ve lisans atfı.
+ * Korunanlar: üçüncü taraf paket/depo adları, vendor paketi ve lisans atfı.
  */
 import { $ } from "bun"
 import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -17,7 +17,6 @@ const CHECK = process.argv.includes("--check")
 
 /** Değişmeyecek ifadeler (üçüncü taraf adları, alan adı, vendor paketi). */
 const PROTECTED: RegExp[] = [
-  /opencode\.ai/g,
   /opencode-ai-client-[\w.-]*\.tgz/g,
   /@opencode-ai\/client/g,
   /opencode-(?:helicone-session|wakatime|gitlab-auth|gitlab-plugin|openai-codex-auth|gemini-auth|google-antigravity-auth|antigravity-auth|morph-plugin|plugin-template|brand-assets)/g,
@@ -29,6 +28,7 @@ const PROTECTED: RegExp[] = [
 
 /** Sırayla uygulanan dönüşümler (özelden genele). */
 const RULES: Array<[RegExp, string]> = [
+  [/opencode\.ai/g, "code.sixfinger.live"],
   [/anomalyco\/tap\/opencode/g, "sixfingerdev/tap/sixfinger"],
   [/anomalyco\/opencode/g, "sixfingerdev/sixfinger-code"],
   [/anomalyco/g, "sixfingerdev"],

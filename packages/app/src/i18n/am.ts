@@ -227,7 +227,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line1": "SixFinger ዜን ለኮድ ወኪሎች የተመቻቹ አስተማማኝ ሞዴሎች ስብስብ መዳረሻ ይሰጥዎታል።",
   "provider.connect.sixfingerZen.line2": "በአንድ የAPI ቁልፍ እንደ Claude፣ GPT፣ Gemini፣ GLM እና ሌሎችም ያሉ ሞዴሎችን መድረስ ይችላሉ።",
   "provider.connect.sixfingerZen.visit.prefix": "ጎብኝ ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " የእርስዎን API ቁልፍ ለመሰብሰብ።",
   "provider.connect.oauth.code.visit.prefix": "ጎብኝ ",
   "provider.connect.oauth.code.visit.link": "ይህ ሊንክ",

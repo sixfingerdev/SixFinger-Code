@@ -18,7 +18,7 @@ Example:
 
 ```json
 {
-  "$schema": "https://opencode.ai/tui.json",
+  "$schema": "https://code.sixfinger.live/tui.json",
   "theme": "smoke-theme",
   "leader_timeout": 2000,
   "keybinds": {

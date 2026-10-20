@@ -33607,9 +33607,9 @@
     "id": "sixfinger-go",
     "env": ["SIXFINGER_API_KEY"],
     "npm": "@ai-sdk/openai-compatible",
-    "api": "https://opencode.ai/zen/go/v1",
+    "api": "https://code.sixfinger.live/zen/go/v1",
     "name": "SixFinger Go",
-    "doc": "https://opencode.ai/docs/zen",
+    "doc": "https://code.sixfinger.live/docs/zen",
     "models": {
       "deepseek-v4-flash": {
         "id": "deepseek-v4-flash",
@@ -90323,9 +90323,9 @@
     "id": "sixfinger",
     "env": ["SIXFINGER_API_KEY"],
     "npm": "@ai-sdk/openai-compatible",
-    "api": "https://opencode.ai/zen/v1",
+    "api": "https://code.sixfinger.live/zen/v1",
     "name": "SixFinger Zen",
-    "doc": "https://opencode.ai/docs/zen",
+    "doc": "https://code.sixfinger.live/docs/zen",
     "models": {
       "ring-2.6-1t-free": {
         "id": "ring-2.6-1t-free",

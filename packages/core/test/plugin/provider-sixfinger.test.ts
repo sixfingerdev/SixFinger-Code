@@ -108,7 +108,7 @@ describe("SixfingerPlugin", () => {
         methodID: Integration.MethodID.make("device"),
         inputs: {},
       })
-      expect(attempt.url).toBe("https://opencode.ai/console/device?user_code=user&client_id=sixfinger-cli")
+      expect(attempt.url).toBe("https://code.sixfinger.live/console/device?user_code=user&client_id=sixfinger-cli")
     }),
   )
 

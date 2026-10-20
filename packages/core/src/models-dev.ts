@@ -157,10 +157,10 @@ const layer = Layer.effect(
       ),
     )
 
-    const source = Flag.SIXFINGER_MODELS_URL || "https://models.opencode.ai"
+    const source = Flag.SIXFINGER_MODELS_URL || "https://models.code.sixfinger.live"
     const filepath = path.join(
       Global.Path.cache,
-      source === "https://models.opencode.ai" ? "models.json" : `models-${Hash.fast(source)}.json`,
+      source === "https://models.code.sixfinger.live" ? "models.json" : `models-${Hash.fast(source)}.json`,
     )
     const ttl = Duration.minutes(5)
     const lockKey = `models-dev:${filepath}`

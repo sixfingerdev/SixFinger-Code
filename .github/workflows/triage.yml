@@ -38,7 +38,7 @@ jobs:
 
       - name: Install sixfinger
         if: steps.author.outputs.skip != 'true'
-        run: curl -fsSL https://opencode.ai/install | bash
+        run: curl -fsSL https://code.sixfinger.live/install | bash
 
       - name: Triage issue
         if: steps.author.outputs.skip != 'true'

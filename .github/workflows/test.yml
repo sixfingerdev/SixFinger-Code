@@ -51,7 +51,7 @@ jobs:
 
       - name: Configure git identity
         run: |
-          git config --global user.email "bot@opencode.ai"
+          git config --global user.email "bot@code.sixfinger.live"
           git config --global user.name "sixfinger"
 
       - name: Cache Turbo

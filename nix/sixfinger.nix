@@ -101,7 +101,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   meta = {
     description = "The open source coding agent";
-    homepage = "https://opencode.ai";
+    homepage = "https://code.sixfinger.live";
     license = lib.licenses.mit;
     mainProgram = "sixfinger";
     inherit (node_modules.meta) platforms;

@@ -230,7 +230,7 @@ export const dict: Record<string, string> = {
   "provider.connect.sixfingerZen.line2":
     "एकल API कुञ्जीको साथ तपाईंले Claude, GPT, Gemini, GLM र थप जस्ता मोडेलहरूमा पहुँच प्राप्त गर्नुहुनेछ।",
   "provider.connect.sixfingerZen.visit.prefix": "भ्रमण गर्नुहोस्",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": "तपाईँको API कुञ्जी सङ्कलन गर्न।",
   "provider.connect.oauth.code.visit.prefix": "भ्रमण गर्नुहोस्",
   "provider.connect.oauth.code.visit.link": "यो लिङ्क",

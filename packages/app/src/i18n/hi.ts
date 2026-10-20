@@ -236,7 +236,7 @@ export const dict = {
     "SixFinger Zen आपको कोडिंग एजेंटों के लिए चुने गए विश्वसनीय, अनुकूलित मॉडलों तक पहुँच देता है।",
   "provider.connect.sixfingerZen.line2": "एक API कुंजी से आपको Claude, GPT, Gemini, GLM जैसे कई मॉडलों तक पहुँच मिलेगी।",
   "provider.connect.sixfingerZen.visit.prefix": "यहाँ जाएँ: ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " अपनी API कुंजी प्राप्त करने के लिए।",
   "provider.connect.oauth.code.visit.prefix": "यहाँ जाएँ: ",
   "provider.connect.oauth.code.visit.link": "इस लिंक",

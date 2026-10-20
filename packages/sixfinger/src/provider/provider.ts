@@ -450,7 +450,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
+            "HTTP-Referer": "https://code.sixfinger.live/",
             "X-Title": "sixfinger",
             "X-Source": "sixfinger",
           },
@@ -461,7 +461,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
+            "HTTP-Referer": "https://code.sixfinger.live/",
             "X-Title": "sixfinger",
           },
         },
@@ -471,7 +471,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: provider.source === "config",
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
+            "HTTP-Referer": "https://code.sixfinger.live/",
             "X-Title": "sixfinger",
             "X-BILLING-INVOKE-ORIGIN": "SixFinger",
           },
@@ -482,7 +482,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "http-referer": "https://opencode.ai/",
+            "http-referer": "https://code.sixfinger.live/",
             "x-title": "sixfinger",
           },
         },
@@ -587,7 +587,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
+            "HTTP-Referer": "https://code.sixfinger.live/",
             "X-Title": "sixfinger",
           },
         },
@@ -877,7 +877,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
+            "HTTP-Referer": "https://code.sixfinger.live/",
             "X-Title": "sixfinger",
           },
         },

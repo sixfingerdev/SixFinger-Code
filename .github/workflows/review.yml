@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/setup-bun
 
       - name: Install sixfinger
-        run: curl -fsSL https://opencode.ai/install | bash
+        run: curl -fsSL https://code.sixfinger.live/install | bash
 
       - name: Get PR details
         id: pr-details

@@ -59,7 +59,7 @@ function model(input: {
     providerID: "sixfinger",
     api: {
       id: "sixfinger",
-      url: "https://opencode.ai",
+      url: "https://code.sixfinger.live",
       npm: "@ai-sdk/openai-compatible",
     },
     name: input.name,

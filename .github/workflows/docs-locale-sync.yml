@@ -50,7 +50,7 @@ jobs:
 
       - name: Install SixFinger
         if: steps.changes.outputs.has_changes == 'true'
-        run: curl -fsSL https://opencode.ai/install | bash
+        run: curl -fsSL https://code.sixfinger.live/install | bash
 
       - name: Sync locale docs with SixFinger
         if: steps.changes.outputs.has_changes == 'true'

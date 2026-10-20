@@ -231,7 +231,7 @@ export const dict = {
   "provider.connect.sixfingerZen.line2":
     "Amb una sola tecla API tindreu accés a models com ara Claude, GPT, Gemini, GLM i més.",
   "provider.connect.sixfingerZen.visit.prefix": "Visita ",
-  "provider.connect.sixfingerZen.visit.link": "opencode.ai/zen",
+  "provider.connect.sixfingerZen.visit.link": "code.sixfinger.live/zen",
   "provider.connect.sixfingerZen.visit.suffix": " per recollir la teva clau API.",
   "provider.connect.oauth.code.visit.prefix": "Visita ",
   "provider.connect.oauth.code.visit.link": "aquest enllaç",
