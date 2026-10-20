@@ -1,3 +1,4 @@
+import * as SixfingerLogin from "../sixfinger/login"
 import { LayerNode } from "@sixfinger/core/effect/layer-node"
 import path from "path"
 import { Effect, Layer, Context, Schema } from "effect"
@@ -219,7 +220,9 @@ const discoverSkills = Effect.fnUntraced(function* (
     yield* scan(state, dir, SKILL_PATTERN)
   }
 
-  for (const url of cfg.skills?.urls ?? []) {
+  // SixFinger'ın yerleşik skill kataloğu (bulut Code ile aynı skill'ler): her açılışta sürüm kontrolüyle eşitlenir; ağ yoksa sessizce atlanır.
+  const catalog = process.env.SIXFINGER_NO_SKILL_SYNC ? [] : [`${SixfingerLogin.server()}/api/skills`]
+  for (const url of [...new Set([...(cfg.skills?.urls ?? []), ...catalog])]) {
     const pulledDirs = yield* discovery.pull(url)
     for (const dir of pulledDirs) {
       yield* scan(state, dir, SKILL_PATTERN)
