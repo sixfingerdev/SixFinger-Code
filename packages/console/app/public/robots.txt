@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-
-# Disallow shared content pages
-Disallow: /s/
-Disallow: /share/
-
-Sitemap: https://code.sixfinger.live/sitemap.xml
-Sitemap: https://code.sixfinger.live/data/sitemap.xml
