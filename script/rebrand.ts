@@ -22,6 +22,8 @@ const PROTECTED: RegExp[] = [
   /@opencode-ai\/client/g,
   /opencode-(?:helicone-session|wakatime|gitlab-auth|gitlab-plugin|openai-codex-auth|gemini-auth|google-antigravity-auth|antigravity-auth|morph-plugin|plugin-template|brand-assets)/g,
   /opencode\.nvim/g,
+  /opencode-poe-auth/g,
+  /anomalyco\/ghostty-web/g,
   /sst\/opencode/g,
 ]
 
