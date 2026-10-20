@@ -6,6 +6,7 @@ import { ConsoleCommand } from "./cli/cmd/account"
 import { LoginCommand, LogoutCommand } from "./cli/cmd/account-login"
 import { LinkCommand } from "./cli/cmd/link"
 import * as SixfingerLogin from "./sixfinger/login"
+import * as SixfingerPrompt from "./sixfinger/prompt"
 import { AgentCommand } from "./cli/cmd/agent"
 import { UpgradeCommand } from "./cli/cmd/upgrade"
 import { UninstallCommand } from "./cli/cmd/uninstall"
@@ -83,6 +84,8 @@ const cli = yargs(args)
         process.exit(1)
       })
     }
+    // Sistem istemi sunucudan (ağ yoksa önbellek): kimlik ve davranış kuralları sunucuda yönetilir.
+    if (!["login", "logout", "upgrade", "uninstall", "completion"].includes(first)) await SixfingerPrompt.refresh()
 
     process.env.AGENT = "1"
     process.env.SIXFINGER = "1"
