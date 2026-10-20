@@ -11,6 +11,7 @@ import { Plugin } from "../plugin"
 import { serviceUse } from "@sixfinger/core/effect/service-use"
 import { type LanguageModelV3 } from "@ai-sdk/provider"
 import { ModelsDev } from "@sixfinger/core/models-dev"
+import { SIXFINGER_PROVIDER_ID, sixfingerProvider } from "./sixfinger"
 import { Auth } from "../auth"
 import { Env } from "../env"
 import { InstallationVersion } from "@sixfinger/core/installation/version"
@@ -1397,7 +1398,10 @@ const layer = Layer.effect(
       Effect.gen(function* () {
         const bridge = yield* EffectBridge.make()
         const cfg = yield* config.get()
-        const modelsDev = yield* modelsDevSvc.get()
+        // Tek sağlayıcı: SixFinger (Hızlı / Derin). models.dev kataloğu ve kullanıcı sağlayıcıları kullanılmaz.
+        const modelsDev: Record<string, ModelsDev.Provider> = {
+          [SIXFINGER_PROVIDER_ID]: sixfingerProvider(process.env.SIXFINGER_API_URL),
+        }
         const catalog = mapValues(modelsDev, fromModelsDevProvider)
         const database = mapValues(catalog, toPublicInfo)
 
@@ -1442,6 +1446,7 @@ const layer = Layer.effect(
         const enabled = cfg.enabled_providers ? new Set(cfg.enabled_providers) : null
 
         function isProviderAllowed(providerID: ProviderV2.ID): boolean {
+          if (providerID !== SIXFINGER_PROVIDER_ID) return false
           if (enabled && !enabled.has(providerID)) return false
           if (disabled.has(providerID)) return false
           return true
