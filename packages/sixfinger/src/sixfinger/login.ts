@@ -9,6 +9,28 @@ import { Global } from "@sixfinger/core/global"
  * kullanıcı oturum açmış sitede kodu onaylar, CLI jetonları alır. Jetonlar yalnızca bu cihazda, 0600 izinli dosyada tutulur.
  */
 
+/** Arayüz dili: sistem dili Türkçe ise Türkçe, değilse İngilizce (`SIXFINGER_LANG=tr|en` ile zorlanabilir). */
+export const lang = (): "tr" | "en" => {
+  const v = (process.env.SIXFINGER_LANG ?? process.env.LC_ALL ?? process.env.LC_MESSAGES ?? process.env.LANG ?? Intl.DateTimeFormat().resolvedOptions().locale ?? "").toLowerCase()
+  return v.startsWith("tr") ? "tr" : "en"
+}
+
+const M = {
+  loginRequired: { tr: "SixFinger hesabına giriş yapılmamış. `sixfinger login` komutunu çalıştır.", en: "You are not signed in to SixFinger. Run `sixfinger login`." },
+  refreshFailed: { tr: "SixFinger sunucusu oturumu yenileyemedi ({s}).", en: "The SixFinger server could not refresh your session ({s})." },
+  startFailed: { tr: "Giriş başlatılamadı ({s}). Sunucu: {server}", en: "Could not start sign-in ({s}). Server: {server}" },
+  need: { tr: "SixFinger hesabına giriş gerekli.", en: "Sign in to your SixFinger account." },
+  opening: { tr: "  Tarayıcı açılıyor: {url}", en: "  Opening your browser: {url}" },
+  manual: { tr: "  Açılmazsa adresi elle aç. Kod: {code}", en: "  If it does not open, visit the address manually. Code: {code}" },
+  waiting: { tr: "  Onayı bekliyorum…", en: "  Waiting for approval…" },
+  expired: { tr: "Kodun süresi doldu. Komutu yeniden çalıştır.", en: "The code expired. Run the command again." },
+  signedIn: { tr: "Giriş yapıldı{who}.", en: "Signed in{who}." },
+  timeout: { tr: "Giriş zaman aşımına uğradı. Komutu yeniden çalıştır.", en: "Sign-in timed out. Run the command again." },
+} as const
+
+export const tx = (k: keyof typeof M, vars: Record<string, string | number> = {}): string =>
+  M[k][lang()].replace(/\{(\w+)\}/g, (_, n) => String(vars[n] ?? ""))
+
 export const server = () => (process.env.SIXFINGER_SERVER ?? "https://chat.sixfinger.live").replace(/\/$/, "")
 
 export interface Stored {
@@ -28,7 +50,7 @@ interface AuthResponse {
 
 export class LoginRequiredError extends Error {
   constructor() {
-    super("SixFinger hesabına giriş yapılmamış. `sixfinger login` komutunu çalıştır.")
+    super(tx("loginRequired"))
   }
 }
 
@@ -83,7 +105,7 @@ function refresh(s: Stored): Promise<Stored> {
         await clear()
         throw new LoginRequiredError()
       }
-      if (r.status >= 400) throw new Error(`SixFinger sunucusu oturumu yenileyemedi (${r.status}).`)
+      if (r.status >= 400) throw new Error(tx("refreshFailed", { s: r.status }))
       const next = fromResponse(r.json)
       await write(next)
       return next
@@ -108,27 +130,27 @@ export async function deviceLogin(say: (line: string) => void = (l) => process.s
   const start = await post<{ deviceCode: string; userCode: string; verificationUrl: string; interval: number; expiresIn: number }>("/device/start", {
     client: `SixFinger Code CLI (${os.hostname()})`.slice(0, 60),
   })
-  if (start.status !== 200) throw new Error(`Giriş başlatılamadı (${start.status}). Sunucu: ${server()}`)
+  if (start.status !== 200) throw new Error(tx("startFailed", { s: start.status, server: server() }))
   const { deviceCode, userCode, verificationUrl, interval, expiresIn } = start.json
   say("")
-  say("SixFinger hesabına giriş gerekli.")
-  say(`  Tarayıcı açılıyor: ${verificationUrl}`)
-  say(`  Açılmazsa adresi elle aç. Kod: ${userCode}`)
-  say("  Onayı bekliyorum…")
+  say(tx("need"))
+  say(tx("opening", { url: verificationUrl }))
+  say(tx("manual", { code: userCode }))
+  say(tx("waiting"))
   open(verificationUrl).catch(() => {})
   const deadline = Date.now() + expiresIn * 1000
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, Math.max(1, interval) * 1000))
     const r = await post<AuthResponse & { status: string }>("/device/poll", { deviceCode })
-    if (r.status === 410) throw new Error("Kodun süresi doldu. Komutu yeniden çalıştır.")
+    if (r.status === 410) throw new Error(tx("expired"))
     if (r.status === 200 && r.json.status === "approved") {
       const s = fromResponse(r.json)
       await write(s)
-      say(`Giriş yapıldı${s.user.email ? `: ${s.user.email}` : ""}.`)
+      say(tx("signedIn", { who: s.user.email ? `: ${s.user.email}` : "" }))
       return s
     }
   }
-  throw new Error("Giriş zaman aşımına uğradı. Komutu yeniden çalıştır.")
+  throw new Error(tx("timeout"))
 }
 
 /** Provider SDK'sına verilen fetch: her istekte güncel jetonu ekler, 401'de bir kez yenileyip tekrar dener. */
