@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512"><svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="512" height="512" fill="#131010"></rect>
-<path d="M320 224V352H192V224H320Z" fill="#5A5858"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M384 416H128V96H384V416ZM320 160H192V352H320V160Z" fill="white"></path>
-</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
-@media (prefers-color-scheme: dark) { :root { filter: none; } }
-</style></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0b0b0c"/><g transform="translate(64 64) scale(0.62) translate(-75.5 -75.6)" fill="#fff"><polygon points="48.8,30.4 74,22.7 74,62.6 48.8,92.2"/><polygon points="77,22.7 102.2,30.4 102.5,52.5 58.5,87 59.2,85 77,62.6"/><polygon points="74.0,128.5 48.8,120.8 48.5,98.7 92.5,64.2 91.8,66.2 74.0,88.6"/><polygon points="102.2,120.8 77.0,128.5 77.0,88.6 102.2,59.0"/></g></svg>
