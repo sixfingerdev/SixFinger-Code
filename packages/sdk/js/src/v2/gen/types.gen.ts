@@ -314,7 +314,7 @@ export type ContentFilterError = {
   }
 }
 
-export type ApiError = {
+export type ApıError = {
   name: "APIError"
   data: {
     message: string
@@ -346,7 +346,7 @@ export type AssistantMessage = {
     | StructuredOutputError
     | ContextOverflowError
     | ContentFilterError
-    | ApiError
+    | ApıError
   parentID: string
   modelID: string
   providerID: string
@@ -608,7 +608,7 @@ export type RetryPart = {
   messageID: string
   type: "retry"
   attempt: number
-  error: ApiError
+  error: ApıError
   time: {
     created: number
   }
@@ -622,6 +622,7 @@ export type CompactionPart = {
   auto: boolean
   overflow?: boolean
   tail_start_id?: string
+  from?: string
 }
 
 export type Part =
@@ -1222,7 +1223,7 @@ export type GlobalEvent = {
             | StructuredOutputError
             | ContextOverflowError
             | ContentFilterError
-            | ApiError
+            | ApıError
         }
       }
     | {
@@ -2017,6 +2018,7 @@ export type Config = {
   compaction?: {
     auto?: boolean
     prune?: boolean
+    mode?: "summary" | "memory"
     tail_turns?: number
     preserve_recent_tokens?: number
     reserved?: number
@@ -2248,6 +2250,32 @@ export type GlobalSession = {
   }
   project: ProjectSummary | null
 }
+
+export type ExperimentalBackgroundJob = {
+  id: string
+  type: string
+  status: string
+  title?: string
+  output: string
+  truncated: boolean
+  outputPath?: string
+}
+
+export type ExperimentalCronEntry = {
+  id: string
+  name: string
+  schedule: string
+  prompt: string
+  directory: string
+  session: string
+  sessionID?: string
+  nextRun: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  lastRun?: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  enabled: boolean
+  osScheduled?: boolean
+}
+
+export type ExperimentalCronList = Array<ExperimentalCronEntry>
 
 export type McpResource = {
   name: string
@@ -4850,7 +4878,7 @@ export type ModelV2Info = {
   }
 }
 
-export type ProviderAisdk = {
+export type ProviderAısdk = {
   type: "aisdk"
   package: string
   url?: string
@@ -4867,7 +4895,7 @@ export type ProviderNative = {
   }
 }
 
-export type ProviderApi = ProviderAisdk | ProviderNative
+export type ProviderApi = ProviderAısdk | ProviderNative
 
 export type ProviderV2Info = {
   id: string
@@ -5364,7 +5392,7 @@ export type SessionError = {
       | StructuredOutputError
       | ContextOverflowError
       | ContentFilterError
-      | ApiError
+      | ApıError
   }
 }
 
@@ -6689,7 +6717,7 @@ export type EventSessionError = {
       | StructuredOutputError
       | ContextOverflowError
       | ContentFilterError
-      | ApiError
+      | ApıError
   }
 }
 
@@ -7464,6 +7492,68 @@ export type ConfigUpdateResponses = {
 
 export type ConfigUpdateResponse = ConfigUpdateResponses[keyof ConfigUpdateResponses]
 
+export type ConfigCompactionGetData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/config/compaction"
+}
+
+export type ConfigCompactionGetErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type ConfigCompactionGetError = ConfigCompactionGetErrors[keyof ConfigCompactionGetErrors]
+
+export type ConfigCompactionGetResponses = {
+  /**
+   * Auto-compact window setting
+   */
+  200: {
+    window: "auto-low" | "auto-medium" | "auto-max" | number
+  }
+}
+
+export type ConfigCompactionGetResponse = ConfigCompactionGetResponses[keyof ConfigCompactionGetResponses]
+
+export type ConfigCompactionSetData = {
+  body?: {
+    window: "auto-low" | "auto-medium" | "auto-max" | number
+  }
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/config/compaction"
+}
+
+export type ConfigCompactionSetErrors = {
+  /**
+   * BadRequest | InvalidRequestError
+   */
+  400: EffectHttpApiErrorBadRequest | InvalidRequestError
+}
+
+export type ConfigCompactionSetError = ConfigCompactionSetErrors[keyof ConfigCompactionSetErrors]
+
+export type ConfigCompactionSetResponses = {
+  /**
+   * Auto-compact window setting
+   */
+  200: {
+    window: "auto-low" | "auto-medium" | "auto-max" | number
+  }
+}
+
+export type ConfigCompactionSetResponse = ConfigCompactionSetResponses[keyof ConfigCompactionSetResponses]
+
 export type ConfigProvidersData = {
   body?: never
   path?: never
@@ -7655,7 +7745,7 @@ export type ToolListResponses = {
 
 export type ToolListResponse = ToolListResponses[keyof ToolListResponses]
 
-export type ToolIdsData = {
+export type ToolİdsData = {
   body?: never
   path?: never
   query?: {
@@ -7665,23 +7755,23 @@ export type ToolIdsData = {
   url: "/experimental/tool/ids"
 }
 
-export type ToolIdsErrors = {
+export type ToolİdsErrors = {
   /**
    * BadRequest | InvalidRequestError
    */
   400: EffectHttpApiErrorBadRequest | InvalidRequestError
 }
 
-export type ToolIdsError = ToolIdsErrors[keyof ToolIdsErrors]
+export type ToolİdsError = ToolİdsErrors[keyof ToolİdsErrors]
 
-export type ToolIdsResponses = {
+export type ToolİdsResponses = {
   /**
    * Tool IDs
    */
   200: ToolIds
 }
 
-export type ToolIdsResponse = ToolIdsResponses[keyof ToolIdsResponses]
+export type ToolİdsResponse = ToolİdsResponses[keyof ToolİdsResponses]
 
 export type WorktreeRemoveData = {
   body?: WorktreeRemoveInput
@@ -7860,6 +7950,103 @@ export type ExperimentalSessionBackgroundResponses = {
 
 export type ExperimentalSessionBackgroundResponse =
   ExperimentalSessionBackgroundResponses[keyof ExperimentalSessionBackgroundResponses]
+
+export type ExperimentalBackgroundGetData = {
+  body?: never
+  path: {
+    jobID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/experimental/background/{jobID}"
+}
+
+export type ExperimentalBackgroundGetErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type ExperimentalBackgroundGetError = ExperimentalBackgroundGetErrors[keyof ExperimentalBackgroundGetErrors]
+
+export type ExperimentalBackgroundGetResponses = {
+  /**
+   * Background job state
+   */
+  200: ExperimentalBackgroundJob
+}
+
+export type ExperimentalBackgroundGetResponse =
+  ExperimentalBackgroundGetResponses[keyof ExperimentalBackgroundGetResponses]
+
+export type ExperimentalCronListData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/experimental/cron"
+}
+
+export type ExperimentalCronListErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type ExperimentalCronListError = ExperimentalCronListErrors[keyof ExperimentalCronListErrors]
+
+export type ExperimentalCronListResponses = {
+  /**
+   * Scheduled tasks
+   */
+  200: ExperimentalCronList
+}
+
+export type ExperimentalCronListResponse = ExperimentalCronListResponses[keyof ExperimentalCronListResponses]
+
+export type ExperimentalCronDeleteData = {
+  body?: never
+  path: {
+    cronID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/experimental/cron/{cronID}"
+}
+
+export type ExperimentalCronDeleteErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type ExperimentalCronDeleteError = ExperimentalCronDeleteErrors[keyof ExperimentalCronDeleteErrors]
+
+export type ExperimentalCronDeleteResponses = {
+  /**
+   * Scheduled task deleted
+   */
+  200: boolean
+}
+
+export type ExperimentalCronDeleteResponse = ExperimentalCronDeleteResponses[keyof ExperimentalCronDeleteResponses]
 
 export type ExperimentalResourceListData = {
   body?: never
@@ -8084,7 +8271,7 @@ export type FileStatusResponses = {
 
 export type FileStatusResponse = FileStatusResponses[keyof FileStatusResponses]
 
-export type InstanceDisposeData = {
+export type İnstanceDisposeData = {
   body?: never
   path?: never
   query?: {
@@ -8094,23 +8281,23 @@ export type InstanceDisposeData = {
   url: "/instance/dispose"
 }
 
-export type InstanceDisposeErrors = {
+export type İnstanceDisposeErrors = {
   /**
    * Bad request
    */
   400: BadRequestError
 }
 
-export type InstanceDisposeError = InstanceDisposeErrors[keyof InstanceDisposeErrors]
+export type İnstanceDisposeError = İnstanceDisposeErrors[keyof İnstanceDisposeErrors]
 
-export type InstanceDisposeResponses = {
+export type İnstanceDisposeResponses = {
   /**
    * Instance disposed
    */
   200: boolean
 }
 
-export type InstanceDisposeResponse = InstanceDisposeResponses[keyof InstanceDisposeResponses]
+export type İnstanceDisposeResponse = İnstanceDisposeResponses[keyof İnstanceDisposeResponses]
 
 export type PathGetData = {
   body?: never
@@ -8761,7 +8948,7 @@ export type ProjectCurrentResponses = {
 
 export type ProjectCurrentResponse = ProjectCurrentResponses[keyof ProjectCurrentResponses]
 
-export type ProjectInitGitData = {
+export type ProjectİnitGitData = {
   body?: never
   path?: never
   query?: {
@@ -8771,23 +8958,23 @@ export type ProjectInitGitData = {
   url: "/project/git/init"
 }
 
-export type ProjectInitGitErrors = {
+export type ProjectİnitGitErrors = {
   /**
    * Bad request
    */
   400: BadRequestError
 }
 
-export type ProjectInitGitError = ProjectInitGitErrors[keyof ProjectInitGitErrors]
+export type ProjectİnitGitError = ProjectİnitGitErrors[keyof ProjectİnitGitErrors]
 
-export type ProjectInitGitResponses = {
+export type ProjectİnitGitResponses = {
   /**
    * Project information after git initialization
    */
   200: Project
 }
 
-export type ProjectInitGitResponse = ProjectInitGitResponses[keyof ProjectInitGitResponses]
+export type ProjectİnitGitResponse = ProjectİnitGitResponses[keyof ProjectİnitGitResponses]
 
 export type ProjectUpdateData = {
   body?: {
@@ -9724,6 +9911,83 @@ export type SessionTodoResponses = {
 
 export type SessionTodoResponse = SessionTodoResponses[keyof SessionTodoResponses]
 
+export type SessionMemoriesData = {
+  body?: never
+  path: {
+    sessionID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/session/{sessionID}/memory"
+}
+
+export type SessionMemoriesErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * NotFoundError
+   */
+  404: NotFoundError
+}
+
+export type SessionMemoriesError = SessionMemoriesErrors[keyof SessionMemoriesErrors]
+
+export type SessionMemoriesResponses = {
+  /**
+   * Memories
+   */
+  200: Array<{
+    id: string
+    scope: string
+    source: string
+    tags: Array<string>
+    created: number
+    updated: number
+    content: string
+  }>
+}
+
+export type SessionMemoriesResponse = SessionMemoriesResponses[keyof SessionMemoriesResponses]
+
+export type SessionMemoryRemoveData = {
+  body?: never
+  path: {
+    sessionID: string
+    memoryID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/session/{sessionID}/memory/{memoryID}"
+}
+
+export type SessionMemoryRemoveErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * NotFoundError
+   */
+  404: NotFoundError
+}
+
+export type SessionMemoryRemoveError = SessionMemoryRemoveErrors[keyof SessionMemoryRemoveErrors]
+
+export type SessionMemoryRemoveResponses = {
+  /**
+   * Memory removed
+   */
+  200: boolean
+}
+
+export type SessionMemoryRemoveResponse = SessionMemoryRemoveResponses[keyof SessionMemoryRemoveResponses]
+
 export type SessionDiffData = {
   body?: never
   path: {
@@ -9989,7 +10253,7 @@ export type SessionAbortResponses = {
 
 export type SessionAbortResponse = SessionAbortResponses[keyof SessionAbortResponses]
 
-export type SessionInitData = {
+export type SessionİnitData = {
   body?: {
     modelID: string
     providerID: string
@@ -10005,7 +10269,7 @@ export type SessionInitData = {
   url: "/session/{sessionID}/init"
 }
 
-export type SessionInitErrors = {
+export type SessionİnitErrors = {
   /**
    * BadRequest | InvalidRequestError
    */
@@ -10016,16 +10280,16 @@ export type SessionInitErrors = {
   404: NotFoundError
 }
 
-export type SessionInitError = SessionInitErrors[keyof SessionInitErrors]
+export type SessionİnitError = SessionİnitErrors[keyof SessionİnitErrors]
 
-export type SessionInitResponses = {
+export type SessionİnitResponses = {
   /**
    * 200
    */
   200: boolean
 }
 
-export type SessionInitResponse = SessionInitResponses[keyof SessionInitResponses]
+export type SessionİnitResponse = SessionİnitResponses[keyof SessionİnitResponses]
 
 export type SessionUnshareData = {
   body?: never
@@ -10108,6 +10372,7 @@ export type SessionSummarizeData = {
     providerID: string
     modelID: string
     auto?: boolean
+    from?: string
   }
   path: {
     sessionID: string
@@ -10140,6 +10405,46 @@ export type SessionSummarizeResponses = {
 }
 
 export type SessionSummarizeResponse = SessionSummarizeResponses[keyof SessionSummarizeResponses]
+
+export type SessionSideQuestionData = {
+  body?: {
+    question: string
+    providerID?: string
+    modelID?: string
+  }
+  path: {
+    sessionID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/session/{sessionID}/side-question"
+}
+
+export type SessionSideQuestionErrors = {
+  /**
+   * BadRequest | InvalidRequestError
+   */
+  400: EffectHttpApiErrorBadRequest | InvalidRequestError
+  /**
+   * NotFoundError
+   */
+  404: NotFoundError
+}
+
+export type SessionSideQuestionError = SessionSideQuestionErrors[keyof SessionSideQuestionErrors]
+
+export type SessionSideQuestionResponses = {
+  /**
+   * Side question answer
+   */
+  200: {
+    response: string
+  }
+}
+
+export type SessionSideQuestionResponse = SessionSideQuestionResponses[keyof SessionSideQuestionResponses]
 
 export type SessionPromptAsyncData = {
   body?: {
@@ -11915,7 +12220,7 @@ export type V2SessionEventsResponses = {
 
 export type V2SessionEventsResponse = V2SessionEventsResponses[keyof V2SessionEventsResponses]
 
-export type V2SessionInterruptData = {
+export type V2SessionİnterruptData = {
   body?: never
   path: {
     sessionID: string
@@ -11924,7 +12229,7 @@ export type V2SessionInterruptData = {
   url: "/api/session/{sessionID}/interrupt"
 }
 
-export type V2SessionInterruptErrors = {
+export type V2SessionİnterruptErrors = {
   /**
    * InvalidRequestError
    */
@@ -11939,16 +12244,16 @@ export type V2SessionInterruptErrors = {
   404: SessionNotFoundError
 }
 
-export type V2SessionInterruptError = V2SessionInterruptErrors[keyof V2SessionInterruptErrors]
+export type V2SessionİnterruptError = V2SessionİnterruptErrors[keyof V2SessionİnterruptErrors]
 
-export type V2SessionInterruptResponses = {
+export type V2SessionİnterruptResponses = {
   /**
    * <No Content>
    */
   204: void
 }
 
-export type V2SessionInterruptResponse = V2SessionInterruptResponses[keyof V2SessionInterruptResponses]
+export type V2SessionİnterruptResponse = V2SessionİnterruptResponses[keyof V2SessionİnterruptResponses]
 
 export type V2SessionMessageData = {
   body?: never
@@ -12163,7 +12468,7 @@ export type V2ProviderGetResponses = {
 
 export type V2ProviderGetResponse = V2ProviderGetResponses[keyof V2ProviderGetResponses]
 
-export type V2IntegrationListData = {
+export type V2İntegrationListData = {
   body?: never
   path?: never
   query?: {
@@ -12175,7 +12480,7 @@ export type V2IntegrationListData = {
   url: "/api/integration"
 }
 
-export type V2IntegrationListErrors = {
+export type V2İntegrationListErrors = {
   /**
    * InvalidRequestError
    */
@@ -12186,9 +12491,9 @@ export type V2IntegrationListErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationListError = V2IntegrationListErrors[keyof V2IntegrationListErrors]
+export type V2İntegrationListError = V2İntegrationListErrors[keyof V2İntegrationListErrors]
 
-export type V2IntegrationListResponses = {
+export type V2İntegrationListResponses = {
   /**
    * Success
    */
@@ -12198,9 +12503,9 @@ export type V2IntegrationListResponses = {
   }
 }
 
-export type V2IntegrationListResponse = V2IntegrationListResponses[keyof V2IntegrationListResponses]
+export type V2İntegrationListResponse = V2İntegrationListResponses[keyof V2İntegrationListResponses]
 
-export type V2IntegrationGetData = {
+export type V2İntegrationGetData = {
   body?: never
   path: {
     integrationID: string
@@ -12214,7 +12519,7 @@ export type V2IntegrationGetData = {
   url: "/api/integration/{integrationID}"
 }
 
-export type V2IntegrationGetErrors = {
+export type V2İntegrationGetErrors = {
   /**
    * InvalidRequestError
    */
@@ -12225,9 +12530,9 @@ export type V2IntegrationGetErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationGetError = V2IntegrationGetErrors[keyof V2IntegrationGetErrors]
+export type V2İntegrationGetError = V2İntegrationGetErrors[keyof V2İntegrationGetErrors]
 
-export type V2IntegrationGetResponses = {
+export type V2İntegrationGetResponses = {
   /**
    * Success
    */
@@ -12237,9 +12542,9 @@ export type V2IntegrationGetResponses = {
   }
 }
 
-export type V2IntegrationGetResponse = V2IntegrationGetResponses[keyof V2IntegrationGetResponses]
+export type V2İntegrationGetResponse = V2İntegrationGetResponses[keyof V2İntegrationGetResponses]
 
-export type V2IntegrationConnectKeyData = {
+export type V2İntegrationConnectKeyData = {
   body: {
     key: string
     label?: string
@@ -12256,7 +12561,7 @@ export type V2IntegrationConnectKeyData = {
   url: "/api/integration/{integrationID}/connect/key"
 }
 
-export type V2IntegrationConnectKeyErrors = {
+export type V2İntegrationConnectKeyErrors = {
   /**
    * InvalidRequestError
    */
@@ -12267,18 +12572,18 @@ export type V2IntegrationConnectKeyErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationConnectKeyError = V2IntegrationConnectKeyErrors[keyof V2IntegrationConnectKeyErrors]
+export type V2İntegrationConnectKeyError = V2İntegrationConnectKeyErrors[keyof V2İntegrationConnectKeyErrors]
 
-export type V2IntegrationConnectKeyResponses = {
+export type V2İntegrationConnectKeyResponses = {
   /**
    * <No Content>
    */
   204: void
 }
 
-export type V2IntegrationConnectKeyResponse = V2IntegrationConnectKeyResponses[keyof V2IntegrationConnectKeyResponses]
+export type V2İntegrationConnectKeyResponse = V2İntegrationConnectKeyResponses[keyof V2İntegrationConnectKeyResponses]
 
-export type V2IntegrationConnectOauthData = {
+export type V2İntegrationConnectOauthData = {
   body: {
     methodID: string
     inputs: {
@@ -12298,7 +12603,7 @@ export type V2IntegrationConnectOauthData = {
   url: "/api/integration/{integrationID}/connect/oauth"
 }
 
-export type V2IntegrationConnectOauthErrors = {
+export type V2İntegrationConnectOauthErrors = {
   /**
    * InvalidRequestError
    */
@@ -12309,9 +12614,9 @@ export type V2IntegrationConnectOauthErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationConnectOauthError = V2IntegrationConnectOauthErrors[keyof V2IntegrationConnectOauthErrors]
+export type V2İntegrationConnectOauthError = V2İntegrationConnectOauthErrors[keyof V2İntegrationConnectOauthErrors]
 
-export type V2IntegrationConnectOauthResponses = {
+export type V2İntegrationConnectOauthResponses = {
   /**
    * Success
    */
@@ -12321,10 +12626,10 @@ export type V2IntegrationConnectOauthResponses = {
   }
 }
 
-export type V2IntegrationConnectOauthResponse =
-  V2IntegrationConnectOauthResponses[keyof V2IntegrationConnectOauthResponses]
+export type V2İntegrationConnectOauthResponse =
+  V2İntegrationConnectOauthResponses[keyof V2İntegrationConnectOauthResponses]
 
-export type V2IntegrationAttemptCancelData = {
+export type V2İntegrationAttemptCancelData = {
   body?: never
   path: {
     attemptID: string
@@ -12338,7 +12643,7 @@ export type V2IntegrationAttemptCancelData = {
   url: "/api/integration/attempt/{attemptID}"
 }
 
-export type V2IntegrationAttemptCancelErrors = {
+export type V2İntegrationAttemptCancelErrors = {
   /**
    * InvalidRequestError
    */
@@ -12349,19 +12654,19 @@ export type V2IntegrationAttemptCancelErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationAttemptCancelError = V2IntegrationAttemptCancelErrors[keyof V2IntegrationAttemptCancelErrors]
+export type V2İntegrationAttemptCancelError = V2İntegrationAttemptCancelErrors[keyof V2İntegrationAttemptCancelErrors]
 
-export type V2IntegrationAttemptCancelResponses = {
+export type V2İntegrationAttemptCancelResponses = {
   /**
    * <No Content>
    */
   204: void
 }
 
-export type V2IntegrationAttemptCancelResponse =
-  V2IntegrationAttemptCancelResponses[keyof V2IntegrationAttemptCancelResponses]
+export type V2İntegrationAttemptCancelResponse =
+  V2İntegrationAttemptCancelResponses[keyof V2İntegrationAttemptCancelResponses]
 
-export type V2IntegrationAttemptStatusData = {
+export type V2İntegrationAttemptStatusData = {
   body?: never
   path: {
     attemptID: string
@@ -12375,7 +12680,7 @@ export type V2IntegrationAttemptStatusData = {
   url: "/api/integration/attempt/{attemptID}"
 }
 
-export type V2IntegrationAttemptStatusErrors = {
+export type V2İntegrationAttemptStatusErrors = {
   /**
    * InvalidRequestError
    */
@@ -12386,9 +12691,9 @@ export type V2IntegrationAttemptStatusErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationAttemptStatusError = V2IntegrationAttemptStatusErrors[keyof V2IntegrationAttemptStatusErrors]
+export type V2İntegrationAttemptStatusError = V2İntegrationAttemptStatusErrors[keyof V2İntegrationAttemptStatusErrors]
 
-export type V2IntegrationAttemptStatusResponses = {
+export type V2İntegrationAttemptStatusResponses = {
   /**
    * Success
    */
@@ -12398,10 +12703,10 @@ export type V2IntegrationAttemptStatusResponses = {
   }
 }
 
-export type V2IntegrationAttemptStatusResponse =
-  V2IntegrationAttemptStatusResponses[keyof V2IntegrationAttemptStatusResponses]
+export type V2İntegrationAttemptStatusResponse =
+  V2İntegrationAttemptStatusResponses[keyof V2İntegrationAttemptStatusResponses]
 
-export type V2IntegrationAttemptCompleteData = {
+export type V2İntegrationAttemptCompleteData = {
   body: {
     code?: string
   }
@@ -12417,7 +12722,7 @@ export type V2IntegrationAttemptCompleteData = {
   url: "/api/integration/attempt/{attemptID}/complete"
 }
 
-export type V2IntegrationAttemptCompleteErrors = {
+export type V2İntegrationAttemptCompleteErrors = {
   /**
    * InvalidRequestError
    */
@@ -12428,18 +12733,18 @@ export type V2IntegrationAttemptCompleteErrors = {
   401: UnauthorizedError
 }
 
-export type V2IntegrationAttemptCompleteError =
-  V2IntegrationAttemptCompleteErrors[keyof V2IntegrationAttemptCompleteErrors]
+export type V2İntegrationAttemptCompleteError =
+  V2İntegrationAttemptCompleteErrors[keyof V2İntegrationAttemptCompleteErrors]
 
-export type V2IntegrationAttemptCompleteResponses = {
+export type V2İntegrationAttemptCompleteResponses = {
   /**
    * <No Content>
    */
   204: void
 }
 
-export type V2IntegrationAttemptCompleteResponse =
-  V2IntegrationAttemptCompleteResponses[keyof V2IntegrationAttemptCompleteResponses]
+export type V2İntegrationAttemptCompleteResponse =
+  V2İntegrationAttemptCompleteResponses[keyof V2İntegrationAttemptCompleteResponses]
 
 export type V2CredentialRemoveData = {
   body?: never

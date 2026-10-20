@@ -18,6 +18,10 @@ import type {
   CommandListErrors,
   CommandListResponses,
   Config as Config3,
+  ConfigCompactionGetErrors,
+  ConfigCompactionGetResponses,
+  ConfigCompactionSetErrors,
+  ConfigCompactionSetResponses,
   ConfigGetErrors,
   ConfigGetResponses,
   ConfigProvidersErrors,
@@ -29,6 +33,8 @@ import type {
   EventTuiPromptAppend,
   EventTuiSessionSelect,
   EventTuiToastShow,
+  ExperimentalBackgroundGetErrors,
+  ExperimentalBackgroundGetResponses,
   ExperimentalCapabilitiesGetErrors,
   ExperimentalCapabilitiesGetResponses,
   ExperimentalConsoleGetErrors,
@@ -38,6 +44,10 @@ import type {
   ExperimentalConsoleSwitchOrgResponses,
   ExperimentalControlPlaneMoveSessionErrors,
   ExperimentalControlPlaneMoveSessionResponses,
+  ExperimentalCronDeleteErrors,
+  ExperimentalCronDeleteResponses,
+  ExperimentalCronListErrors,
+  ExperimentalCronListResponses,
   ExperimentalProjectCopyGenerateNameErrors,
   ExperimentalProjectCopyGenerateNameResponses,
   ExperimentalResourceListErrors,
@@ -88,8 +98,8 @@ import type {
   GlobalHealthResponses,
   GlobalUpgradeErrors,
   GlobalUpgradeResponses,
-  InstanceDisposeErrors,
-  InstanceDisposeResponses,
+  İnstanceDisposeErrors,
+  İnstanceDisposeResponses,
   LocationRef,
   LspStatusErrors,
   LspStatusResponses,
@@ -136,8 +146,8 @@ import type {
   ProjectDirectoriesErrors,
   ProjectDirectoriesResponses,
   ProjectIcon,
-  ProjectInitGitErrors,
-  ProjectInitGitResponses,
+  ProjectİnitGitErrors,
+  ProjectİnitGitResponses,
   ProjectListErrors,
   ProjectListResponses,
   ProjectUpdateErrors,
@@ -193,10 +203,14 @@ import type {
   SessionForkResponses,
   SessionGetErrors,
   SessionGetResponses,
-  SessionInitErrors,
-  SessionInitResponses,
+  SessionİnitErrors,
+  SessionİnitResponses,
   SessionListErrors,
   SessionListResponses,
+  SessionMemoriesErrors,
+  SessionMemoriesResponses,
+  SessionMemoryRemoveErrors,
+  SessionMemoryRemoveResponses,
   SessionMessageErrors,
   SessionMessageResponses,
   SessionMessagesErrors,
@@ -211,6 +225,8 @@ import type {
   SessionShareResponses,
   SessionShellErrors,
   SessionShellResponses,
+  SessionSideQuestionErrors,
+  SessionSideQuestionResponses,
   SessionStatusErrors,
   SessionStatusResponses,
   SessionSummarizeErrors,
@@ -233,8 +249,8 @@ import type {
   SyncStealErrors,
   SyncStealResponses,
   TextPartInput,
-  ToolIdsErrors,
-  ToolIdsResponses,
+  ToolİdsErrors,
+  ToolİdsResponses,
   ToolListErrors,
   ToolListResponses,
   TuiAppendPromptErrors,
@@ -281,20 +297,20 @@ import type {
   V2FsReadResponses,
   V2HealthGetErrors,
   V2HealthGetResponses,
-  V2IntegrationAttemptCancelErrors,
-  V2IntegrationAttemptCancelResponses,
-  V2IntegrationAttemptCompleteErrors,
-  V2IntegrationAttemptCompleteResponses,
-  V2IntegrationAttemptStatusErrors,
-  V2IntegrationAttemptStatusResponses,
-  V2IntegrationConnectKeyErrors,
-  V2IntegrationConnectKeyResponses,
-  V2IntegrationConnectOauthErrors,
-  V2IntegrationConnectOauthResponses,
-  V2IntegrationGetErrors,
-  V2IntegrationGetResponses,
-  V2IntegrationListErrors,
-  V2IntegrationListResponses,
+  V2İntegrationAttemptCancelErrors,
+  V2İntegrationAttemptCancelResponses,
+  V2İntegrationAttemptCompleteErrors,
+  V2İntegrationAttemptCompleteResponses,
+  V2İntegrationAttemptStatusErrors,
+  V2İntegrationAttemptStatusResponses,
+  V2İntegrationConnectKeyErrors,
+  V2İntegrationConnectKeyResponses,
+  V2İntegrationConnectOauthErrors,
+  V2İntegrationConnectOauthResponses,
+  V2İntegrationGetErrors,
+  V2İntegrationGetResponses,
+  V2İntegrationListErrors,
+  V2İntegrationListResponses,
   V2LocationGetErrors,
   V2LocationGetResponses,
   V2ModelListErrors,
@@ -347,8 +363,8 @@ import type {
   V2SessionGetResponses,
   V2SessionHistoryErrors,
   V2SessionHistoryResponses,
-  V2SessionInterruptErrors,
-  V2SessionInterruptResponses,
+  V2SessionİnterruptErrors,
+  V2SessionİnterruptResponses,
   V2SessionListErrors,
   V2SessionListResponses,
   V2SessionMessageErrors,
@@ -886,6 +902,116 @@ export class Session extends HeyApiClient {
   }
 }
 
+export class Background extends HeyApiClient {
+  /**
+   * Get background job output
+   *
+   * Get a background job's live status and output tail for display. Output is capped to the last 8000 characters.
+   */
+  public get<ThrowOnError extends boolean = false>(
+    parameters: {
+      jobID: string
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "jobID" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<
+      ExperimentalBackgroundGetResponses,
+      ExperimentalBackgroundGetErrors,
+      ThrowOnError
+    >({
+      url: "/experimental/background/{jobID}",
+      ...options,
+      ...params,
+    })
+  }
+}
+
+export class Cron extends HeyApiClient {
+  /**
+   * List scheduled tasks
+   *
+   * List cron entries with their next run times, oldest-due first.
+   */
+  public list<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<
+      ExperimentalCronListResponses,
+      ExperimentalCronListErrors,
+      ThrowOnError
+    >({
+      url: "/experimental/cron",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Delete a scheduled task
+   *
+   * Delete a cron entry, including its OS scheduler registration and in-app firing loop.
+   */
+  public delete<ThrowOnError extends boolean = false>(
+    parameters: {
+      cronID: string
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "cronID" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).delete<
+      ExperimentalCronDeleteResponses,
+      ExperimentalCronDeleteErrors,
+      ThrowOnError
+    >({
+      url: "/experimental/cron/{cronID}",
+      ...options,
+      ...params,
+    })
+  }
+}
+
 export class Resource extends HeyApiClient {
   /**
    * Get MCP resources
@@ -1261,6 +1387,16 @@ export class Experimental extends HeyApiClient {
     return (this._session ??= new Session({ client: this.client }))
   }
 
+  private _background?: Background
+  get background(): Background {
+    return (this._background ??= new Background({ client: this.client }))
+  }
+
+  private _cron?: Cron
+  get cron(): Cron {
+    return (this._cron ??= new Cron({ client: this.client }))
+  }
+
   private _resource?: Resource
   get resource(): Resource {
     return (this._resource ??= new Resource({ client: this.client }))
@@ -1414,6 +1550,77 @@ export class Event extends HeyApiClient {
   }
 }
 
+export class Compaction extends HeyApiClient {
+  /**
+   * Get auto-compact window
+   *
+   * Get the current auto-compact window setting (auto-low, auto-medium, auto-max, or a token count).
+   */
+  public get<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<ConfigCompactionGetResponses, ConfigCompactionGetErrors, ThrowOnError>({
+      url: "/config/compaction",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Set auto-compact window
+   *
+   * Set the auto-compact window: auto-low, auto-medium, auto-max (recommended), or an explicit token count capped to the model context.
+   */
+  public set<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+      window?: "auto-low" | "auto-medium" | "auto-max" | number
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "body", key: "window" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<ConfigCompactionSetResponses, ConfigCompactionSetErrors, ThrowOnError>(
+      {
+        url: "/config/compaction",
+        ...options,
+        ...params,
+        headers: {
+          "Content-Type": "application/json",
+          ...options?.headers,
+          ...params.headers,
+        },
+      },
+    )
+  }
+}
+
 export class Config2 extends HeyApiClient {
   /**
    * Get configuration
@@ -1511,6 +1718,11 @@ export class Config2 extends HeyApiClient {
       ...params,
     })
   }
+
+  private _compaction?: Compaction
+  get compaction(): Compaction {
+    return (this._compaction ??= new Compaction({ client: this.client }))
+  }
 }
 
 export class Tool extends HeyApiClient {
@@ -1571,7 +1783,7 @@ export class Tool extends HeyApiClient {
         },
       ],
     )
-    return (options?.client ?? this.client).get<ToolIdsResponses, ToolIdsErrors, ThrowOnError>({
+    return (options?.client ?? this.client).get<ToolİdsResponses, ToolİdsErrors, ThrowOnError>({
       url: "/experimental/tool/ids",
       ...options,
       ...params,
@@ -1922,7 +2134,7 @@ export class File extends HeyApiClient {
   }
 }
 
-export class Instance extends HeyApiClient {
+export class İnstance extends HeyApiClient {
   /**
    * Dispose instance
    *
@@ -1946,7 +2158,7 @@ export class Instance extends HeyApiClient {
         },
       ],
     )
-    return (options?.client ?? this.client).post<InstanceDisposeResponses, InstanceDisposeErrors, ThrowOnError>({
+    return (options?.client ?? this.client).post<İnstanceDisposeResponses, İnstanceDisposeErrors, ThrowOnError>({
       url: "/instance/dispose",
       ...options,
       ...params,
@@ -2611,7 +2823,7 @@ export class Project extends HeyApiClient {
         },
       ],
     )
-    return (options?.client ?? this.client).post<ProjectInitGitResponses, ProjectInitGitErrors, ThrowOnError>({
+    return (options?.client ?? this.client).post<ProjectİnitGitResponses, ProjectİnitGitErrors, ThrowOnError>({
       url: "/project/git/init",
       ...options,
       ...params,
@@ -3359,6 +3571,46 @@ export class Provider extends HeyApiClient {
   }
 }
 
+export class Memory extends HeyApiClient {
+  /**
+   * Delete a memory
+   *
+   * Remove one remembered memory by ID.
+   */
+  public remove<ThrowOnError extends boolean = false>(
+    parameters: {
+      sessionID: string
+      memoryID: string
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "sessionID" },
+            { in: "path", key: "memoryID" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).delete<
+      SessionMemoryRemoveResponses,
+      SessionMemoryRemoveErrors,
+      ThrowOnError
+    >({
+      url: "/session/{sessionID}/memory/{memoryID}",
+      ...options,
+      ...params,
+    })
+  }
+}
+
 export class Session2 extends HeyApiClient {
   /**
    * List sessions
@@ -3659,6 +3911,38 @@ export class Session2 extends HeyApiClient {
     )
     return (options?.client ?? this.client).get<SessionTodoResponses, SessionTodoErrors, ThrowOnError>({
       url: "/session/{sessionID}/todo",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * List memories
+   *
+   * List the persistent memories (global scope and this session's) remembered for the session.
+   */
+  public memories<ThrowOnError extends boolean = false>(
+    parameters: {
+      sessionID: string
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "sessionID" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<SessionMemoriesResponses, SessionMemoriesErrors, ThrowOnError>({
+      url: "/session/{sessionID}/memory",
       ...options,
       ...params,
     })
@@ -3968,7 +4252,7 @@ export class Session2 extends HeyApiClient {
         },
       ],
     )
-    return (options?.client ?? this.client).post<SessionInitResponses, SessionInitErrors, ThrowOnError>({
+    return (options?.client ?? this.client).post<SessionİnitResponses, SessionİnitErrors, ThrowOnError>({
       url: "/session/{sessionID}/init",
       ...options,
       ...params,
@@ -4057,6 +4341,7 @@ export class Session2 extends HeyApiClient {
       providerID?: string
       modelID?: string
       auto?: boolean
+      from?: string
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -4071,6 +4356,7 @@ export class Session2 extends HeyApiClient {
             { in: "body", key: "providerID" },
             { in: "body", key: "modelID" },
             { in: "body", key: "auto" },
+            { in: "body", key: "from" },
           ],
         },
       ],
@@ -4085,6 +4371,51 @@ export class Session2 extends HeyApiClient {
         ...params.headers,
       },
     })
+  }
+
+  /**
+   * Ask a side question
+   *
+   * Answer a one-off question using the session's history and system prompt. Runs a single LLM turn with no tools and does not modify the session.
+   */
+  public sideQuestion<ThrowOnError extends boolean = false>(
+    parameters: {
+      sessionID: string
+      directory?: string
+      workspace?: string
+      question?: string
+      providerID?: string
+      modelID?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "sessionID" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "body", key: "question" },
+            { in: "body", key: "providerID" },
+            { in: "body", key: "modelID" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<SessionSideQuestionResponses, SessionSideQuestionErrors, ThrowOnError>(
+      {
+        url: "/session/{sessionID}/side-question",
+        ...options,
+        ...params,
+        headers: {
+          "Content-Type": "application/json",
+          ...options?.headers,
+          ...params.headers,
+        },
+      },
+    )
   }
 
   /**
@@ -4324,6 +4655,11 @@ export class Session2 extends HeyApiClient {
       ...options,
       ...params,
     })
+  }
+
+  private _memory?: Memory
+  get memory(): Memory {
+    return (this._memory ??= new Memory({ client: this.client }))
   }
 }
 
@@ -5786,7 +6122,7 @@ export class Session3 extends HeyApiClient {
     options?: Options<never, ThrowOnError>,
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "path", key: "sessionID" }] }])
-    return (options?.client ?? this.client).post<V2SessionInterruptResponses, V2SessionInterruptErrors, ThrowOnError>({
+    return (options?.client ?? this.client).post<V2SessionİnterruptResponses, V2SessionİnterruptErrors, ThrowOnError>({
       url: "/api/session/{sessionID}/interrupt",
       ...options,
       ...params,
@@ -5986,8 +6322,8 @@ export class Connect extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<
-      V2IntegrationConnectKeyResponses,
-      V2IntegrationConnectKeyErrors,
+      V2İntegrationConnectKeyResponses,
+      V2İntegrationConnectKeyErrors,
       ThrowOnError
     >({
       url: "/api/integration/{integrationID}/connect/key",
@@ -6036,8 +6372,8 @@ export class Connect extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<
-      V2IntegrationConnectOauthResponses,
-      V2IntegrationConnectOauthErrors,
+      V2İntegrationConnectOauthResponses,
+      V2İntegrationConnectOauthErrors,
       ThrowOnError
     >({
       url: "/api/integration/{integrationID}/connect/oauth",
@@ -6080,8 +6416,8 @@ export class Attempt extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).delete<
-      V2IntegrationAttemptCancelResponses,
-      V2IntegrationAttemptCancelErrors,
+      V2İntegrationAttemptCancelResponses,
+      V2İntegrationAttemptCancelErrors,
       ThrowOnError
     >({
       url: "/api/integration/attempt/{attemptID}",
@@ -6117,8 +6453,8 @@ export class Attempt extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<
-      V2IntegrationAttemptStatusResponses,
-      V2IntegrationAttemptStatusErrors,
+      V2İntegrationAttemptStatusResponses,
+      V2İntegrationAttemptStatusErrors,
       ThrowOnError
     >({
       url: "/api/integration/attempt/{attemptID}",
@@ -6156,8 +6492,8 @@ export class Attempt extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<
-      V2IntegrationAttemptCompleteResponses,
-      V2IntegrationAttemptCompleteErrors,
+      V2İntegrationAttemptCompleteResponses,
+      V2İntegrationAttemptCompleteErrors,
       ThrowOnError
     >({
       url: "/api/integration/attempt/{attemptID}/complete",
@@ -6172,7 +6508,7 @@ export class Attempt extends HeyApiClient {
   }
 }
 
-export class Integration extends HeyApiClient {
+export class İntegration extends HeyApiClient {
   /**
    * List integrations
    *
@@ -6188,7 +6524,7 @@ export class Integration extends HeyApiClient {
     options?: Options<never, ThrowOnError>,
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "location" }] }])
-    return (options?.client ?? this.client).get<V2IntegrationListResponses, V2IntegrationListErrors, ThrowOnError>({
+    return (options?.client ?? this.client).get<V2İntegrationListResponses, V2İntegrationListErrors, ThrowOnError>({
       url: "/api/integration",
       ...options,
       ...params,
@@ -6221,7 +6557,7 @@ export class Integration extends HeyApiClient {
         },
       ],
     )
-    return (options?.client ?? this.client).get<V2IntegrationGetResponses, V2IntegrationGetErrors, ThrowOnError>({
+    return (options?.client ?? this.client).get<V2İntegrationGetResponses, V2İntegrationGetErrors, ThrowOnError>({
       url: "/api/integration/{integrationID}",
       ...options,
       ...params,
@@ -7018,9 +7354,9 @@ export class V2 extends HeyApiClient {
     return (this._provider ??= new Provider2({ client: this.client }))
   }
 
-  private _integration?: Integration
-  get integration(): Integration {
-    return (this._integration ??= new Integration({ client: this.client }))
+  private _integration?: İntegration
+  get integration(): İntegration {
+    return (this._integration ??= new İntegration({ client: this.client }))
   }
 
   private _credential?: Credential
@@ -7132,9 +7468,9 @@ export class OpencodeClient extends HeyApiClient {
     return (this._file ??= new File({ client: this.client }))
   }
 
-  private _instance?: Instance
-  get instance(): Instance {
-    return (this._instance ??= new Instance({ client: this.client }))
+  private _instance?: İnstance
+  get instance(): İnstance {
+    return (this._instance ??= new İnstance({ client: this.client }))
   }
 
   private _path?: Path
