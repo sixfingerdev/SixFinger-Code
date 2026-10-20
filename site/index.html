@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SixFinger Code</title>
+<meta name="description" content="Terminalde çalışan yapay zekâ kod ajanı. Telefondan ve siteden uzaktan izle, yönet. / The AI coding agent for your terminal, controllable from your phone.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b0b0c'/%3E%3Cg transform='translate(64 64) scale(0.62) translate(-75.5 -75.6)' fill='%23fff'%3E%3Cpolygon points='48.8,30.4 74,22.7 74,62.6 48.8,92.2'/%3E%3Cpolygon points='77,22.7 102.2,30.4 102.5,52.5 58.5,87 59.2,85 77,62.6'/%3E%3Cpolygon points='74.0,128.5 48.8,120.8 48.5,98.7 92.5,64.2 91.8,66.2 74.0,88.6'/%3E%3Cpolygon points='102.2,120.8 77.0,128.5 77.0,88.6 102.2,59.0'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+:root{--bg:#fafafa;--fg:#0b0b0c;--mut:#5c5c63;--line:#e4e4e7;--card:#fff;--code:#f1f1f3;--btn:#0b0b0c;--btnfg:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b0b0c;--fg:#f4f4f5;--mut:#a1a1a9;--line:#26262a;--card:#151517;--code:#1b1b1e;--btn:#f4f4f5;--btnfg:#0b0b0c;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0b0b0c;--fg:#f4f4f5;--mut:#a1a1a9;--line:#26262a;--card:#151517;--code:#1b1b1e;--btn:#f4f4f5;--btnfg:#0b0b0c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:880px;margin:0 auto;padding-block:48px 64px}
+header{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.2px}
+header svg{width:36px;height:36px;border-radius:9px}
+h1{font-size:clamp(34px,6vw,56px);line-height:1.08;margin:40px 0 14px;text-wrap:balance;letter-spacing:-.02em}
+.lead{font-size:clamp(17px,2.4vw,20px);color:var(--mut);max-width:620px;margin:0 0 28px;text-wrap:pretty}
+.cmd{display:flex;gap:8px;align-items:stretch;max-width:640px}
+.cmd code{flex:1;min-width:0;overflow-x:auto;white-space:nowrap;background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font:14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+button{background:var(--btn);color:var(--btnfg);border:0;border-radius:12px;padding:0 18px;font:inherit;font-weight:600;cursor:pointer}
+.sub{color:var(--mut);font-size:14px;margin:10px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:56px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h3{margin:0 0 6px;font-size:16px}.card p{margin:0;color:var(--mut);font-size:15px}
+h2{font-size:24px;margin:64px 0 14px;letter-spacing:-.01em}
+ol{padding-left:20px;margin:0}li{margin:8px 0}
+pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:10px 0}
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);color:var(--mut);font-size:13.5px}
+a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0b0b0c"/><g transform="translate(64 64) scale(0.62) translate(-75.5 -75.6)" fill="#fff"><polygon points="48.8,30.4 74,22.7 74,62.6 48.8,92.2"/><polygon points="77,22.7 102.2,30.4 102.5,52.5 58.5,87 59.2,85 77,62.6"/><polygon points="74.0,128.5 48.8,120.8 48.5,98.7 92.5,64.2 91.8,66.2 74.0,88.6"/><polygon points="102.2,120.8 77.0,128.5 77.0,88.6 102.2,59.0"/></g></svg><span>SixFinger Code</span></header>
+
+<h1 data-i18n="h1">Terminalin için yapay zekâ kod ajanı.</h1>
+<p class="lead" data-i18n="lead">Kodunu okur, düzenler, komut çalıştırır. Bilgisayarında çalışır; telefonundan ve siteden izlersin, yönetirsin. Anahtar yok, kurulum tek satır.</p>
+
+<div class="cmd"><code id="cmd">curl -fsSL https://code.sixfinger.live/install | sh</code><button id="copy" data-i18n="copy">Kopyala</button></div>
+<p class="sub" data-i18n="sub">macOS ve Linux (x64 / arm64). Windows için WSL. İlk açılışta tarayıcıda giriş yaparsın.</p>
+
+<div class="grid">
+<div class="card"><h3 data-i18n="f1t">Hızlı ve Derin</h3><p data-i18n="f1p">Model seçmek yok: iki mod var. Hızlı günlük işler için, Derin zor işler için. Gerisini biz yönetiriz.</p></div>
+<div class="card"><h3 data-i18n="f2t">Uzaktan kontrol</h3><p data-i18n="f2p">Bilgisayarındaki oturumu telefonundan izle, mesaj gönder, izinleri onayla, durdur.</p></div>
+<div class="card"><h3 data-i18n="f3t">Yerel ya da bulut</h3><p data-i18n="f3p">Oturumun kendi cihazında çalışsın ya da bulutta. Aynı listede, aynı hesapla.</p></div>
+<div class="card"><h3 data-i18n="f4t">Tarayıcıyla giriş</h3><p data-i18n="f4p">Jeton yapıştırmak yok. Komut bir kod gösterir, tarayıcıda onaylarsın.</p></div>
+</div>
+
+<h2 data-i18n="h2">Nasıl kurulur</h2>
+<ol>
+<li data-i18n="s1">Terminale kurulum komutunu yapıştır.</li>
+<li data-i18n="s2"><code>sixfinger</code> yaz. Tarayıcı açılır, kodu onayla.</li>
+<li data-i18n="s3">Telefonundan görmek için bilgisayarda <code>sixfinger link</code> çalıştır, sonra <a href="https://chat.sixfinger.live/code/devices">chat.sixfinger.live</a> → Code → Cihazlarım.</li>
+</ol>
+<pre>sixfinger login     # giriş / sign in
+sixfinger link      # uzaktan izleme / remote control
+sixfinger logout    # çıkış / sign out</pre>
+
+<footer>
+<span data-i18n="foot">SixFinger Code, MIT lisanslı <a href="https://github.com/anomalyco/opencode">opencode</a> projesine dayanır. © ilgili telif hakkı sahipleri.</span>
+· <a href="https://github.com/sixfingerdev/SixFinger-Code">GitHub</a> · <a href="https://chat.sixfinger.live">SixFinger Chat</a>
+</footer>
+</div>
+<script>
+var T={en:{h1:"The AI coding agent for your terminal.",lead:"It reads, edits and runs your code. It works on your computer; watch and control it from your phone or the web. No keys, one-line install.",copy:"Copy",sub:"macOS and Linux (x64 / arm64). Windows via WSL. You sign in from your browser on first run.",f1t:"Fast and Deep",f1p:"No model picking: two modes. Fast for everyday work, Deep for hard problems. We handle the rest.",f2t:"Remote control",f2p:"Watch the session on your computer from your phone, send messages, approve permissions, stop it.",f3t:"Local or cloud",f3p:"Run the session on your own device or in the cloud. Same list, same account.",f4t:"Browser sign-in",f4p:"No pasting tokens. The command shows a code, you approve it in the browser.",h2:"How to install",s1:"Paste the install command into your terminal.",s2:"Run <code>sixfinger</code>. Your browser opens; approve the code.",s3:"To see it on your phone, run <code>sixfinger link</code> on the computer, then open <a href=\"https://chat.sixfinger.live/code/devices\">chat.sixfinger.live</a> → Code → My devices.",foot:"SixFinger Code is based on the MIT-licensed <a href=\"https://github.com/anomalyco/opencode\">opencode</a> project. © respective copyright holders."}};
+(function(){var l=(navigator.language||"tr").slice(0,2)==="tr"?"tr":"en";if(l==="en"){document.documentElement.lang="en";document.querySelectorAll("[data-i18n]").forEach(function(e){var k=e.getAttribute("data-i18n");if(T.en[k])e.innerHTML=T.en[k]})}
+document.getElementById("copy").onclick=function(){var b=this,t=document.getElementById("cmd").textContent;var done=function(){var o=b.textContent;b.textContent="✓";setTimeout(function(){b.textContent=o},1200)};
+if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){sel()})}else sel();
+function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById("cmd"));var s=getSelection();s.removeAllRanges();s.addRange(r)}}})();
+</script>
+</body>
+</html>
