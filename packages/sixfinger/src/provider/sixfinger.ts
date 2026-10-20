@@ -7,7 +7,7 @@ import type { ModelsDev } from "@sixfinger/core/models-dev"
  */
 export const SIXFINGER_PROVIDER_ID = "sixfinger"
 
-export const SIXFINGER_API_URL = "https://chat.sixfinger.live/api/llm/v1"
+export const SIXFINGER_API_URL = `${(process.env.SIXFINGER_SERVER ?? "https://chat.sixfinger.live").replace(/\/$/, "")}/api/llm/v1`
 
 const model = (id: string, name: string, context: number, output: number): ModelsDev.Model => ({
   id,

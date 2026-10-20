@@ -3,7 +3,8 @@ import { hideBin } from "yargs/helpers"
 import { RunCommand } from "./cli/cmd/run"
 import { GenerateCommand } from "./cli/cmd/generate"
 import { ConsoleCommand } from "./cli/cmd/account"
-import { ProvidersCommand } from "./cli/cmd/providers"
+import { LoginCommand, LogoutCommand } from "./cli/cmd/account-login"
+import * as SixfingerLogin from "./sixfinger/login"
 import { AgentCommand } from "./cli/cmd/agent"
 import { UpgradeCommand } from "./cli/cmd/upgrade"
 import { UninstallCommand } from "./cli/cmd/uninstall"
@@ -73,6 +74,15 @@ const cli = yargs(args)
 
     Heap.start()
 
+    // İlk kurulum: oturum yoksa tarayıcıyı açıp cihaz kodu ile giriş yaptır (jeton elle girilmez). Etkileşimsiz ortamda atlanır.
+    const first = String(opts._[0] ?? "")
+    if (!["login", "logout", "upgrade", "uninstall", "completion"].includes(first) && process.stdin.isTTY && process.stderr.isTTY && !(await SixfingerLogin.loggedIn())) {
+      await SixfingerLogin.deviceLogin().catch((e) => {
+        process.stderr.write(`${e instanceof Error ? e.message : String(e)}\n`)
+        process.exit(1)
+      })
+    }
+
     process.env.AGENT = "1"
     process.env.SIXFINGER = "1"
     process.env.SIXFINGER_PID = String(process.pid)
@@ -87,7 +97,8 @@ const cli = yargs(args)
   .command(GenerateCommand)
   .command(DebugCommand)
   .command(ConsoleCommand)
-  .command(ProvidersCommand)
+  .command(LoginCommand)
+  .command(LogoutCommand)
   .command(AgentCommand)
   .command(UpgradeCommand)
   .command(UninstallCommand)

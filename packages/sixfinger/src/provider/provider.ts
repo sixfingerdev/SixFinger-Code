@@ -12,6 +12,7 @@ import { serviceUse } from "@sixfinger/core/effect/service-use"
 import { type LanguageModelV3 } from "@ai-sdk/provider"
 import { ModelsDev } from "@sixfinger/core/models-dev"
 import { SIXFINGER_PROVIDER_ID, sixfingerProvider } from "./sixfinger"
+import { sixfingerFetch } from "../sixfinger/login"
 import { Auth } from "../auth"
 import { Env } from "../env"
 import { InstallationVersion } from "@sixfinger/core/installation/version"
@@ -183,29 +184,6 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
           },
         },
       }),
-    sixfinger: Effect.fnUntraced(function* (input: Info) {
-      const env = yield* dep.env()
-      const hasKey = iife(() => {
-        if (input.env.some((item) => env[item])) return true
-        return false
-      })
-      const ok =
-        hasKey ||
-        Boolean(yield* dep.auth(input.id)) ||
-        Boolean((yield* dep.config()).provider?.["sixfinger"]?.options?.apiKey)
-
-      if (!ok) {
-        for (const [key, value] of Object.entries(input.models)) {
-          if (value.cost.input === 0) continue
-          delete input.models[key]
-        }
-      }
-
-      return {
-        autoload: Object.keys(input.models).length > 0,
-        options: ok ? {} : { apiKey: "public" },
-      }
-    }),
     openai: () =>
       Effect.succeed({
         autoload: false,
@@ -228,6 +206,12 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
           return sdk.responses(modelID)
         },
         options: {},
+      }),
+    // Tek sağlayıcımız: oturum jetonu her istekte eklenir (cihaz girişi), anahtar elle girilmez.
+    sixfinger: () =>
+      Effect.succeed({
+        autoload: true,
+        options: { apiKey: "sixfinger", fetch: sixfingerFetch },
       }),
     "github-copilot": () =>
       Effect.succeed({
