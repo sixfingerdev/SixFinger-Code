@@ -7,11 +7,11 @@ import config from "../../../../config.mjs"
 export const console = config.console
 export const email = `mailto:${config.email}`
 
-O OpenCode Go é uma assinatura de baixo custo de **US$ 10/mês** que oferece acesso confiável a modelos abertos de programação populares.
+O SixFinger Go é uma assinatura de baixo custo de **US$ 10/mês** que oferece acesso confiável a modelos abertos de programação populares.
 
-O Go funciona como qualquer outro provedor no OpenCode. Você assina o OpenCode Go e
+O Go funciona como qualquer outro provedor no SixFinger. Você assina o SixFinger Go e
 obtém a sua chave de API. Ele é **totalmente opcional** e você não precisa usá-lo para
-usar o OpenCode.
+usar o SixFinger.
 
 Ele foi projetado principalmente para usuários internacionais e oferece acesso global estável.
 
@@ -27,7 +27,7 @@ No entanto, obter um acesso confiável e de baixa latência a eles pode ser dif�
 variam em qualidade e disponibilidade.
 
 :::tip
-Testamos um grupo selecionado de modelos e provedores que funcionam bem com o OpenCode.
+Testamos um grupo selecionado de modelos e provedores que funcionam bem com o SixFinger.
 :::
 
 Para resolver isso, fizemos algumas coisas:
@@ -39,22 +39,22 @@ Para resolver isso, fizemos algumas coisas:
 3. Por fim, avaliamos por benchmark a combinação de modelo/provedor e elaboramos
    uma lista que nos sentimos confortáveis em recomendar.
 
-O OpenCode Go lhe dá acesso a esses modelos por **US$ 10/mês**.
+O SixFinger Go lhe dá acesso a esses modelos por **US$ 10/mês**.
 
 ---
 
 ## Como funciona
 
-O OpenCode Go funciona como qualquer outro provedor no OpenCode.
+O SixFinger Go funciona como qualquer outro provedor no SixFinger.
 
-1. Você entra no **<a href={console}>OpenCode Zen</a>**, assina o Go e
+1. Você entra no **<a href={console}>SixFinger Zen</a>**, assina o Go e
    copia a sua chave de API.
-2. Você executa o comando `/connect` na TUI, seleciona `OpenCode Go` e cola
+2. Você executa o comando `/connect` na TUI, seleciona `SixFinger Go` e cola
    a sua chave de API.
 3. Execute `/models` na TUI para ver a lista de modelos disponíveis através do Go.
 
 :::note
-Apenas um membro por workspace pode assinar o OpenCode Go.
+Apenas um membro por workspace pode assinar o SixFinger Go.
 :::
 
 A lista atual de modelos inclui:
@@ -93,7 +93,7 @@ A lista de modelos pode mudar conforme testamos e adicionamos novos.
 
 ## Onde posso usá-lo?
 
-O OpenCode Go foi projetado para ser usado com o [OpenCode](https://opencode.ai) e outros agentes de programação populares que geram tipos de requisições semelhantes.
+O SixFinger Go foi projetado para ser usado com o [SixFinger](https://code.sixfinger.live) e outros agentes de programação populares que geram tipos de requisições semelhantes.
 
 O tráfego é monitorado para detectar tráfego abusivo que prejudique a experiência de outros usuários.
 
@@ -101,11 +101,11 @@ Para evitar que sua conta seja sinalizada, verifique se a ferramenta que você e
 
 1\. não gera tráfego abusivo  
 2\. se identifica corretamente (sem user agents genéricos)  
-3\. inclui o header `x-opencode-session` para que possamos otimizar o cache de prompts
+3\. inclui o header `x-sixfinger-session` para que possamos otimizar o cache de prompts
 
 ## Limites de uso
 
-O OpenCode Go inclui os seguintes limites base:
+O SixFinger Go inclui os seguintes limites base:
 
 - **Limite de 5 horas** — US$ 12 de uso
 - **Limite semanal** — US$ 30 de uso
@@ -254,38 +254,38 @@ Você também pode acessar os modelos do Go através dos seguintes endpoints de 
 
 | Modelo                       | ID do Modelo                 | Endpoint                                         | Pacote do AI SDK            |
 | ---------------------------- | ---------------------------- | ------------------------------------------------ | --------------------------- |
-| Grok 4.6                     | grok-4.6                     | `https://opencode.ai/zen/go/v1/responses`        | `@ai-sdk/openai`            |
-| GPT 5.6 Luna                 | gpt-5.6-luna                 | `https://opencode.ai/zen/go/v1/responses`        | `@ai-sdk/openai`            |
-| GLM-5.3-Flash                | glm-5.3-flash                | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| GLM-5.3                      | glm-5.3                      | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| GLM-5.2                      | glm-5.2                      | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| GLM-5.1                      | glm-5.1                      | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| Kimi K3                      | kimi-k3                      | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| Kimi K2.7 Code               | kimi-k2.7-code               | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| Kimi K2.6                    | kimi-k2.6                    | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| LongCat-2.0                  | longcat-2.0                  | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| DeepSeek V4 Pro              | deepseek-v4-pro              | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| DeepSeek V4 Flash            | deepseek-v4-flash            | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| DeepSeek V4 Flash Vision Exp | deepseek-v4-flash-vision-exp | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| MiMo-V2.5                    | mimo-v2.5                    | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| MiMo-V2.5-Pro                | mimo-v2.5-pro                | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| MiniMax M3                   | minimax-m3                   | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| MiniMax M2.7                 | minimax-m2.7                 | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| MiniMax M2.5                 | minimax-m2.5                 | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| Muse Spark 1.3 Contributor   | muse-spark-1.3-contributor   | `https://opencode.ai/zen/go/v1/responses`        | `@ai-sdk/openai`            |
-| Muse Spark 1.2 Contributor   | muse-spark-1.2-contributor   | `https://opencode.ai/zen/go/v1/responses`        | `@ai-sdk/openai`            |
-| Qwen3.8 Max                  | qwen3.8-max                  | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| Qwen3.8 Flash                | qwen3.8-flash                | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| Qwen3.7 Max                  | qwen3.7-max                  | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| Qwen3.7 Plus                 | qwen3.7-plus                 | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| Qwen3.6 Plus                 | qwen3.6-plus                 | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
-| Hy4 preview                  | hy4-preview                  | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| Hy3                          | hy3                          | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
-| Omen Alpha                   | omen-alpha                   | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Grok 4.6                     | grok-4.6                     | `https://code.sixfinger.live/zen/go/v1/responses`        | `@ai-sdk/openai`            |
+| GPT 5.6 Luna                 | gpt-5.6-luna                 | `https://code.sixfinger.live/zen/go/v1/responses`        | `@ai-sdk/openai`            |
+| GLM-5.3-Flash                | glm-5.3-flash                | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| GLM-5.3                      | glm-5.3                      | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| GLM-5.2                      | glm-5.2                      | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| GLM-5.1                      | glm-5.1                      | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Kimi K3                      | kimi-k3                      | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Kimi K2.7 Code               | kimi-k2.7-code               | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Kimi K2.6                    | kimi-k2.6                    | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| LongCat-2.0                  | longcat-2.0                  | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Pro              | deepseek-v4-pro              | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash            | deepseek-v4-flash            | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash Vision Exp | deepseek-v4-flash-vision-exp | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| MiMo-V2.5                    | mimo-v2.5                    | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| MiMo-V2.5-Pro                | mimo-v2.5-pro                | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| MiniMax M3                   | minimax-m3                   | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| MiniMax M2.7                 | minimax-m2.7                 | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| MiniMax M2.5                 | minimax-m2.5                 | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Muse Spark 1.3 Contributor   | muse-spark-1.3-contributor   | `https://code.sixfinger.live/zen/go/v1/responses`        | `@ai-sdk/openai`            |
+| Muse Spark 1.2 Contributor   | muse-spark-1.2-contributor   | `https://code.sixfinger.live/zen/go/v1/responses`        | `@ai-sdk/openai`            |
+| Qwen3.8 Max                  | qwen3.8-max                  | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.8 Flash                | qwen3.8-flash                | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.7 Max                  | qwen3.7-max                  | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.7 Plus                 | qwen3.7-plus                 | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.6 Plus                 | qwen3.6-plus                 | `https://code.sixfinger.live/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Hy4 preview                  | hy4-preview                  | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Hy3                          | hy3                          | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Omen Alpha                   | omen-alpha                   | `https://code.sixfinger.live/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 
-O [ID do modelo](/docs/config/#models) na sua configuração do OpenCode
-usa o formato `opencode-go/<model-id>`. Por exemplo, para o Kimi K3, você usaria
-`opencode-go/kimi-k3` na sua configuração.
+O [ID do modelo](/docs/config/#models) na sua configuração do SixFinger
+usa o formato `sixfinger-go/<model-id>`. Por exemplo, para o Kimi K3, você usaria
+`sixfinger-go/kimi-k3` na sua configuração.
 
 ---
 
@@ -294,7 +294,7 @@ usa o formato `opencode-go/<model-id>`. Por exemplo, para o Kimi K3, você usari
 Você pode buscar a lista completa de modelos disponíveis e seus metadados em:
 
 ```
-https://opencode.ai/zen/go/v1/models
+https://code.sixfinger.live/zen/go/v1/models
 ```
 
 ---
@@ -341,9 +341,9 @@ https://opencode.ai/zen/go/v1/models
 
 ## Objetivos
 
-Criamos o OpenCode Go para:
+Criamos o SixFinger Go para:
 
 1. Tornar a programação com IA **acessível** a mais pessoas com uma assinatura de baixo custo.
 2. Fornecer acesso **confiável** aos melhores modelos abertos de programação.
 3. Ter modelos sob curadoria que são **testados e avaliados (benchmarked)** para o uso por agentes de programação.
-4. Não ter **nenhuma restrição de fornecedor (lock-in)**, permitindo que você use qualquer outro provedor com o OpenCode também.
+4. Não ter **nenhuma restrição de fornecedor (lock-in)**, permitindo que você use qualquer outro provedor com o SixFinger também.

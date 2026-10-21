@@ -1,17 +1,17 @@
 ---
 title: Zen
-description: Wyselekcjonowana lista modeli dostarczonych przez OpenCode.
+description: Wyselekcjonowana lista modeli dostarczonych przez SixFinger.
 ---
 
 import config from "../../../../config.mjs"
 export const console = config.console
 export const email = `mailto:${config.email}`
 
-OpenCode Zen to lista przetestowanych i zweryfikowanych modeli udostępniana przez zespół OpenCode.
+SixFinger Zen to lista przetestowanych i zweryfikowanych modeli udostępniana przez zespół SixFinger.
 
-Zen działa jak każdy inny dostawca w OpenCode. Logujesz się do OpenCode Zen i otrzymujesz
+Zen działa jak każdy inny dostawca w SixFinger. Logujesz się do SixFinger Zen i otrzymujesz
 swój klucz API. To **całkowicie opcjonalne** i nie musisz z tego korzystać, aby używać
-OpenCode.
+SixFinger.
 
 ---
 
@@ -22,7 +22,7 @@ agenci kodujący. Dodatkowo większość dostawców jest skonfigurowana bardzo r
 więc otrzymujesz bardzo różną wydajność i jakość.
 
 :::tip
-Przetestowaliśmy wybraną grupę modeli i dostawców, którzy dobrze współpracują z OpenCode.
+Przetestowaliśmy wybraną grupę modeli i dostawców, którzy dobrze współpracują z SixFinger.
 :::
 
 Jeśli więc używasz modelu przez coś takiego jak OpenRouter, nigdy nie masz
@@ -37,17 +37,17 @@ Aby to naprawić, zrobiliśmy kilka rzeczy:
 3. Na końcu porównaliśmy wydajność kombinacji model/dostawca i stworzyliśmy
    listę, którą z przekonaniem polecamy.
 
-OpenCode Zen to brama AI, która daje dostęp do tych modeli.
+SixFinger Zen to brama AI, która daje dostęp do tych modeli.
 
 ---
 
 ## Jak to działa
 
-OpenCode Zen działa jak każdy inny dostawca w OpenCode.
+SixFinger Zen działa jak każdy inny dostawca w SixFinger.
 
-1. Logujesz się do **<a href={console}>OpenCode Zen</a>**, dodajesz dane
+1. Logujesz się do **<a href={console}>SixFinger Zen</a>**, dodajesz dane
    rozliczeniowe i kopiujesz swój klucz API.
-2. Uruchamiasz polecenie `/connect` w TUI, wybierasz OpenCode Zen i wklejasz swój klucz API.
+2. Uruchamiasz polecenie `/connect` w TUI, wybierasz SixFinger Zen i wklejasz swój klucz API.
 3. Uruchamiasz `/models` w TUI, aby zobaczyć listę modeli, które rekomendujemy.
 
 Płatność jest naliczana za każde żądanie i możesz doładować swoje konto.
@@ -60,79 +60,79 @@ Możesz też uzyskać dostęp do naszych modeli przez poniższe endpointy API.
 
 | Model                           | ID modelu                       | Endpoint                                                  | Pakiet AI SDK               |
 | ------------------------------- | ------------------------------- | --------------------------------------------------------- | --------------------------- |
-| GPT 6 Astra                     | gpt-6-astra                     | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.6 Sol                     | gpt-5.6-sol                     | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.6 Terra                   | gpt-5.6-terra                   | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.6 Luna                    | gpt-5.6-luna                    | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.5                         | gpt-5.5                         | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.5 Pro                     | gpt-5.5-pro                     | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.4                         | gpt-5.4                         | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.4 Pro                     | gpt-5.4-pro                     | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.4 Mini                    | gpt-5.4-mini                    | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.4 Nano                    | gpt-5.4-nano                    | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.3 Codex                   | gpt-5.3-codex                   | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.3 Codex Spark             | gpt-5.3-codex-spark             | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.2                         | gpt-5.2                         | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.2 Codex                   | gpt-5.2-codex                   | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.1                         | gpt-5.1                         | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.1 Codex                   | gpt-5.1-codex                   | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.1 Codex Max               | gpt-5.1-codex-max               | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5.1 Codex Mini              | gpt-5.1-codex-mini              | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5                           | gpt-5                           | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5 Codex                     | gpt-5-codex                     | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| GPT 5 Nano                      | gpt-5-nano                      | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| Claude Fable 5.1                | claude-fable-5-1                | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Fable 5                  | claude-fable-5                  | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Opus 5                   | claude-opus-5                   | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Opus 4.8                 | claude-opus-4-8                 | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Opus 4.7                 | claude-opus-4-7                 | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Opus 4.6                 | claude-opus-4-6                 | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Opus 4.5                 | claude-opus-4-5                 | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Sonnet 5                 | claude-sonnet-5                 | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Sonnet 4.6               | claude-sonnet-4-6               | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Sonnet 4.5               | claude-sonnet-4-5               | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Claude Haiku 4.5                | claude-haiku-4-5                | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Gemini 3.8 Flash                | gemini-3.8-flash                | `https://opencode.ai/zen/v1/models/gemini-3.8-flash`      | `@ai-sdk/google`            |
-| Gemini 3.7 Flash                | gemini-3.7-flash                | `https://opencode.ai/zen/v1/models/gemini-3.7-flash`      | `@ai-sdk/google`            |
-| Gemini 3.6 Flash                | gemini-3.6-flash                | `https://opencode.ai/zen/v1/models/gemini-3.6-flash`      | `@ai-sdk/google`            |
-| Gemini 3.5 Flash                | gemini-3.5-flash                | `https://opencode.ai/zen/v1/models/gemini-3.5-flash`      | `@ai-sdk/google`            |
-| Gemini 3.5 Flash Lite           | gemini-3.5-flash-lite           | `https://opencode.ai/zen/v1/models/gemini-3.5-flash-lite` | `@ai-sdk/google`            |
-| Gemini 3.1 Pro                  | gemini-3.1-pro                  | `https://opencode.ai/zen/v1/models/gemini-3.1-pro`        | `@ai-sdk/google`            |
-| Gemini 3 Flash                  | gemini-3-flash                  | `https://opencode.ai/zen/v1/models/gemini-3-flash`        | `@ai-sdk/google`            |
-| Grok 4.6                        | grok-4.6                        | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| Grok 4.5                        | grok-4.5                        | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| Grok Build 0.1                  | grok-build-0.1                  | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| Muse Spark 1.3                  | muse-spark-1.3                  | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| Muse Spark 1.2                  | muse-spark-1.2                  | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
-| Qwen3.7 Max                     | qwen3.7-max                     | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Qwen3.7 Plus                    | qwen3.7-plus                    | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Qwen3.6 Plus                    | qwen3.6-plus                    | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| Qwen3.5 Plus                    | qwen3.5-plus                    | `https://opencode.ai/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
-| DeepSeek V4 Pro                 | deepseek-v4-pro                 | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| DeepSeek V4 Flash               | deepseek-v4-flash               | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| DeepSeek V4 Flash Vision Exp    | deepseek-v4-flash-vision-exp    | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| MiniMax M3                      | minimax-m3                      | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| MiniMax M2.7                    | minimax-m2.7                    | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| MiniMax M2.5                    | minimax-m2.5                    | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| GLM 5.3 Flash                   | glm-5.3-flash                   | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| GLM 5.3                         | glm-5.3                         | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| GLM 5.2                         | glm-5.2                         | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| GLM 5.1                         | glm-5.1                         | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| GLM 5                           | glm-5                           | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Kimi K2.5                       | kimi-k2.5                       | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Kimi K2.6                       | kimi-k2.6                       | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Kimi K2.7 Code                  | kimi-k2.7-code                  | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Kimi K3                         | kimi-k3                         | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Big Pickle                      | big-pickle                      | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| MiMo-V2.5 Free                  | mimo-v2.5-free                  | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Ling 3.0 Flash Fin Free         | ling-3.0-flash-fin-free         | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Nemotron 3 Ultra Free           | nemotron-3-ultra-free           | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Nemotron 3.5 Lightning Free     | nemotron-3.5-lightning-free     | `https://opencode.ai/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
-| Muse Spark 1.3 Contributor Free | muse-spark-1.3-contributor-free | `https://opencode.ai/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 6 Astra                     | gpt-6-astra                     | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.6 Sol                     | gpt-5.6-sol                     | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.6 Terra                   | gpt-5.6-terra                   | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.6 Luna                    | gpt-5.6-luna                    | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.5                         | gpt-5.5                         | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.5 Pro                     | gpt-5.5-pro                     | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.4                         | gpt-5.4                         | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.4 Pro                     | gpt-5.4-pro                     | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.4 Mini                    | gpt-5.4-mini                    | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.4 Nano                    | gpt-5.4-nano                    | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.3 Codex                   | gpt-5.3-codex                   | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.3 Codex Spark             | gpt-5.3-codex-spark             | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.2                         | gpt-5.2                         | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.2 Codex                   | gpt-5.2-codex                   | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.1                         | gpt-5.1                         | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.1 Codex                   | gpt-5.1-codex                   | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.1 Codex Max               | gpt-5.1-codex-max               | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5.1 Codex Mini              | gpt-5.1-codex-mini              | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5                           | gpt-5                           | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5 Codex                     | gpt-5-codex                     | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| GPT 5 Nano                      | gpt-5-nano                      | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| Claude Fable 5.1                | claude-fable-5-1                | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Fable 5                  | claude-fable-5                  | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Opus 5                   | claude-opus-5                   | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Opus 4.8                 | claude-opus-4-8                 | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Opus 4.7                 | claude-opus-4-7                 | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Opus 4.6                 | claude-opus-4-6                 | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Opus 4.5                 | claude-opus-4-5                 | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Sonnet 5                 | claude-sonnet-5                 | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Sonnet 4.6               | claude-sonnet-4-6               | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Sonnet 4.5               | claude-sonnet-4-5               | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Claude Haiku 4.5                | claude-haiku-4-5                | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Gemini 3.8 Flash                | gemini-3.8-flash                | `https://code.sixfinger.live/zen/v1/models/gemini-3.8-flash`      | `@ai-sdk/google`            |
+| Gemini 3.7 Flash                | gemini-3.7-flash                | `https://code.sixfinger.live/zen/v1/models/gemini-3.7-flash`      | `@ai-sdk/google`            |
+| Gemini 3.6 Flash                | gemini-3.6-flash                | `https://code.sixfinger.live/zen/v1/models/gemini-3.6-flash`      | `@ai-sdk/google`            |
+| Gemini 3.5 Flash                | gemini-3.5-flash                | `https://code.sixfinger.live/zen/v1/models/gemini-3.5-flash`      | `@ai-sdk/google`            |
+| Gemini 3.5 Flash Lite           | gemini-3.5-flash-lite           | `https://code.sixfinger.live/zen/v1/models/gemini-3.5-flash-lite` | `@ai-sdk/google`            |
+| Gemini 3.1 Pro                  | gemini-3.1-pro                  | `https://code.sixfinger.live/zen/v1/models/gemini-3.1-pro`        | `@ai-sdk/google`            |
+| Gemini 3 Flash                  | gemini-3-flash                  | `https://code.sixfinger.live/zen/v1/models/gemini-3-flash`        | `@ai-sdk/google`            |
+| Grok 4.6                        | grok-4.6                        | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| Grok 4.5                        | grok-4.5                        | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| Grok Build 0.1                  | grok-build-0.1                  | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| Muse Spark 1.3                  | muse-spark-1.3                  | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| Muse Spark 1.2                  | muse-spark-1.2                  | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
+| Qwen3.7 Max                     | qwen3.7-max                     | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Qwen3.7 Plus                    | qwen3.7-plus                    | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Qwen3.6 Plus                    | qwen3.6-plus                    | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| Qwen3.5 Plus                    | qwen3.5-plus                    | `https://code.sixfinger.live/zen/v1/messages`                     | `@ai-sdk/anthropic`         |
+| DeepSeek V4 Pro                 | deepseek-v4-pro                 | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash               | deepseek-v4-flash               | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash Vision Exp    | deepseek-v4-flash-vision-exp    | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| MiniMax M3                      | minimax-m3                      | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| MiniMax M2.7                    | minimax-m2.7                    | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| MiniMax M2.5                    | minimax-m2.5                    | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| GLM 5.3 Flash                   | glm-5.3-flash                   | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| GLM 5.3                         | glm-5.3                         | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| GLM 5.2                         | glm-5.2                         | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| GLM 5.1                         | glm-5.1                         | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| GLM 5                           | glm-5                           | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Kimi K2.5                       | kimi-k2.5                       | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Kimi K2.6                       | kimi-k2.6                       | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Kimi K2.7 Code                  | kimi-k2.7-code                  | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Kimi K3                         | kimi-k3                         | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Big Pickle                      | big-pickle                      | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| MiMo-V2.5 Free                  | mimo-v2.5-free                  | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Ling 3.0 Flash Fin Free         | ling-3.0-flash-fin-free         | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Nemotron 3 Ultra Free           | nemotron-3-ultra-free           | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Nemotron 3.5 Lightning Free     | nemotron-3.5-lightning-free     | `https://code.sixfinger.live/zen/v1/chat/completions`             | `@ai-sdk/openai-compatible` |
+| Muse Spark 1.3 Contributor Free | muse-spark-1.3-contributor-free | `https://code.sixfinger.live/zen/v1/responses`                    | `@ai-sdk/openai`            |
 
-[ID modelu](/docs/config/#models) w Twojej konfiguracji OpenCode używa formatu
-`opencode/<model-id>`. Na przykład dla GPT 5.5 użyjesz w konfiguracji
-`opencode/gpt-5.5`.
+[ID modelu](/docs/config/#models) w Twojej konfiguracji SixFinger używa formatu
+`sixfinger/<model-id>`. Na przykład dla GPT 5.5 użyjesz w konfiguracji
+`sixfinger/gpt-5.5`.
 
 ---
 
@@ -141,7 +141,7 @@ Możesz też uzyskać dostęp do naszych modeli przez poniższe endpointy API.
 Pełną listę dostępnych modeli i ich metadane możesz pobrać z:
 
 ```
-https://opencode.ai/zen/v1/models
+https://code.sixfinger.live/zen/v1/models
 ```
 
 ---
@@ -236,7 +236,7 @@ Obsługujemy model pay-as-you-go. Poniżej znajdują się ceny **za 1M tokenów*
 
 **DeepSeek V4 Flash Vision Exp:** Obrazy są przeliczane na tokeny na podstawie ich wymiarów i rozliczane jako tokeny wejściowe razem z tokenami tekstowymi. [Dowiedz się więcej](https://api-docs.deepseek.com/quick_start/pricing/).
 
-W historii użycia możesz zauważyć [niedrogie modele](/docs/config/#models), takie jak Haiku, Nano lub Flash. OpenCode używa tych modeli do generowania tytułów sesji.
+W historii użycia możesz zauważyć [niedrogie modele](/docs/config/#models), takie jak Haiku, Nano lub Flash. SixFinger używa tych modeli do generowania tytułów sesji.
 
 :::note
 Opłaty za karty kredytowe są przenoszone po kosztach (4.4% + $0.30 per transaction); nie naliczamy nic ponad to.
@@ -244,12 +244,12 @@ Opłaty za karty kredytowe są przenoszone po kosztach (4.4% + $0.30 per transac
 
 Darmowe modele:
 
-- MiMo-V2.5 Free jest dostępny w OpenCode przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
-- Ling 3.0 Flash Fin Free jest dostępny w OpenCode przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
-- Nemotron 3 Ultra Free jest dostępny w OpenCode przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
-- Nemotron 3.5 Lightning Free jest dostępny w OpenCode przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
-- Big Pickle to stealth model, który jest darmowy w OpenCode przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
-- Muse Spark 1.3 Contributor Free jest dostępny w OpenCode przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
+- MiMo-V2.5 Free jest dostępny w SixFinger przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
+- Ling 3.0 Flash Fin Free jest dostępny w SixFinger przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
+- Nemotron 3 Ultra Free jest dostępny w SixFinger przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
+- Nemotron 3.5 Lightning Free jest dostępny w SixFinger przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
+- Big Pickle to stealth model, który jest darmowy w SixFinger przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
+- Muse Spark 1.3 Contributor Free jest dostępny w SixFinger przez ograniczony czas. Zespół wykorzystuje ten czas do zbierania opinii i ulepszania modelu.
 
 <a href={email}>Skontaktuj się z nami</a>, jeśli masz pytania.
 
@@ -360,9 +360,9 @@ chcesz używać go zamiast tego, który udostępnia Zen.
 
 ## Cele
 
-Stworzyliśmy OpenCode Zen, aby:
+Stworzyliśmy SixFinger Zen, aby:
 
 1. **Benchmarkować** najlepsze modele/dostawców dla agentów kodujących.
 2. Mieć dostęp do opcji o **najwyższej jakości** i nie obniżać wydajności ani nie kierować ruchu do tańszych dostawców.
 3. Przekazywać wszelkie **obniżki cen**, sprzedając po kosztach; jedyna marża pokrywa nasze opłaty za przetwarzanie.
-4. Nie tworzyć **lock-in**, pozwalając używać tego z dowolnym innym agentem kodującym. I zawsze pozwalać Ci używać w OpenCode także dowolnego innego dostawcy.
+4. Nie tworzyć **lock-in**, pozwalając używać tego z dowolnym innym agentem kodującym. I zawsze pozwalać Ci używać w SixFinger także dowolnego innego dostawcy.

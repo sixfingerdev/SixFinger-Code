@@ -1,6 +1,6 @@
 # SixFinger Code
 
-A fork of [opencode](https://github.com/anomalyco/opencode) with a set of custom features and a
+A fork of [sixfinger](https://github.com/sixfingerdev/sixfinger-code) with a set of custom features and a
 developer-focused workflow.
 
 This repository keeps the full upstream history, so upstream changes can be pulled in with
@@ -48,25 +48,25 @@ This repository keeps the full upstream history, so upstream changes can be pull
 
 ## Building
 
-The build embeds the reported version into the binary. Set `OPENCODE_VERSION` so the binary reports
+The build embeds the reported version into the binary. Set `SIXFINGER_VERSION` so the binary reports
 a real release version:
 
 ```bash
-cd packages/opencode
-OPENCODE_VERSION="1.18.31" bun run build --single --skip-install
+cd packages/sixfinger
+SIXFINGER_VERSION="1.18.31" bun run build --single --skip-install
 ```
 
-Output: `dist/opencode-windows-x64/bin/opencode.exe` (or the matching target directory).
+Output: `dist/sixfinger-windows-x64/bin/sixfinger.exe` (or the matching target directory).
 
-> **Why the version matters:** the opencode Zen free tier rejects clients older than `1.17.0` with
-> `HTTP 426 UpgradeRequired` ("OpenCode 1.17.0 or newer is required to use the free tier"), and
+> **Why the version matters:** the sixfinger Zen free tier rejects clients older than `1.17.0` with
+> `HTTP 426 UpgradeRequired` ("SixFinger 1.17.0 or newer is required to use the free tier"), and
 > rejects non-streaming requests with `HTTP 403 FreeTierError`. A build that reports
 > `0.0.0-dev-<date>` cannot use the free tier.
 
 ## Verifying a build
 
 ```bash
-cd packages/opencode && bun typecheck
+cd packages/sixfinger && bun typecheck
 cd packages/tui && bun typecheck
 ```
 
@@ -76,12 +76,12 @@ A running executable cannot be overwritten on Windows, but it can be renamed. To
 install:
 
 ```powershell
-Rename-Item C:\Users\<you>\.opencode\bin\opencode.exe opencode.exe.stale
-Copy-Item dist\opencode-windows-x64\bin\opencode.exe C:\Users\<you>\.opencode\bin\opencode.exe
+Rename-Item C:\Users\<you>\.sixfinger\bin\sixfinger.exe sixfinger.exe.stale
+Copy-Item dist\sixfinger-windows-x64\bin\sixfinger.exe C:\Users\<you>\.sixfinger\bin\sixfinger.exe
 ```
 
 The old file can be deleted once the previous processes have exited.
 
 ## License
 
-Upstream opencode is MIT licensed. See [`LICENSE`](./LICENSE).
+Upstream sixfinger is MIT licensed. See [`LICENSE`](./LICENSE).

@@ -1,6 +1,6 @@
-# OpenCode Desktop
+# SixFinger Desktop
 
-The OpenCode Desktop app, built with Electron.
+The SixFinger Desktop app, built with Electron.
 
 ## Development
 

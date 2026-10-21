@@ -10,12 +10,12 @@ import {
 } from "@opentui/core"
 import type { CommandContext } from "@opentui/keymap"
 import { createEffect, createMemo, onMount, createSignal, onCleanup, on, Show, Switch, Match } from "solid-js"
-import { registerOpencodeSpinner } from "../register-spinner"
+import { registerSixfingerSpinner } from "../register-spinner"
 import path from "path"
 import { fileURLToPath } from "url"
 import { useLocal } from "../../context/local"
-import { Flag } from "@opencode-ai/core/flag/flag"
-import { CompactionWindow } from "@opencode-ai/core/session/window"
+import { Flag } from "@sixfinger/core/flag/flag"
+import { CompactionWindow } from "@sixfinger/core/session/window"
 import { tint, useTheme } from "../../context/theme"
 import { EmptyBorder, SplitBorder } from "../../ui/border"
 import { useTuiPaths, useTuiTerminalEnvironment } from "../../context/runtime"
@@ -38,13 +38,12 @@ import { usePromptStash } from "../../prompt/stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
 import { useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
-import type { AssistantMessage, FilePart, UserMessage } from "@opencode-ai/sdk/v2"
+import type { AssistantMessage, FilePart, UserMessage } from "@sixfinger/sdk/v2"
 import { Locale } from "../../util/locale"
 import { errorMessage } from "../../util/error"
 import { formatDuration } from "../../util/format"
 import { createColors, createFrames } from "../../ui/spinner"
 import { useDialog } from "../../ui/dialog"
-import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
@@ -52,14 +51,14 @@ import { createFadeIn } from "../../util/signal"
 import { DialogSkill } from "../dialog-skill"
 import { DialogWorkspaceUnavailable } from "../dialog-workspace-unavailable"
 import { useArgs } from "../../context/args"
-import { OPENCODE_BASE_MODE, useBindings, useCommandShortcut, useLeaderActive, useOpencodeKeymap } from "../../keymap"
+import { SIXFINGER_BASE_MODE, useBindings, useCommandShortcut, useLeaderActive, useSixfingerKeymap } from "../../keymap"
 import { useTuiConfig } from "../../config"
 import { usePromptWorkspace } from "./workspace"
 import { usePromptMove } from "./move"
 import { readLocalAttachment } from "./local-attachment"
 import { useLocation } from "../../context/location"
 
-registerOpencodeSpinner()
+registerSixfingerSpinner()
 
 export type PromptProps = {
   sessionID?: string
@@ -165,7 +164,7 @@ export function Prompt(props: PromptProps) {
   const status = createMemo(() => sync.data.session_status?.[props.sessionID ?? ""] ?? { type: "idle" })
   const history = usePromptHistory()
   const stash = usePromptStash()
-  const keymap = useOpencodeKeymap()
+  const keymap = useSixfingerKeymap()
   const agentShortcut = useCommandShortcut("agent.cycle")
   const paletteShortcut = useCommandShortcut("command.palette.show")
   const renderer = useRenderer()
@@ -218,12 +217,9 @@ export function Prompt(props: PromptProps) {
   function promptModelWarning() {
     toast.show({
       variant: "warning",
-      message: "Connect a provider to send prompts",
+      message: "Sign in to send prompts: run sixfinger login",
       duration: 3000,
     })
-    if (sync.data.provider.length === 0) {
-      dialog.replace(() => <DialogProviderConnect />)
-    }
   }
 
   function dismissEditorContext() {
@@ -563,7 +559,7 @@ export function Prompt(props: PromptProps) {
         desc: "Change the workspace for the session",
         name: "workspace.set",
         category: "Session",
-        enabled: Flag.OPENCODE_EXPERIMENTAL_WORKSPACES,
+        enabled: Flag.SIXFINGER_EXPERIMENTAL_WORKSPACES,
         slashName: "warp",
         run: () => {
           workspace.open()
@@ -590,7 +586,7 @@ export function Prompt(props: PromptProps) {
   }))
 
   useBindings(() => ({
-    mode: OPENCODE_BASE_MODE,
+    mode: SIXFINGER_BASE_MODE,
     bindings: tuiConfig.keybinds.gather("prompt.palette", [
       "prompt.submit",
       "prompt.editor",

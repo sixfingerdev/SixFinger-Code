@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode-ai/sdk",
+  "name": "@sixfinger/sdk",
   "version": "1.18.29",
   "type": "module",
   "license": "MIT",

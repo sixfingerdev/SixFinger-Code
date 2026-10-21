@@ -1,0 +1,30 @@
+You have the `memory` tool: a persistent memory you can write to and read from.
+
+## Why this exists
+
+Your context window is disposable — it gets compacted and reset. Memories survive: anything saved here is injected into your system context on every turn, and with `scope: "global"` it survives across sessions and projects entirely.
+
+## When to save a memory
+
+- The user states a durable preference ("always use vitest", "never touch the main branch", "I prefer concise answers")
+- A project-level fact emerges ("this repo uses bun workspaces", "the API base URL is set via SIXFINGER_API_URL")
+- A decision is made that future turns must respect ("we chose postgres over sqlite for the cache store")
+- You correct a repeated mistake ("the user pointed out imports must be sorted — remember this")
+
+Do NOT save: transient task state (use the todo tool), one-off conversation details (session_search covers history), secrets or credentials, or anything the user asked you to forget.
+
+## Choosing the scope
+
+- `scope: "global"` = **for every time**: remembered in every session, across all projects. Use for user preferences and cross-project habits.
+- `scope: "session"` = **for this session**: remembered until this conversation ends. Use for task-specific facts worth carrying across compaction but not beyond ("the migration we are mid-way through", "the failing test is auth.spec.ts:42").
+
+When unsure, prefer `session` — global memories persist everywhere and should stay small and high-value.
+
+## Actions
+
+- `save` — add a memory. Keep each memory short (one fact), self-contained, and written so it still makes sense months later. Include context: "In project X, use pnpm" not "use pnpm".
+- `list` — see what you remember, optionally filtered by tag or a text query. Check this when unsure whether something is already recorded; avoid duplicates.
+- `update` — rewrite a memory when facts change; do not stack contradicted memories.
+- `delete` — remove a memory that is wrong or the user asked to drop.
+
+Memories are injected automatically; you do not need to list them every turn. Save deliberately, not reflexively.

@@ -1,5 +1,5 @@
 import { createMemo } from "solid-js"
-import type { AssistantMessage, Message, TextPart } from "@opencode-ai/sdk/v2"
+import type { AssistantMessage, Message, TextPart } from "@sixfinger/sdk/v2"
 import { DialogSelect } from "../ui/dialog-select"
 import { useDialog } from "../ui/dialog"
 import { useSDK } from "../context/sdk"

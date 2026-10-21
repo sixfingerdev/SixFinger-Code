@@ -1,18 +1,18 @@
 export * from "./client.js"
 export * from "./server.js"
 
-import { createOpencodeClient } from "./client.js"
-import { createOpencodeServer } from "./server.js"
+import { createSixfingerClient } from "./client.js"
+import { createSixfingerServer } from "./server.js"
 import type { ServerOptions } from "./server.js"
 
 export * as data from "./data.js"
 
-export async function createOpencode(options?: ServerOptions) {
-  const server = await createOpencodeServer({
+export async function createSixfinger(options?: ServerOptions) {
+  const server = await createSixfingerServer({
     ...options,
   })
 
-  const client = createOpencodeClient({
+  const client = createSixfingerClient({
     baseUrl: server.url,
   })
 

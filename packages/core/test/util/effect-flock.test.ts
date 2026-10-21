@@ -5,11 +5,11 @@ import path from "path"
 import os from "os"
 import { Cause, Effect, Exit } from "effect"
 import { testEffect } from "../lib/effect"
-import { AppNodeBuilder } from "@opencode-ai/core/effect/app-node-builder"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
-import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
-import { Global } from "@opencode-ai/core/global"
-import { Hash } from "@opencode-ai/core/util/hash"
+import { AppNodeBuilder } from "@sixfinger/core/effect/app-node-builder"
+import { LayerNode } from "@sixfinger/core/effect/layer-node"
+import { EffectFlock } from "@sixfinger/core/util/effect-flock"
+import { Global } from "@sixfinger/core/global"
+import { Hash } from "@sixfinger/core/util/hash"
 
 function lock(dir: string, key: string) {
   return path.join(dir, Hash.fast(key) + ".lock")

@@ -1,8 +1,8 @@
-import { run } from "@opencode-ai/tui"
-import { TuiConfig } from "@opencode-ai/tui/config"
+import { run } from "@sixfinger/tui"
+import { TuiConfig } from "@sixfinger/tui/config"
 import { Effect } from "effect"
-import { AppNodeBuilder } from "@opencode-ai/core/effect/app-node-builder"
-import { Global } from "@opencode-ai/core/global"
+import { AppNodeBuilder } from "@sixfinger/core/effect/app-node-builder"
+import { Global } from "@sixfinger/core/global"
 
 export function runTui(transport: { url: string; headers: RequestInit["headers"] }) {
   const config = TuiConfig.resolve({}, { terminalSuspend: false })

@@ -1,0 +1,9 @@
+# code.sixfinger.live: statik site (landing + /install betiği). Pi'de:  caddy run --config site/Caddyfile
+code.sixfinger.live {
+	root * /srv/sixfinger-code-site
+	encode zstd gzip
+	@install path /install
+	header @install Content-Type "text/x-shellscript; charset=utf-8"
+	header @install Cache-Control "no-cache"
+	file_server
+}

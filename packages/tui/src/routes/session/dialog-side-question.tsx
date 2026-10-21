@@ -1,5 +1,5 @@
 import { createMemo, createSignal, onMount, Show } from "solid-js"
-import type { TuiPluginApi } from "@opencode-ai/plugin/tui"
+import type { TuiPluginApi } from "@sixfinger/plugin/tui"
 import { useSDK } from "../../context/sdk"
 import { useTheme } from "../../context/theme"
 import { useClipboard } from "../../context/clipboard"

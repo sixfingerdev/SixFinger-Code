@@ -3,7 +3,7 @@ import type {
   WslInstalledDistro,
   WslJob,
   WslOnlineDistro,
-  WslOpencodeCheck,
+  WslSixfingerCheck,
   WslRuntimeCheck,
   WslServerConfig,
   WslServerItem,
@@ -13,12 +13,12 @@ import type {
 } from "../../preload/types"
 import { WSL_SERVERS_KEY } from "../store-keys"
 import { getStore } from "../store"
-import { expectOpencodeVersion, pendingRestartAfterWslInstall, wslServerIdsToStartOnInitialize } from "./startup"
+import { expectSixfingerVersion, pendingRestartAfterWslInstall, wslServerIdsToStartOnInitialize } from "./startup"
 import { clearWslDistroState, wslServerIdToRestart } from "./policy"
 import { nativeT } from "../native-translations"
 import {
   installWslDistro,
-  installWslOpencode,
+  installWslSixfinger,
   installWslRuntimeElevated,
   listInstalledWslDistros,
   listOnlineWslDistros,
@@ -26,7 +26,7 @@ import {
   probeWslDistro,
   probeWslRuntime,
   readWslCommandVersion,
-  resolveWslOpencode,
+  resolveWslSixfinger,
   summarize,
 } from "./runtime"
 
@@ -49,7 +49,7 @@ type WslServersControllerOptions = {
   readServers?: () => WslServerConfig[]
   writeServers?: (servers: WslServerConfig[]) => void
   probeDistro?: typeof probeWslDistro
-  resolveOpencode?: typeof resolveWslOpencode
+  resolveSixfinger?: typeof resolveWslSixfinger
   readCommandVersion?: typeof readWslCommandVersion
 }
 
@@ -122,25 +122,25 @@ export function createWslServersController(
     updateServer(id, (item) => ({ ...item, runtime }))
   }
 
-  const setOpencodeCheck = (distro: string, check: WslOpencodeCheck) => {
+  const setSixfingerCheck = (distro: string, check: WslSixfingerCheck) => {
     setState({
-      opencodeChecks: {
-        ...state.opencodeChecks,
+      sixfingerChecks: {
+        ...state.sixfingerChecks,
         [distro]: check,
       },
     })
   }
 
-  const checkOpencode = async (distro: string, opts?: { signal?: AbortSignal }) => {
-    const resolved = await (options?.resolveOpencode ?? resolveWslOpencode)(distro, opts)
+  const checkSixfinger = async (distro: string, opts?: { signal?: AbortSignal }) => {
+    const resolved = await (options?.resolveSixfinger ?? resolveWslSixfinger)(distro, opts)
     const version = resolved
       ? await (options?.readCommandVersion ?? readWslCommandVersion)(resolved, distro, opts)
       : null
-    return opencodeCheck(distro, resolved, version, appVersion)
+    return sixfingerCheck(distro, resolved, version, appVersion)
   }
 
-  const refreshOpencodeCheck = async (distro: string, opts?: { signal?: AbortSignal }) => {
-    setOpencodeCheck(distro, await checkOpencode(distro, opts))
+  const refreshSixfingerCheck = async (distro: string, opts?: { signal?: AbortSignal }) => {
+    setSixfingerCheck(distro, await checkSixfinger(distro, opts))
   }
 
   const probeAddableDistros = async (distros: string[], opts?: { signal?: AbortSignal }) => {
@@ -154,14 +154,14 @@ export function createWslServersController(
       setState({ distroProbes: { ...state.distroProbes, ...Object.fromEntries(distroProbes) } })
     }
 
-    const opencodeChecks = await Promise.all(
+    const sixfingerChecks = await Promise.all(
       unique
         .filter((distro) => distroProbeReady(state.distroProbes[distro]))
-        .filter((distro) => !state.opencodeChecks[distro])
-        .map(async (distro) => [distro, await checkOpencode(distro, opts)] as const),
+        .filter((distro) => !state.sixfingerChecks[distro])
+        .map(async (distro) => [distro, await checkSixfinger(distro, opts)] as const),
     )
-    if (opencodeChecks.length) {
-      setState({ opencodeChecks: { ...state.opencodeChecks, ...Object.fromEntries(opencodeChecks) } })
+    if (sixfingerChecks.length) {
+      setState({ sixfingerChecks: { ...state.sixfingerChecks, ...Object.fromEntries(sixfingerChecks) } })
     }
   }
 
@@ -169,29 +169,29 @@ export function createWslServersController(
     return state.servers.some((item) => item.config.id === id && item.config.distro === distro)
   }
 
-  const refreshOpencodeCheckBackground = (id: string, distro: string) => {
-    void checkOpencode(distro)
+  const refreshSixfingerCheckBackground = (id: string, distro: string) => {
+    void checkSixfinger(distro)
       .then((check) => {
         if (!hasServer(id, distro)) return
-        setOpencodeCheck(distro, check)
+        setSixfingerCheck(distro, check)
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error)
-        logger?.error("wsl opencode check failed", { id, distro, message })
+        logger?.error("wsl sixfinger check failed", { id, distro, message })
       })
   }
 
-  const refreshOpencodeChecks = async () => {
+  const refreshSixfingerChecks = async () => {
     await Promise.all(
       state.servers.map((item) =>
-        checkOpencode(item.config.distro)
+        checkSixfinger(item.config.distro)
           .then((check) => {
             if (!hasServer(item.config.id, item.config.distro)) return
-            setOpencodeCheck(item.config.distro, check)
+            setSixfingerCheck(item.config.distro, check)
           })
           .catch((error) => {
             const message = error instanceof Error ? error.message : String(error)
-            logger?.error("wsl opencode check failed", {
+            logger?.error("wsl sixfinger check failed", {
               id: item.config.id,
               distro: item.config.distro,
               message,
@@ -252,7 +252,7 @@ export function createWslServersController(
         setRuntime(id, { kind: "failed", message })
         logger?.error("wsl sidecar exited", { id, distro: item.config.distro, code, signal })
       })
-      refreshOpencodeCheckBackground(id, item.config.distro)
+      refreshSixfingerCheckBackground(id, item.config.distro)
       logger?.log("wsl sidecar ready", { id, distro: item.config.distro, url: sidecar.url })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
@@ -304,7 +304,7 @@ export function createWslServersController(
 
     async initialize() {
       refreshFromStore()
-      void refreshOpencodeChecks()
+      void refreshSixfingerChecks()
       for (const id of wslServerIdsToStartOnInitialize(state.servers.map((item) => item.config))) void startServer(id)
     },
 
@@ -360,14 +360,14 @@ export function createWslServersController(
       })
     },
 
-    async installOpencode(name: string) {
-      await runJob({ kind: "install-opencode", distro: name, startedAt: Date.now() }, async (abort) => {
-        const result = await installWslOpencode(appVersion, name, { signal: abort.signal })
+    async installSixfinger(name: string) {
+      await runJob({ kind: "install-sixfinger", distro: name, startedAt: Date.now() }, async (abort) => {
+        const result = await installWslSixfinger(appVersion, name, { signal: abort.signal })
         if (result.code !== 0) {
-          throw new Error(summarize(result.stderr || result.stdout) || nativeT("desktop.wsl.error.installOpencode"))
+          throw new Error(summarize(result.stderr || result.stdout) || nativeT("desktop.wsl.error.installSixfinger"))
         }
-        await refreshOpencodeCheck(name, { signal: abort.signal })
-        expectOpencodeVersion(state.opencodeChecks[name]?.version ?? null, appVersion, name)
+        await refreshSixfingerCheck(name, { signal: abort.signal })
+        expectSixfingerVersion(state.sixfingerChecks[name]?.version ?? null, appVersion, name)
         const id = wslServerIdToRestart(state.servers, name)
         if (id) await startServer(id)
       })
@@ -402,7 +402,7 @@ export function createWslServersController(
       persistServers(remaining)
       setState({
         servers: state.servers.filter((item) => item.config.id !== id),
-        ...(distro ? clearWslDistroState(state.distroProbes, state.opencodeChecks, distro) : {}),
+        ...(distro ? clearWslDistroState(state.distroProbes, state.sixfingerChecks, distro) : {}),
       })
     },
 
@@ -428,7 +428,7 @@ function initialState(): WslServersState {
     installed: [],
     online: [],
     distroProbes: {},
-    opencodeChecks: {},
+    sixfingerChecks: {},
     pendingRestart: false,
     servers: [],
     job: null,
@@ -464,12 +464,12 @@ function normalizePersistedServer(value: unknown): WslServerConfig[] {
   ]
 }
 
-function opencodeCheck(
+function sixfingerCheck(
   distro: string,
   resolvedPath: string | null,
   version: string | null,
   expectedVersion: string,
-): WslOpencodeCheck {
+): WslSixfingerCheck {
   if (!resolvedPath) {
     return {
       distro,
@@ -477,7 +477,7 @@ function opencodeCheck(
       version: null,
       expectedVersion,
       matchesDesktop: null,
-      error: nativeT("desktop.wsl.error.opencodeMissing"),
+      error: nativeT("desktop.wsl.error.sixfingerMissing"),
     }
   }
   if (!version) {
@@ -487,7 +487,7 @@ function opencodeCheck(
       version: null,
       expectedVersion,
       matchesDesktop: null,
-      error: nativeT("desktop.wsl.error.opencodeCannotRun"),
+      error: nativeT("desktop.wsl.error.sixfingerCannotRun"),
     }
   }
   return {
@@ -514,7 +514,7 @@ export type {
   WslOnlineDistro,
   WslRuntimeCheck,
   WslDistroProbe,
-  WslOpencodeCheck,
+  WslSixfingerCheck,
   WslServerConfig,
   WslServerItem,
   WslServerRuntime,

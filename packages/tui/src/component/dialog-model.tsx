@@ -3,7 +3,6 @@ import { useLocal } from "../context/local"
 import { map, pipe, flatMap, entries, filter, sortBy, take } from "remeda"
 import { DialogSelect } from "../ui/dialog-select"
 import { useDialog } from "../ui/dialog"
-import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogVariant } from "./dialog-variant"
 import * as fuzzysort from "fuzzysort"
 import { useConnected } from "./use-connected"
@@ -16,7 +15,6 @@ export function DialogModel(props: { providerID?: string }) {
   const [query, setQuery] = createSignal("")
 
   const connected = useConnected()
-  const providers = createDialogProviderOptions()
 
   const showExtra = createMemo(() => connected() && !props.providerID)
 
@@ -40,8 +38,8 @@ export function DialogModel(props: { providerID?: string }) {
             title: model.name ?? item.modelID,
             description: provider.name,
             category,
-            disabled: provider.id === "opencode" && model.id.includes("-nano"),
-            footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+            disabled: provider.id === "sixfinger" && model.id.includes("-nano"),
+            footer: model.cost?.input === 0 && provider.id === "sixfinger" ? "Free" : undefined,
             onSelect: () => {
               onSelect(provider.id, model.id)
             },
@@ -61,7 +59,7 @@ export function DialogModel(props: { providerID?: string }) {
     const providerOptions = pipe(
       sync.data.provider,
       sortBy(
-        (provider) => provider.id !== "opencode",
+        (provider) => provider.id !== "sixfinger",
         (provider) => provider.name,
       ),
       flatMap((provider) =>
@@ -78,8 +76,8 @@ export function DialogModel(props: { providerID?: string }) {
               ? "(Favorite)"
               : undefined,
             category: connected() ? provider.name : undefined,
-            disabled: provider.id === "opencode" && model.includes("-nano"),
-            footer: info.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+            disabled: provider.id === "sixfinger" && model.includes("-nano"),
+            footer: info.cost?.input === 0 && provider.id === "sixfinger" ? "Free" : undefined,
             onSelect() {
               onSelect(provider.id, model)
             },
@@ -105,28 +103,16 @@ export function DialogModel(props: { providerID?: string }) {
       ),
     )
 
-    const popularProviders = !connected()
-      ? pipe(
-          providers(),
-          map((option) => ({
-            ...option,
-            category: "Popular providers",
-          })),
-          take(6),
-        )
-      : []
-
     if (needle) {
       return [
         ...sortModelOptions(
           fuzzysort.go(needle, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),
           false,
         ),
-        ...fuzzysort.go(needle, popularProviders, { keys: ["title"] }).map((x) => x.obj),
       ]
     }
 
-    return [...favoriteOptions, ...recentOptions, ...providerOptions, ...popularProviders]
+    return [...favoriteOptions, ...recentOptions, ...providerOptions]
   })
 
   const provider = createMemo(() =>
@@ -158,13 +144,6 @@ export function DialogModel(props: { providerID?: string }) {
     <DialogSelect<ReturnType<typeof options>[number]["value"]>
       options={options()}
       actions={[
-        {
-          command: "model.dialog.provider",
-          title: connected() ? "Connect provider" : "View all providers",
-          onTrigger() {
-            dialog.replace(() => <DialogProvider />)
-          },
-        },
         {
           command: "model.dialog.favorite",
           title: "Favorite",

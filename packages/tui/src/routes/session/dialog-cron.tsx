@@ -8,7 +8,7 @@ import { useTheme } from "../../context/theme"
 import { useToast } from "../../ui/toast"
 import { errorMessage } from "../../util/error"
 import { Locale } from "../../util/locale"
-import type { ExperimentalCronEntry } from "@opencode-ai/sdk/v2"
+import type { ExperimentalCronEntry } from "@sixfinger/sdk/v2"
 
 export function DialogCron() {
   const sdk = useSDK()

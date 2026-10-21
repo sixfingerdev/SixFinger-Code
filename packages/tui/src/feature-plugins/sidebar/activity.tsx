@@ -1,4 +1,4 @@
-import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
+import type { TuiPlugin, TuiPluginApi } from "@sixfinger/plugin/tui"
 import type { BuiltinTuiPlugin } from "../builtins"
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js"
 import { formatClock, scanActivityJobs } from "../../routes/session/activity-jobs"

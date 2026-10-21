@@ -1,0 +1,51 @@
+#!/bin/sh
+# SixFinger Code kurulum betiği:  curl -fsSL https://code.sixfinger.live/install | sh
+# Ortam değişkenleri: SIXFINGER_INSTALL_DIR (varsayılan ~/.sixfinger/bin), SIXFINGER_VERSION (varsayılan: son sürüm)
+set -eu
+
+REPO="sixfingerdev/SixFinger-Code"
+DIR="${SIXFINGER_INSTALL_DIR:-$HOME/.sixfinger/bin}"
+VERSION="${SIXFINGER_VERSION:-latest}"
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'Hata / Error: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || die "'$1' gerekli / required"; }
+
+need uname; need tar; need mkdir; need chmod
+if command -v curl >/dev/null 2>&1; then get() { curl -fSL --progress-bar -o "$2" "$1"; }
+elif command -v wget >/dev/null 2>&1; then get() { wget -q -O "$2" "$1"; }
+else die "curl ya da wget gerekli / curl or wget required"; fi
+
+case "$(uname -s)" in
+  Linux) os=linux ;;
+  Darwin) os=darwin ;;
+  *) die "Desteklenmeyen sistem / unsupported OS: $(uname -s). Windows: WSL kullan / use WSL." ;;
+esac
+case "$(uname -m)" in
+  x86_64|amd64) arch=x64 ;;
+  arm64|aarch64) arch=arm64 ;;
+  *) die "Desteklenmeyen işlemci / unsupported CPU: $(uname -m)" ;;
+esac
+
+file="sixfinger-$os-$arch.tar.gz"
+if [ "$VERSION" = "latest" ]; then url="https://github.com/$REPO/releases/latest/download/$file"
+else url="https://github.com/$REPO/releases/download/$VERSION/$file"; fi
+
+tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+say "SixFinger Code indiriliyor / downloading ($os-$arch)…"
+get "$url" "$tmp/$file" || die "İndirilemedi / download failed: $url"
+tar -xzf "$tmp/$file" -C "$tmp" || die "Arşiv açılamadı / could not extract"
+bin="$(find "$tmp" -type f -name sixfinger | head -n 1)"
+[ -n "$bin" ] || die "Arşivde 'sixfinger' bulunamadı / binary not found in archive"
+
+mkdir -p "$DIR"
+cp "$bin" "$DIR/sixfinger"; chmod +x "$DIR/sixfinger"
+ln -sf "$DIR/sixfinger" "$DIR/sf" 2>/dev/null || true
+say "Kuruldu / installed: $DIR/sixfinger"
+
+case ":$PATH:" in
+  *":$DIR:"*) ;;
+  *) say ""; say "PATH'e ekle / add to PATH:  export PATH=\"$DIR:\$PATH\"" ;;
+esac
+say ""
+say "Başlamak için / to start:  sixfinger   (ilk açılışta tarayıcıda giriş yapılır / sign-in opens in your browser)"

@@ -1,6 +1,6 @@
 import { Show, createEffect, createMemo, createSignal } from "solid-js"
 import { useTerminalDimensions } from "@opentui/solid"
-import type { ToolPart } from "@opencode-ai/sdk/v2"
+import type { ToolPart } from "@sixfinger/sdk/v2"
 import stripAnsi from "strip-ansi"
 import { useTheme } from "../../context/theme"
 import { useSync } from "../../context/sync"

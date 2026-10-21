@@ -1,11 +1,11 @@
 import { describe, expect } from "bun:test"
 import { Effect } from "effect"
-import { Catalog } from "@opencode-ai/core/catalog"
-import { PluginV2 } from "@opencode-ai/core/plugin"
-import { PluginHost } from "@opencode-ai/core/plugin/host"
-import { ProviderPlugins } from "@opencode-ai/core/plugin/provider"
-import { KiloPlugin } from "@opencode-ai/core/plugin/provider/kilo"
-import { ProviderV2 } from "@opencode-ai/core/provider"
+import { Catalog } from "@sixfinger/core/catalog"
+import { PluginV2 } from "@sixfinger/core/plugin"
+import { PluginHost } from "@sixfinger/core/plugin/host"
+import { ProviderPlugins } from "@sixfinger/core/plugin/provider"
+import { KiloPlugin } from "@sixfinger/core/plugin/provider/kilo"
+import { ProviderV2 } from "@sixfinger/core/provider"
 import { testEffect } from "../lib/effect"
 import { PluginTestLayer } from "./fixture"
 
@@ -39,8 +39,8 @@ describe("KiloPlugin", () => {
       yield* addPlugin()
       expect((yield* catalog.provider.get(ProviderV2.ID.make("kilo")))?.request.headers).toEqual({
         Existing: "value",
-        "HTTP-Referer": "https://opencode.ai/",
-        "X-Title": "opencode",
+        "HTTP-Referer": "https://code.sixfinger.live/",
+        "X-Title": "sixfinger",
       })
       expect((yield* catalog.provider.get(ProviderV2.ID.openrouter))?.request.headers).toEqual({})
     }),
@@ -61,8 +61,8 @@ describe("KiloPlugin", () => {
       yield* addPlugin()
 
       expect((yield* catalog.provider.get(ProviderV2.ID.make("kilo")))?.request.headers).toEqual({
-        "HTTP-Referer": "https://opencode.ai/",
-        "X-Title": "opencode",
+        "HTTP-Referer": "https://code.sixfinger.live/",
+        "X-Title": "sixfinger",
       })
       expect((yield* catalog.provider.get(ProviderV2.ID.make("kilo")))?.request.headers).not.toHaveProperty(
         "http-referer",
@@ -90,8 +90,8 @@ describe("KiloPlugin", () => {
       yield* addPlugin()
 
       expect((yield* catalog.provider.get(ProviderV2.ID.make("kilo")))?.request.headers).toEqual({
-        "HTTP-Referer": "https://opencode.ai/",
-        "X-Title": "opencode",
+        "HTTP-Referer": "https://code.sixfinger.live/",
+        "X-Title": "sixfinger",
       })
       expect((yield* catalog.provider.get(ProviderV2.ID.make("custom-kilo")))?.request.headers).toEqual({})
     }),

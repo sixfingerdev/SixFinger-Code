@@ -101,7 +101,7 @@ export interface Interface {
   readonly report: (id: string, text: string) => Effect.Effect<boolean>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/BackgroundJob") {}
+export class Service extends Context.Service<Service, Interface>()("@sixfinger/BackgroundJob") {}
 
 const MAX_PROGRESS_BYTES = 64_000
 

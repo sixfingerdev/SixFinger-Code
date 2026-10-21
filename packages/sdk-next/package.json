@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode-ai/sdk-next",
+  "name": "@sixfinger/sdk-next",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@opencode-ai/client": "workspace:*",
-    "@opencode-ai/core": "workspace:*",
-    "@opencode-ai/server": "workspace:*",
+    "@sixfinger/core": "workspace:*",
+    "@sixfinger/server": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://code.sixfinger.live/config.json",
+  "model": "example/demo",
+  "snapshot": false
+}

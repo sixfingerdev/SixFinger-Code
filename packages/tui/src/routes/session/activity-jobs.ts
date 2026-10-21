@@ -1,5 +1,5 @@
 import { createEffect, createSignal, onCleanup } from "solid-js"
-import type { Message, Part, ToolPart } from "@opencode-ai/sdk/v2"
+import type { Message, Part, ToolPart } from "@sixfinger/sdk/v2"
 
 export type ActivityJobKind = "bash" | "monitor" | "wakeup" | "sleep"
 
